@@ -1,0 +1,10 @@
+version: 1.0
+
+Skills:
+  Endurance:
+    Max: 50
+
+Levels:
+  LevelMax: 50
+  SkillPointsPerLevel: 2
+
