@@ -6,10 +6,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.yaml.snakeyaml.Yaml;
 import rpg.rpg_base.StatManager.EnduranceManager;
-import rpg.rpg_base.StatManager.SkillPointHandler;
-import rpg.rpg_base.data.PlayerData;
+import rpg.rpg_base.StatManager.LevelManager;
 import rpg.rpg_base.data.PlayerDataLoad;
 
 import java.io.File;
@@ -18,31 +16,24 @@ import java.io.IOException;
 public class Events implements Listener {
     @EventHandler
     private void onJoin(PlayerJoinEvent event){
-        PlayerData data = PlayerDataLoad.getPlayerData(event.getPlayer());
         File f = new File(PlayerDataLoad.getFolderPath(event.getPlayer()) + "/stats.yml");
 
         if(f.exists()){
             FileConfiguration cfg = YamlConfiguration.loadConfiguration(f);
-            data.setLevel(cfg.getInt("stats.level"));
-            data.setEnduranceLevel(cfg.getInt("stats.endurancelevel"));
-            data.setSP(cfg.getInt("stats.sp"));
-            EnduranceManager.Endurance_Lvl = data.getEnduranceLevel();
-            SkillPointHandler.SkillPoints = data.getSp();
-            SkillPointHandler.level = data.getLevel();
+            EnduranceManager.Endurance_Lvl = cfg.getInt("stats.endurancelevel");
+            LevelManager.setPlayerCurrentSkillPoints(event.getPlayer(), cfg.getInt("stats.sp"));
+            LevelManager.setPlayerLevel(event.getPlayer(), cfg.getInt("stats.level") );
+            LevelManager.setPlayerSpentSkillPoints(event.getPlayer(), cfg.getInt("stats.spentsp"));
         }else{
-            data.setLevel(1);
-            data.setSP(1);
-            data.setEnduranceLevel(0);
-            EnduranceManager.Endurance_Lvl = data.getEnduranceLevel();
-            SkillPointHandler.SkillPoints = data.getSp();
-            SkillPointHandler.level = data.getLevel();
+
+            EnduranceManager.Endurance_Lvl = 0;
+            LevelManager.setPlayerLevel(event.getPlayer(), 1 );
             try {
                 YamlConfiguration.loadConfiguration(f).save(f);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        PlayerDataLoad.setPlayerData(event.getPlayer(), data);
 
     }
 
@@ -50,9 +41,10 @@ public class Events implements Listener {
     private void onLeave(PlayerQuitEvent event) {
         File f = new File(PlayerDataLoad.getFolderPath(event.getPlayer()) + "/stats.yml");
         FileConfiguration cfg = YamlConfiguration.loadConfiguration(f);
-        cfg.set("stats.level", SkillPointHandler.level);
+        cfg.set("stats.level", LevelManager.getPlayerLevel(event.getPlayer()));
         cfg.set("stats.endurancelevel", EnduranceManager.Endurance_Lvl);
-        cfg.set("stats.sp", SkillPointHandler.SkillPoints);
+        cfg.set("stats.sp", LevelManager.getPlayerCurrentSkillPoints(event.getPlayer()));
+        cfg.set("stats.spentsp", LevelManager.getPlayerSpentSkillPoints(event.getPlayer()));
 
         try {
             // Save the changes made to the cfg object
@@ -63,7 +55,6 @@ public class Events implements Listener {
             System.out.println("Failed to save player data for: " + event.getPlayer().getName());
         }
 
-        PlayerDataLoad.setPlayerData(event.getPlayer(), null);
     }
 
 }

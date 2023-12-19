@@ -7,16 +7,17 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scheduler.BukkitScheduler;
 import rpg.rpg_base.GuiHandlers.GUIManager;
 import rpg.rpg_base.GuiHandlers.InventoryButton;
 import rpg.rpg_base.GuiHandlers.InventoryGUI;
 import rpg.rpg_base.RPG_Base;
 import rpg.rpg_base.StatManager.EnduranceManager;
-import rpg.rpg_base.StatManager.SkillPointHandler;
+import rpg.rpg_base.StatManager.LevelManager;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SkillGui extends InventoryGUI {
     private RPG_Base plugin;
@@ -27,7 +28,7 @@ public class SkillGui extends InventoryGUI {
         this.plugin = plugin;
         this.enduranceManager = enduranceManager;
     }
-
+    private static final Map<Player, Long> cooldowns = new HashMap<>();
 
     @Override
     protected Inventory createInventory() {
@@ -37,16 +38,16 @@ public class SkillGui extends InventoryGUI {
     public void decorate(Player player){
         int inventorySize = this.getInventory().getSize();
         for (int i = 0; i < inventorySize; i++){
-            Material material = Material.WHITE_STAINED_GLASS_PANE;
+            Material material = Material.LIGHT_GRAY_STAINED_GLASS_PANE;
             this.addButton(i, this.createBackGround(material));
 
         }
         Material increase = Material.DIAMOND;
-        this.addButton(11, createUpdateButtons(increase, 11));
-        this.addButton(12, createUpdateButtons(increase, 12));
-        this.addButton(13, createUpdateButtons(increase, 13));
-        this.addButton(14, createUpdateButtons(increase, 14));
-        this.addButton(15, createUpdateButtons(increase, 15));
+        this.addButton(11, createUpdateButtons(increase, 11, 10));
+        this.addButton(12, createUpdateButtons(increase, 12, 10));
+        this.addButton(13, createUpdateButtons(increase, 13, 10));
+        this.addButton(14, createUpdateButtons(increase, 14, 10));
+        this.addButton(15, createUpdateButtons(increase, 15, 10));
 
         Material leveldisplay = Material.PLAYER_HEAD;
         this.addButton(20, createStatsLevelDisplay(leveldisplay, 20));
@@ -64,7 +65,7 @@ public class SkillGui extends InventoryGUI {
                 .consumer(event -> {
                 });
     }
-    private InventoryButton createUpdateButtons(Material material, int slot){
+    private InventoryButton createUpdateButtons(Material material, int slot, long cooldownTicks){
         return new InventoryButton()
                 .creator(player ->{
                     ItemStack itemStack = new ItemStack(material);
@@ -78,16 +79,32 @@ public class SkillGui extends InventoryGUI {
                     return itemStack;
                 } )
                 .consumer(event ->{
-                    if(SkillPointHandler.SkillPoints!=0) {
-                        if (EnduranceManager.Endurance_Lvl < EnduranceManager.Endurance_Lvl_Cap) {
-                            if (event.getSlot() == 11) {
+                    event.setCancelled(true);
+
+                    Player player = (Player) event.getWhoClicked();
+                    String playerName = player.getName();
+                    long currentTime = System.currentTimeMillis();
+
+                    if (isOnCooldown(player, cooldownTicks)) {
+                        player.sendMessage(ChatColor.RED + "Slow down, you are going too fast!");
+                        return;
+                    }
+
+                    setCooldown(player, currentTime);
+
+                    if(LevelManager.getPlayerCurrentSkillPoints((Player) event.getWhoClicked())!=0) {
+                        if (event.getSlot() == 11) {
+                            if (EnduranceManager.Endurance_Lvl < EnduranceManager.Endurance_Lvl_Cap) {
                                 EnduranceManager.Endurance_Lvl += 1;
-                                SkillPointHandler.SkillPoints-=1;
+                                LevelManager.setPlayerSpentSkillPoints((Player) event.getWhoClicked(), LevelManager.getPlayerSpentSkillPoints(((Player) event.getWhoClicked())) +1);
+                                LevelManager.UpdateLevel(((Player) event.getWhoClicked()).getPlayer());
                             }
-                        } else {
-                            event.setCancelled(true);
                         }
                     }
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                        removeCooldown(playerName);
+                    }, cooldownTicks);
+                    
                     UpdateGui((Player) event.getWhoClicked());
                 });
     }
@@ -102,9 +119,6 @@ public class SkillGui extends InventoryGUI {
                         itemMeta.setDisplayName(ChatColor.WHITE + "" + ChatColor.BOLD + "Endurance Level: " + EnduranceManager.Endurance_Lvl);
                         List<String> lore = new ArrayList<>();
 
-                        if (lore == null) {
-                            lore = new ArrayList<>();
-                        }
                         lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                         lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "Current level bonuses:");
                         lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~" + ChatColor.RESET + ChatColor.RED + "" + ChatColor.BOLD + "Health added: " + EnduranceManager.Endurance_HP);
@@ -128,14 +142,14 @@ public class SkillGui extends InventoryGUI {
                 .creator(player -> {
                     ItemStack itemStack = new ItemStack(material);
                     ItemMeta itemMeta = itemStack.getItemMeta();
-                    itemMeta.setDisplayName(ChatColor.BLUE + "" + ChatColor.BOLD + player.getName() + "'s Level: " + ChatColor.WHITE +SkillPointHandler.level);
+                    itemMeta.setDisplayName(ChatColor.BLUE + "" + ChatColor.BOLD + player.getName() + "'s Level: " + ChatColor.WHITE + LevelManager.getPlayerLevel(player));
                     // Initialize lore if null
                     List<String> lore = itemMeta.getLore();
                     if (lore == null) {
                         lore = new ArrayList<>();
                     }
 
-                    lore.add(ChatColor.WHITE +""+ ChatColor.BOLD + "Skill points: " + ChatColor.RESET + "" + ChatColor.GREEN + SkillPointHandler.SkillPoints);
+                    lore.add(ChatColor.WHITE +""+ ChatColor.BOLD + "Skill points: " + ChatColor.RESET + "" + ChatColor.GREEN + LevelManager.getPlayerCurrentSkillPoints(player));
                     itemMeta.setLore(lore);
 
                     itemStack.setItemMeta(itemMeta);
@@ -150,6 +164,16 @@ public class SkillGui extends InventoryGUI {
             decorate(player);
         }, 5L);
     }
+    private boolean isOnCooldown(Player player, long cooldownTicks) {
+        return cooldowns.containsKey(player) && (System.currentTimeMillis() - cooldowns.get(player)) < (cooldownTicks * 50);
+    }
 
+    private void setCooldown(Player player, long currentTime) {
+        cooldowns.put(player, currentTime);
+    }
+
+    private void removeCooldown(String playerName) {
+        cooldowns.remove(playerName);
+    }
 }
 

@@ -5,13 +5,15 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import rpg.rpg_base.RPG_Base;
-import rpg.rpg_base.StatManager.SkillPointHandler;
+import rpg.rpg_base.StatManager.LevelManager;
+
+import static rpg.rpg_base.StatManager.LevelManager.getPlayerLevel;
 
 public class LevelCommands implements CommandExecutor {
     private final RPG_Base plugin;
-    private final SkillPointHandler skillPointHandler;
+    private final LevelManager skillPointHandler;
 
-    public LevelCommands(RPG_Base plugin, SkillPointHandler skillPointHandler) {
+    public LevelCommands(RPG_Base plugin, LevelManager skillPointHandler) {
         this.plugin = plugin;
         this.skillPointHandler = skillPointHandler;
     }
@@ -35,11 +37,11 @@ public class LevelCommands implements CommandExecutor {
                     return false;
                 }
 
-                SkillPointHandler.level += Level;
+                LevelManager.setPlayerLevel(targetPlayer, getPlayerLevel(targetPlayer)  + Level);
 
-                SkillPointHandler.UpdateSkillPoints((Player) sender);
+                LevelManager.UpdateLevelRules();
 
-                sender.sendMessage("Level increased by " + Level + " for player " + sender + ".");
+                sender.sendMessage("Level increased by " + getPlayerLevel(targetPlayer) + " for player " + sender + ".");
 
                 return true;
             }
@@ -52,9 +54,9 @@ public class LevelCommands implements CommandExecutor {
                 return false;
             }
 
-            SkillPointHandler.level += Level;
+            LevelManager.setPlayerLevel(targetPlayer, getPlayerLevel(targetPlayer)  + Level);
 
-            SkillPointHandler.UpdateSkillPoints((Player) sender);
+            LevelManager.UpdateLevel((Player) sender);
 
             sender.sendMessage("Level increased by " + Level + " for player " + targetPlayerName + ".");
         }

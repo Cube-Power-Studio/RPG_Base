@@ -7,8 +7,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import rpg.rpg_base.RPG_Base;
-import rpg.rpg_base.data.PlayerData;
-import rpg.rpg_base.data.PlayerDataLoad;
 
 public class EnduranceManager implements Listener {
     private static RPG_Base plugin;
