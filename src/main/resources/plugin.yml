@@ -6,16 +6,14 @@ load: STARTUP
 commands:
   EnduranceLVLADD:
     description: "Adds level to Endurance stat"
-    usage: /EnduranceLVLADD <player>
     aliases: [eladd]
   EnduranceLVLREM:
     description: "Removes level to Endurance stat"
-    usage: /EnduranceLVLREM <player>
     aliases: [elrem]
   Skills:
     description: "Shows skill gui"
-    usage: /Skills
   LevelAdd:
     description: "Increases player level by given amount"
-    usage: /LevelAdd <player>
     aliases: [lvladd]
+  RPG:
+    description: "Basic utility command with addons"

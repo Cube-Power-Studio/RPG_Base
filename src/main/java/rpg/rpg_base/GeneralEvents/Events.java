@@ -20,13 +20,13 @@ public class Events implements Listener {
 
         if(f.exists()){
             FileConfiguration cfg = YamlConfiguration.loadConfiguration(f);
-            EnduranceManager.Endurance_Lvl = cfg.getInt("stats.endurancelevel");
+            EnduranceManager.setEndurance_lvl(event.getPlayer(), cfg.getInt("stats.endurancelevel"));
             LevelManager.setPlayerCurrentSkillPoints(event.getPlayer(), cfg.getInt("stats.sp"));
             LevelManager.setPlayerLevel(event.getPlayer(), cfg.getInt("stats.level") );
             LevelManager.setPlayerSpentSkillPoints(event.getPlayer(), cfg.getInt("stats.spentsp"));
         }else{
 
-            EnduranceManager.Endurance_Lvl = 0;
+            EnduranceManager.setEndurance_lvl(event.getPlayer(), 0);
             LevelManager.setPlayerLevel(event.getPlayer(), 1 );
             try {
                 YamlConfiguration.loadConfiguration(f).save(f);
@@ -42,7 +42,7 @@ public class Events implements Listener {
         File f = new File(PlayerDataLoad.getFolderPath(event.getPlayer()) + "/stats.yml");
         FileConfiguration cfg = YamlConfiguration.loadConfiguration(f);
         cfg.set("stats.level", LevelManager.getPlayerLevel(event.getPlayer()));
-        cfg.set("stats.endurancelevel", EnduranceManager.Endurance_Lvl);
+        cfg.set("stats.endurancelevel", EnduranceManager.getEndurance_lvl(event.getPlayer()));
         cfg.set("stats.sp", LevelManager.getPlayerCurrentSkillPoints(event.getPlayer()));
         cfg.set("stats.spentsp", LevelManager.getPlayerSpentSkillPoints(event.getPlayer()));
 

@@ -21,12 +21,9 @@ import java.util.Map;
 
 public class SkillGui extends InventoryGUI {
     private RPG_Base plugin;
-    private final EnduranceManager enduranceManager;
-    private final GUIManager guiManager;
-    public SkillGui(RPG_Base plugin, EnduranceManager enduranceManager, GUIManager guiManager) {
-        this.guiManager = guiManager;
+
+    public SkillGui(RPG_Base plugin) {
         this.plugin = plugin;
-        this.enduranceManager = enduranceManager;
     }
     private static final Map<Player, Long> cooldowns = new HashMap<>();
 
@@ -94,8 +91,8 @@ public class SkillGui extends InventoryGUI {
 
                     if(LevelManager.getPlayerCurrentSkillPoints((Player) event.getWhoClicked())!=0) {
                         if (event.getSlot() == 11) {
-                            if (EnduranceManager.Endurance_Lvl < EnduranceManager.Endurance_Lvl_Cap) {
-                                EnduranceManager.Endurance_Lvl += 1;
+                            if (EnduranceManager.getEndurance_lvl(player) < EnduranceManager.Endurance_Lvl_Cap) {
+                                EnduranceManager.setEndurance_lvl(player,EnduranceManager.getEndurance_lvl(player)+1);
                                 LevelManager.setPlayerSpentSkillPoints((Player) event.getWhoClicked(), LevelManager.getPlayerSpentSkillPoints(((Player) event.getWhoClicked())) +1);
                                 LevelManager.UpdateLevel(((Player) event.getWhoClicked()).getPlayer());
                             }
@@ -116,16 +113,16 @@ public class SkillGui extends InventoryGUI {
 
                     if (slot == 20) {
 
-                        itemMeta.setDisplayName(ChatColor.WHITE + "" + ChatColor.BOLD + "Endurance Level: " + EnduranceManager.Endurance_Lvl);
+                        itemMeta.setDisplayName(ChatColor.WHITE + "" + ChatColor.BOLD + "Endurance Level: " + EnduranceManager.getEndurance_lvl(player));
                         List<String> lore = new ArrayList<>();
 
                         lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                         lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "Current level bonuses:");
-                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~" + ChatColor.RESET + ChatColor.RED + "" + ChatColor.BOLD + "Health added: " + EnduranceManager.Endurance_HP);
-                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~" + ChatColor.RESET + ChatColor.RED + "" + ChatColor.BOLD + "Armor added: " + EnduranceManager.Endurance_ARMOR);
+                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~" + ChatColor.RESET + ChatColor.RED + "" + ChatColor.BOLD + "Health added: " + EnduranceManager.getEndurance_hp(player));
+                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~" + ChatColor.RESET + ChatColor.RED + "" + ChatColor.BOLD + "Armor added: " + EnduranceManager.getEndurance_armor(player));
                         lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "Next level bonuses:");
-                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~" + ChatColor.RESET + ChatColor.RED + "" + ChatColor.BOLD + "Health added: " + (EnduranceManager.Endurance_HP + EnduranceManager.HP_per_lvl));
-                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~" + ChatColor.RESET + ChatColor.RED + "" + ChatColor.BOLD + "Armor added: " + (EnduranceManager.Endurance_ARMOR + EnduranceManager.Armor_per_lvl));
+                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~" + ChatColor.RESET + ChatColor.RED + "" + ChatColor.BOLD + "Health added: " + (EnduranceManager.getEndurance_hp(player) + EnduranceManager.HP_per_lvl));
+                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~" + ChatColor.RESET + ChatColor.RED + "" + ChatColor.BOLD + "Armor added: " + (EnduranceManager.getEndurance_armor(player) + EnduranceManager.Armor_per_lvl));
                         lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                         itemMeta.setLore(lore);
 

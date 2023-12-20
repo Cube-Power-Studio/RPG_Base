@@ -20,7 +20,7 @@ public class SkillMenuCommands implements CommandExecutor {
     }
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (command.getName().equals("Skills")) {
-            this.guiManager.openGui(new SkillGui(plugin, enduranceManager, guiManager), (Player) sender);
+            this.guiManager.openGui(new SkillGui(plugin), (Player) sender);
         }
         return true;
     }

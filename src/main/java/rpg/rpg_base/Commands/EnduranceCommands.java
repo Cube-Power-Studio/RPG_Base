@@ -38,7 +38,7 @@ public class EnduranceCommands implements CommandExecutor {
                 return false;
             }
 
-            EnduranceManager.Endurance_Lvl += enduranceLevel;
+            EnduranceManager.setEndurance_lvl(targetPlayer, EnduranceManager.getEndurance_lvl(targetPlayer) + enduranceLevel);
 
             EnduranceManager.EnduranceStats(targetPlayer);
 
@@ -66,7 +66,7 @@ public class EnduranceCommands implements CommandExecutor {
                 return false;
             }
 
-            EnduranceManager.Endurance_Lvl -= enduranceLevel;
+            EnduranceManager.setEndurance_lvl(targetPlayer, EnduranceManager.getEndurance_lvl(targetPlayer) - enduranceLevel);
 
             EnduranceManager.EnduranceStats(targetPlayer);
 

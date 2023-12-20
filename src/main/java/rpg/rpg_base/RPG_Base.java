@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import rpg.rpg_base.Commands.EnduranceCommands;
 import rpg.rpg_base.Commands.LevelCommands;
+import rpg.rpg_base.Commands.MiscCommands;
 import rpg.rpg_base.Commands.SkillMenuCommands;
 import rpg.rpg_base.GUIs.SkillGui;
 import rpg.rpg_base.GeneralEvents.Events;
@@ -38,8 +39,8 @@ public final class RPG_Base extends JavaPlugin {
 
         EnduranceManager enduranceManager = new EnduranceManager(this);
         LevelManager skillPointHandler = new LevelManager(this);
-        SkillGui skillGui = new SkillGui(this,enduranceManager, guiManager);
 
+        getCommand("RPG").setExecutor(new MiscCommands(this));
         getCommand("EnduranceLVLADD").setExecutor(new EnduranceCommands(this, enduranceManager));
         getCommand("EnduranceLVLREM").setExecutor(new EnduranceCommands(this, enduranceManager));
         getCommand("Skills").setExecutor(new SkillMenuCommands(guiManager, this, enduranceManager));
@@ -57,6 +58,7 @@ public final class RPG_Base extends JavaPlugin {
     }
     public void setBasicConfigs() {
         LevelManager.UpdateLevelRules();
+        EnduranceManager.updateEnduranceRules();
     }
     private void setup() {
         config = new File(this.getDataFolder(), "config.yml");
@@ -81,7 +83,11 @@ public final class RPG_Base extends JavaPlugin {
             e.printStackTrace();
         }
     }
-
+    public void updateConfig(){
+        setBasicConfigs();
+        config = new File(this.getDataFolder(), "config.yml");
+        configData = YamlConfiguration.loadConfiguration(config);
+    }
     public FileConfiguration getConfig() {
         return this.configData;
     }
@@ -97,7 +103,7 @@ public final class RPG_Base extends JavaPlugin {
             FileConfiguration cfg = YamlConfiguration.loadConfiguration(f);
 
             cfg.set("stats.level", LevelManager.getPlayerLevel(player));
-            cfg.set("stats.endurancelevel", EnduranceManager.Endurance_Lvl);
+            cfg.set("stats.endurancelevel", EnduranceManager.getEndurance_lvl(player));
             cfg.set("stats.sp", LevelManager.getPlayerCurrentSkillPoints(player));
             cfg.set("stats.spentsp", LevelManager.getPlayerSpentSkillPoints(player));
             try {

@@ -20,13 +20,13 @@ public class UpdateStatsTask extends BukkitRunnable {
                 LevelManager.UpdateLevel(player);
                 EnduranceManager.EnduranceStats(player);
 
+                if(EnduranceManager.getEndurance_lvl(player)<0){
+                    EnduranceManager.setEndurance_lvl(player, 0);
+                }
             }
         } else {
             // Print a warning if the plugin is not found
             Bukkit.getLogger().warning("RPG_Base plugin not found!");
-        }
-        if(EnduranceManager.Endurance_Lvl<0){
-            EnduranceManager.Endurance_Lvl = 0;
         }
 
     }
