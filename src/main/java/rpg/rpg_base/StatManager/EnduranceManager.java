@@ -16,7 +16,7 @@ public class EnduranceManager implements Listener {
         EnduranceManager.plugin = plugin;
     }
     public static int Endurance_Lvl_Cap;
-    public static int HP_per_lvl = 2;
+    public static int HP_per_lvl = 15;
     public static int Armor_per_lvl = 1;
     private static final Map<Player, Integer> endurance_lvl = new HashMap<>();
     private static final Map<Player, Integer> endurance_HP = new HashMap<>();
@@ -25,7 +25,7 @@ public class EnduranceManager implements Listener {
 
         setEndurance_armor(player, Armor_per_lvl*getEndurance_lvl(player));
         setEndurance_hp(player, HP_per_lvl * getEndurance_lvl(player));
-        player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(getEndurance_hp(player));
+        HealthManager.addPlayerMaxHealth(player, HP_per_lvl);
         player.getAttribute(Attribute.GENERIC_ARMOR).setBaseValue(getEndurance_armor(player));
     }
 

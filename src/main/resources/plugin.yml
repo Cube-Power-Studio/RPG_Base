@@ -2,18 +2,24 @@ main: rpg.rpg_base.RPG_Base
 version: 0.1
 name: "RPG_Base"
 api-version: '1.19'
-load: STARTUP
+depend:
+  - "WorldGuard"
 commands:
   EnduranceLVLADD:
     description: "Adds level to Endurance stat"
     aliases: [eladd]
+    permission: RPG_Base.reload
   EnduranceLVLREM:
     description: "Removes level to Endurance stat"
     aliases: [elrem]
+    permission: RPG_Base.SkillManagement
   Skills:
     description: "Shows skill gui"
   LevelAdd:
     description: "Increases player level by given amount"
     aliases: [lvladd]
+    permission: RPG_Base.LevelManagement
   RPG:
-    description: "Basic utility command with addons"
+    description: "Basic utility command with addons" #for certain subcommands aditional permission is needed like RPG_Base.reload
+  GiveItems:
+    description: "something"

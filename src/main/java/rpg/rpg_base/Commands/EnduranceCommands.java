@@ -15,64 +15,67 @@ public class EnduranceCommands implements CommandExecutor {
         this.plugin = plugin;
         this.enduranceManager = enduranceManager;
     }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (command.getName().equals("EnduranceLVLADD")) {
-            if (args.length < 2) {
-                sender.sendMessage("Usage: /EnduranceLVLADD <player> <lvl>");
-                return false;
+        if (sender.hasPermission("RPG_Base.SkillManagement")) {
+            if (command.getName().equals("EnduranceLVLADD")) {
+                if (args.length < 2) {
+                    sender.sendMessage("Usage: /EnduranceLVLADD <player> <lvl>");
+                    return false;
+                }
+                String targetPlayerName = args[0];
+                Player targetPlayer = plugin.getServer().getPlayer(targetPlayerName);
+
+                if (targetPlayer == null) {
+                    sender.sendMessage("Player " + targetPlayerName + " is not online.");
+                    return true;
+                }
+
+                int enduranceLevel;
+                try {
+                    enduranceLevel = Integer.parseInt(args[1]);
+                } catch (NumberFormatException e) {
+                    sender.sendMessage("Invalid endurance level. Please provide a valid integer.");
+                    return false;
+                }
+
+                EnduranceManager.setEndurance_lvl(targetPlayer, EnduranceManager.getEndurance_lvl(targetPlayer) + enduranceLevel);
+
+                EnduranceManager.EnduranceStats(targetPlayer);
+
+
+                sender.sendMessage("Endurance level increased to " + enduranceLevel + " for player " + targetPlayerName + ".");
             }
-            String targetPlayerName = args[0];
-            Player targetPlayer = plugin.getServer().getPlayer(targetPlayerName);
+            if (command.getName().equals("EnduranceLVLREM")) {
+                if (args.length < 2) {
+                    sender.sendMessage("Usage: /EnduranceLVLREM <player> <lvl>");
+                    return false;
+                }
+                String targetPlayerName = args[0];
+                Player targetPlayer = plugin.getServer().getPlayer(targetPlayerName);
 
-            if (targetPlayer == null) {
-                sender.sendMessage("Player " + targetPlayerName + " is not online.");
-                return true;
+                if (targetPlayer == null) {
+                    sender.sendMessage("Player " + targetPlayerName + " is not online.");
+                    return true;
+                }
+
+                int enduranceLevel;
+                try {
+                    enduranceLevel = Integer.parseInt(args[1]);
+                } catch (NumberFormatException e) {
+                    sender.sendMessage("Invalid endurance level. Please provide a valid integer.");
+                    return false;
+                }
+
+                EnduranceManager.setEndurance_lvl(targetPlayer, EnduranceManager.getEndurance_lvl(targetPlayer) - enduranceLevel);
+
+                EnduranceManager.EnduranceStats(targetPlayer);
+
+
+                sender.sendMessage("Endurance level decreased to " + enduranceLevel + " for player " + targetPlayerName + ".");
+
             }
-
-            int enduranceLevel;
-            try {
-                enduranceLevel = Integer.parseInt(args[1]);
-            } catch (NumberFormatException e) {
-                sender.sendMessage("Invalid endurance level. Please provide a valid integer.");
-                return false;
-            }
-
-            EnduranceManager.setEndurance_lvl(targetPlayer, EnduranceManager.getEndurance_lvl(targetPlayer) + enduranceLevel);
-
-            EnduranceManager.EnduranceStats(targetPlayer);
-
-
-            sender.sendMessage("Endurance level increased to " + enduranceLevel + " for player " + targetPlayerName + ".");
-        }
-        if (command.getName().equals("EnduranceLVLREM")){
-            if (args.length < 2) {
-                sender.sendMessage("Usage: /EnduranceLVLREM <player> <lvl>");
-                return false;
-            }
-            String targetPlayerName = args[0];
-            Player targetPlayer = plugin.getServer().getPlayer(targetPlayerName);
-
-            if (targetPlayer == null) {
-                sender.sendMessage("Player " + targetPlayerName + " is not online.");
-                return true;
-            }
-
-            int enduranceLevel;
-            try {
-                enduranceLevel = Integer.parseInt(args[1]);
-            } catch (NumberFormatException e) {
-                sender.sendMessage("Invalid endurance level. Please provide a valid integer.");
-                return false;
-            }
-
-            EnduranceManager.setEndurance_lvl(targetPlayer, EnduranceManager.getEndurance_lvl(targetPlayer) - enduranceLevel);
-
-            EnduranceManager.EnduranceStats(targetPlayer);
-
-
-            sender.sendMessage("Endurance level decreased to " + enduranceLevel + " for player " + targetPlayerName + ".");
-
         }
         return true;
     }

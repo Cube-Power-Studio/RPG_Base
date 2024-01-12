@@ -13,15 +13,17 @@ public class MiscCommands implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if(command.getName().equals("RPG")){
-            if(args[0].equals("reload")){
-                try{
-                    plugin.updateConfig();
-                    return true;
-                }catch(Error e){
-                    sender.sendMessage("Something went wrong, check console for further details");
-                    plugin.getLogger().info("While performing command /RPG reload something went wrong: " + e);
-                    return false;
+        if (sender.hasPermission("RPG_Base.reload")) {
+            if (command.getName().equals("RPG")) {
+                if (args[0].equals("reload")) {
+                    try {
+                        plugin.updateConfig();
+                        return true;
+                    } catch (Error e) {
+                        sender.sendMessage("Something went wrong, check console for further details");
+                        plugin.getLogger().info("While performing command /RPG reload something went wrong: " + e);
+                        return false;
+                    }
                 }
             }
         }

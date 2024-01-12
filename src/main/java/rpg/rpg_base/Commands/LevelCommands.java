@@ -19,16 +19,34 @@ public class LevelCommands implements CommandExecutor {
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (command.getName().equals("LevelAdd")) {
-            if (args.length < 2) {
-                sender.sendMessage("Usage: /LevelAdd <player> <lvl>");
-                return false;
-            }
-            String targetPlayerName = args[0];
-            Player targetPlayer = plugin.getServer().getPlayer(targetPlayerName);
+        if (sender.hasPermission("RPG_Base.LevelManagement")) {
+            if (command.getName().equals("LevelAdd")) {
+                if (args.length < 2) {
+                    sender.sendMessage("Usage: /LevelAdd <player> <lvl>");
+                    return false;
+                }
+                String targetPlayerName = args[0];
+                Player targetPlayer = plugin.getServer().getPlayer(targetPlayerName);
 
-            if (targetPlayer == null) {
-                targetPlayer = (Player) sender;
+                if (targetPlayer == null) {
+                    targetPlayer = (Player) sender;
+                    int Level;
+                    try {
+                        Level = Integer.parseInt(args[1]);
+                    } catch (NumberFormatException e) {
+                        sender.sendMessage("Invalid level. Please provide a valid integer.");
+                        return false;
+                    }
+
+                    LevelManager.setPlayerLevel(targetPlayer, getPlayerLevel(targetPlayer) + Level);
+
+                    LevelManager.UpdateLevelRules();
+
+                    sender.sendMessage("Level increased by " + getPlayerLevel(targetPlayer) + " for player " + sender + ".");
+
+                    return true;
+                }
+
                 int Level;
                 try {
                     Level = Integer.parseInt(args[1]);
@@ -37,28 +55,12 @@ public class LevelCommands implements CommandExecutor {
                     return false;
                 }
 
-                LevelManager.setPlayerLevel(targetPlayer, getPlayerLevel(targetPlayer)  + Level);
+                LevelManager.setPlayerLevel(targetPlayer, getPlayerLevel(targetPlayer) + Level);
 
-                LevelManager.UpdateLevelRules();
+                LevelManager.UpdateLevel((Player) sender);
 
-                sender.sendMessage("Level increased by " + getPlayerLevel(targetPlayer) + " for player " + sender + ".");
-
-                return true;
+                sender.sendMessage("Level increased by " + Level + " for player " + targetPlayerName + ".");
             }
-
-            int Level;
-            try {
-                Level = Integer.parseInt(args[1]);
-            } catch (NumberFormatException e) {
-                sender.sendMessage("Invalid level. Please provide a valid integer.");
-                return false;
-            }
-
-            LevelManager.setPlayerLevel(targetPlayer, getPlayerLevel(targetPlayer)  + Level);
-
-            LevelManager.UpdateLevel((Player) sender);
-
-            sender.sendMessage("Level increased by " + Level + " for player " + targetPlayerName + ".");
         }
         return true;
     }
