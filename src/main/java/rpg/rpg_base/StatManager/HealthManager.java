@@ -10,10 +10,6 @@ import rpg.rpg_base.RPG_Base;
 import java.util.HashMap;
 import java.util.UUID;
 
-import static org.bukkit.event.entity.EntityDamageEvent.DamageCause.ENTITY_ATTACK;
-import static org.bukkit.event.entity.EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK;
-
-
 public class HealthManager {
     private static RPG_Base plugin;
     public HealthManager (RPG_Base plugin){
@@ -26,101 +22,82 @@ public class HealthManager {
     private static final HashMap<UUID, Integer> entityHealth = new HashMap<>();
 
 
+    @SuppressWarnings({"ConstantConditions","StatementWithEmptyBody"})
 
-    public static void distributeDamage(EntityDamageEvent e) {
-        if (e.getEntity() instanceof Player) {
-            Player player = (Player) e.getEntity();
+    public static void distributeDamage(EntityDamageByEntityEvent e) {
+        Entity damager = e.getDamager();
+        Entity target = e.getEntity();
 
-            if (e.getCause().equals(EntityDamageEvent.DamageCause.ENTITY_ATTACK)) {
-                Entity damager = ((EntityDamageByEntityEvent) e).getDamager();
-                if (damager instanceof Player) {
-                    Integer playerDamage = DamageManager.getPlayerDamage((Player) damager);
-                    if (playerDamage != null) {
-                        remPlayerHealth(player, playerDamage);
+        if (target instanceof Player) {
+            Player player = (Player) target;
+            Integer damageAmount = null;
+
+            if (e.getCause().equals(EntityDamageByEntityEvent.DamageCause.ENTITY_ATTACK) || e.getCause().equals(EntityDamageByEntityEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
+                if (e.getCause().equals(EntityDamageEvent.DamageCause.ENTITY_ATTACK)) {
+                    if (damager instanceof Player) {
+                        damageAmount = DamageManager.getPlayerDamage((Player) damager);
                     } else {
-                        // Handle the case when playerDamage is null
-                    }
-                } else {
-                    Integer entityDamage = DamageManager.getEntityDamage(damager.getUniqueId());
-                    if (entityDamage != null) {
-                        remPlayerHealth(player, entityDamage);
-                    } else {
-                        // Handle the case when entityDamage is null
+                        damageAmount = DamageManager.getEntityDamage(damager.getUniqueId()) + DamageManager.getEntityBaseDamage(damager.getUniqueId());
                     }
                 }
-            } else if (e.getCause().equals(EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
-                Entity damager = ((EntityDamageByEntityEvent) e).getDamager();
-                if (damager instanceof Player) {
-                    Integer playerDamage = DamageManager.getPlayerDamage((Player) damager);
-                    if (playerDamage != null) {
-                        remPlayerHealth(player, playerDamage / 3);
-                    } else {
-                        // Handle the case when playerDamage is null
-                    }
-                } else {
-                    Integer entityDamage = DamageManager.getEntityDamage(damager.getUniqueId());
-                    if (entityDamage != null) {
-                        remPlayerHealth(player, entityDamage / 3);
-                    } else {
-                        // Handle the case when entityDamage is null
+
+                if (e.getCause().equals(EntityDamageByEntityEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
+                    if (damageAmount != null) {
+                        damageAmount /= 3;
                     }
                 }
-            } else {
-                remPlayerHealth(player, (int) e.getDamage());
             }
+
+            if (damageAmount == null) {
+                damageAmount = (int) e.getDamage();
+            }
+
+            remPlayerHealth(player, damageAmount);
 
             if (getPlayerHealth(player) <= 0) {
                 player.setHealth(0);
             }
         } else {
-            Entity entity = e.getEntity();
+            UUID entityUUID = target.getUniqueId();
+            Integer damageAmount = null;
 
-            if (e.getCause().equals(EntityDamageEvent.DamageCause.ENTITY_ATTACK)) {
-                Entity damager = ((EntityDamageByEntityEvent) e).getDamager();
-                if (damager instanceof Player) {
-                    Integer playerDamage = DamageManager.getPlayerDamage((Player) damager);
-                    if (playerDamage != null) {
-                        remEntityHealth(e.getEntity().getUniqueId(), playerDamage);
+            if (e.getCause().equals(EntityDamageByEntityEvent.DamageCause.ENTITY_ATTACK) || e.getCause().equals(EntityDamageByEntityEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
+                if (e.getCause().equals(EntityDamageEvent.DamageCause.ENTITY_ATTACK)) {
+                    if (damager instanceof Player) {
+                        damageAmount = DamageManager.getPlayerDamage((Player) damager);
                     } else {
-                        // Handle the case when playerDamage is null
-                    }
-                } else {
-                    Integer entityDamage = DamageManager.getEntityDamage(damager.getUniqueId());
-                    if (entityDamage != null) {
-                        remEntityHealth(e.getEntity().getUniqueId(), entityDamage);
-                    } else {
-                        // Handle the case when entityDamage is null
+                        damageAmount = DamageManager.getEntityDamage(damager.getUniqueId()) + DamageManager.getEntityBaseDamage(damager.getUniqueId());
                     }
                 }
-            } else if (e.getCause().equals(EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
-                Entity damager = ((EntityDamageByEntityEvent) e).getDamager();
-                if (damager instanceof Player) {
-                    Integer playerDamage = DamageManager.getPlayerDamage((Player) damager);
-                    if (playerDamage != null) {
-                        remEntityHealth(e.getEntity().getUniqueId(), playerDamage / 3);
-                    } else {
-                        // Handle the case when playerDamage is null
-                    }
-                } else {
-                    Integer entityDamage = DamageManager.getEntityDamage(damager.getUniqueId());
-                    if (entityDamage != null) {
-                        remEntityHealth(e.getEntity().getUniqueId(), entityDamage / 3);
-                    } else {
-                        // Handle the case when entityDamage is null
+
+                if (e.getCause().equals(EntityDamageByEntityEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
+                    if (damageAmount != null) {
+                        damageAmount /= 3;
                     }
                 }
-            } else {
-                remEntityHealth(e.getEntity().getUniqueId(), (int) e.getDamage());
             }
 
-            if (getEntityHealth(entity.getUniqueId()) <= 0) {
-                Damageable damageable = (Damageable) entity;
-                damageable.setHealth(0);
+            if (damageAmount == null) {
+                damageAmount = (int) e.getDamage();
+            }
+
+            remEntityHealth(entityUUID, damageAmount);
+
+            if (getEntityHealth(entityUUID) <= 0) {
+                ((Damageable) target).setHealth(0);
             }
         }
+
         e.setDamage(0);
     }
+
     //Player section of HealthManager
+    public static void healthRegen(Player uuid){
+        if(getPlayerHealth(uuid) <= getPlayerMaxHealth(uuid)) {
+            new HealthRegen(uuid).runTaskTimer(plugin, 0, 20);
+        }
+    }
+
     public static int getPlayerMaxHealth(Player p){
         return playerMaxHealth.getOrDefault(p, 100);
     }
@@ -130,6 +107,7 @@ public class HealthManager {
     public static void remPlayerMaxHealth(Player p, int i){
         playerMaxHealth.put(p, getPlayerMaxHealth(p) - i);
     }
+    public static void setPlayerMaxHealth(Player p, int i) {playerMaxHealth.put(p, i);};
     public static int getPlayerHealth(Player p){
         return playerHealth.getOrDefault(p, 100);
     }
@@ -153,9 +131,6 @@ public class HealthManager {
     }
 
 
-
-
-
     //Entity section of HealthManager
     public static int getEntityMaxHealth(UUID e){
         return entityMaxHealth.getOrDefault(e, 100);
@@ -172,7 +147,6 @@ public class HealthManager {
     public static void setEntityHealth(UUID entity, int health) {
         entityHealth.put(entity, health);
     }
-
     public static int getEntityHealth(UUID entity) {
         return entityHealth.getOrDefault(entity, 100); // Default health value
     }
@@ -182,6 +156,4 @@ public class HealthManager {
     public static void remEntityHealth(UUID e, int i){
         entityHealth.put(e, getEntityHealth(e) - i);
     }
-
-
 }

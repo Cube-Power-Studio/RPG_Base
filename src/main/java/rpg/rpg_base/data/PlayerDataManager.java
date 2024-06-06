@@ -1,6 +1,5 @@
 package rpg.rpg_base.data;
 
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -10,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static rpg.rpg_base.StatManager.EnduranceManager.getEndurance_lvl;
+import static rpg.rpg_base.StatManager.StrengthManager.getStrength_lvl;
 
 
 public class PlayerDataManager {
@@ -29,6 +29,7 @@ public class PlayerDataManager {
         FileConfiguration cfg = YamlConfiguration.loadConfiguration(f);
         cfg.set("stats.level", LevelManager.getPlayerLevel(p));
         cfg.set("stats.endurancelevel", getEndurance_lvl(p));
+        cfg.set("stats.strengthlevel", getStrength_lvl(p));
         cfg.set("stats.sp", LevelManager.getPlayerCurrentSkillPoints(p));
         cfg.set("stats.spentsp", LevelManager.getPlayerSpentSkillPoints(p));
 

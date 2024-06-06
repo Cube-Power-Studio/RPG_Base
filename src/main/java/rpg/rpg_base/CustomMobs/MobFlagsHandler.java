@@ -3,6 +3,7 @@ package rpg.rpg_base.CustomMobs;
 import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.flags.Flag;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.session.MoveType;
 import com.sk89q.worldguard.session.Session;
@@ -13,65 +14,68 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.event.Event;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.EntitySpawnEvent;
 import rpg.rpg_base.RPG_Base;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
+import java.util.logging.Level;
 
 public class MobFlagsHandler extends FlagValueChangeHandler<State> {
 
-    public static Factory FACTORY()
-    {
+    public static Factory FACTORY() {
         return new Factory();
     }
-    public static class Factory extends Handler.Factory<MobFlagsHandler>{
+
+    public static class Factory extends Handler.Factory<MobFlagsHandler> {
         @Override
         public MobFlagsHandler create(Session session) {
             return new MobFlagsHandler(session);
         }
     }
+
     protected MobFlagsHandler(Session session) {
-        super(session, MobFlags.customMobsFlag );
+        super(session, MobFlags.customMobsFlag);
     }
 
     @Override
     protected void onInitialValue(LocalPlayer localPlayer, ApplicableRegionSet applicableRegionSet, State state) {
         for (ProtectedRegion region : applicableRegionSet.getRegions()) {
-            Path filePath = Paths.get(RPG_Base.getInstance().getDataFolder().getPath(), "WG", region.getId() + ".yml");
-
+            String regionId = region.getId();
+            Path filePath;
+            if (regionId.equalsIgnoreCase("__global__") || regionId.equalsIgnoreCase("__wglobal__")) {
+                // Handle global region or the entire world
+                filePath = Paths.get(RPG_Base.getInstance().getDataFolder().getPath(), "WG/mobs", "global.yml");
+            } else {
+                // Handle specific regions
+                filePath = Paths.get(RPG_Base.getInstance().getDataFolder().getPath(), "WG/mobs", localPlayer.getWorld().getName(), regionId + ".yml");
+            }
             createEntitySections(filePath.toFile());
         }
     }
 
     @Override
-    protected boolean onSetValue(LocalPlayer localPlayer, Location location, Location location1, ApplicableRegionSet applicableRegionSet, State state, State t1, MoveType moveType) {
+    protected boolean onSetValue(LocalPlayer localPlayer, Location from, Location to, ApplicableRegionSet applicableRegionSet, State oldState, State newState, MoveType moveType) {
         for (ProtectedRegion region : applicableRegionSet.getRegions()) {
-            Path filePath = Paths.get(RPG_Base.getInstance().getDataFolder().getPath(), "WG", region.getId() + ".yml");
-
+            Path filePath = Paths.get(RPG_Base.getInstance().getDataFolder().getPath(), "WG/mobs", localPlayer.getWorld().getName(), region.getId() + ".yml");
             createEntitySections(filePath.toFile());
         }
         return true;
     }
 
     @Override
-    protected boolean onAbsentValue(LocalPlayer localPlayer, Location location, Location location1, ApplicableRegionSet applicableRegionSet, State state, MoveType moveType) {
+    protected boolean onAbsentValue(LocalPlayer localPlayer, Location from, Location to, ApplicableRegionSet applicableRegionSet, State state, MoveType moveType) {
         for (ProtectedRegion region : applicableRegionSet.getRegions()) {
-            Path filePath = Paths.get(RPG_Base.getInstance().getDataFolder().getPath(), "WG", region.getId() + ".yml");
-
+            Path filePath = Paths.get(RPG_Base.getInstance().getDataFolder().getPath(), "WG/mobs", localPlayer.getWorld().getName(), region.getId() + ".yml");
             createEntitySections(filePath.toFile());
         }
-
         return true;
     }
+
     private void createEntitySections(File file) {
-        if(!file.exists()) {
+        if (!file.exists()) {
+            RPG_Base.getInstance().getLogger().info("Creating entity sections in " + file.getPath());
             YamlConfiguration cfg = YamlConfiguration.loadConfiguration(file);
 
             for (EntityType entityType : EntityType.values()) {
@@ -80,20 +84,17 @@ public class MobFlagsHandler extends FlagValueChangeHandler<State> {
                 if (entityClass != null && LivingEntity.class.isAssignableFrom(entityClass)) {
                     String entityTypeName = entityType.name().toLowerCase();
                     if (!entityTypeName.equals("player")) {
-                        cfg.createSection(entityTypeName + ".minlvl");
-                        cfg.createSection(entityTypeName + ".maxlvl");
-                        cfg.createSection(entityTypeName + ".spawn");
-                        cfg.set(entityTypeName + ".minlvl", 1);
-                        cfg.set(entityTypeName + ".maxlvl", 10);
-                        cfg.set(entityTypeName + ".spawn", false);
+                        cfg.createSection("numberOfMobsInRegion");
+                        cfg.set("numberOfMobsInRegion", 10);
                     }
                 }
             }
 
             try {
                 cfg.save(file);
+                RPG_Base.getInstance().getLogger().info("Entity sections successfully created in " + file.getPath());
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                RPG_Base.getInstance().getLogger().log(Level.SEVERE, "Failed to save YAML configuration to " + file.getPath(), e);
             }
         }
     }

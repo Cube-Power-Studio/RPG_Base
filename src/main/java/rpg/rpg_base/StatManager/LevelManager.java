@@ -7,6 +7,7 @@ import rpg.rpg_base.RPG_Base;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class LevelManager {
     public static int LevelMax;
@@ -75,6 +76,12 @@ public class LevelManager {
     }
     public static void setPlayerLevel(Player player, int level){
         currentLevels.put(player, level);
+    }
+    public static void addPlayer_lvl(Player player, int lvlsAdded){
+        currentLevels.put(player, getPlayerLevel(player) + lvlsAdded);
+    }
+    public static void remPlayer_lvl(Player player, int lvlsRemoved){
+        currentLevels.put(player, getPlayerLevel(player) - lvlsRemoved);
     }
     public static int getPlayerLevel(Player player){
         return currentLevels.getOrDefault(player, 1);

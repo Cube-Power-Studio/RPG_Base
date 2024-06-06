@@ -12,16 +12,14 @@ import rpg.rpg_base.GuiHandlers.InventoryGUI;
 import rpg.rpg_base.RPG_Base;
 import rpg.rpg_base.StatManager.EnduranceManager;
 import rpg.rpg_base.StatManager.LevelManager;
+import rpg.rpg_base.StatManager.StrengthManager;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static rpg.rpg_base.GUIs.HeadsList.*;
 
 public class SkillGui extends InventoryGUI {
-    private RPG_Base plugin;
+    private final RPG_Base plugin;
 
     public SkillGui(RPG_Base plugin) {
         this.plugin = plugin;
@@ -42,14 +40,15 @@ public class SkillGui extends InventoryGUI {
         }
         ItemStack increase = HeadsHandlers.getHead(getUpgradeButton());
 
-        this.addButton(11, createUpdateButtons(increase, 11, 10));
-        this.addButton(12, createUpdateButtons(increase, 12, 10));
-        this.addButton(13, createUpdateButtons(increase, 13, 10));
-        this.addButton(14, createUpdateButtons(increase, 14, 10));
-        this.addButton(15, createUpdateButtons(increase, 15, 10));
+        this.addButton(11, createUpdateButtons(increase, 11, 5));
+        this.addButton(12, createUpdateButtons(increase, 12, 5));
+        this.addButton(13, createUpdateButtons(increase, 13, 5));
+        this.addButton(14, createUpdateButtons(increase, 14, 5));
+        this.addButton(15, createUpdateButtons(increase, 15, 5));
 
-        Material leveldisplay = Material.ACACIA_LOG;
-        this.addButton(20, createStatsLevelDisplay(leveldisplay, 20));
+        Material levelDisplay = Material.ACACIA_LOG;
+        this.addButton(20, createStatsLevelDisplay(levelDisplay, 20));
+        this.addButton(21, createStatsLevelDisplay(levelDisplay, 21));
         Material counter = Material.CHEST;
         this.addButton(45, createSkillPointCounter(counter));
 
@@ -73,6 +72,10 @@ public class SkillGui extends InventoryGUI {
                         itemMeta.setDisplayName(ChatColor.WHITE + "" + ChatColor.BOLD + "Increase endurance");
                         itemMeta.setLore(null);
                         itemStack.setItemMeta(itemMeta);
+                    } else if (slot == 12) {
+                        itemMeta.setDisplayName(ChatColor.WHITE + "" + ChatColor.BOLD + "Increase strength");
+                        itemMeta.setLore(null);
+                        itemStack.setItemMeta(itemMeta);
                     }
                     return itemStack;
                 } )
@@ -92,12 +95,20 @@ public class SkillGui extends InventoryGUI {
 
                     if(LevelManager.getPlayerCurrentSkillPoints((Player) event.getWhoClicked())!=0) {
                         if (event.getSlot() == 11) {
-                            if (EnduranceManager.getEndurance_lvl(player) < EnduranceManager.Endurance_Lvl_Cap) {
-                                EnduranceManager.setEndurance_lvl(player,EnduranceManager.getEndurance_lvl(player)+1);
-                                LevelManager.setPlayerSpentSkillPoints((Player) event.getWhoClicked(), LevelManager.getPlayerSpentSkillPoints(((Player) event.getWhoClicked())) +1);
-                                LevelManager.UpdateLevel(((Player) event.getWhoClicked()).getPlayer());
+                            if (EnduranceManager.getEndurance_lvl( player) < EnduranceManager.Endurance_Lvl_Cap) {
+                                EnduranceManager.setEndurance_lvl( player,EnduranceManager.getEndurance_lvl( player)+1);
+                                LevelManager.setPlayerSpentSkillPoints(player, LevelManager.getPlayerSpentSkillPoints(player) + 1);
+                                LevelManager.UpdateLevel(player);
                                 EnduranceManager.EnduranceStats(player);
                             }
+                        } else if (event.getSlot() == 12) {
+                            if (StrengthManager.getStrength_lvl(player)  < StrengthManager.Strength_Lvl_Cap){
+                                StrengthManager.setStrength_lvl(player, StrengthManager.getStrength_lvl(player) + 1);
+                                LevelManager.setPlayerSpentSkillPoints(player, LevelManager.getPlayerSpentSkillPoints(player) + 1);
+                                LevelManager.UpdateLevel(player);
+                                StrengthManager.strengthStats(player);
+                            }
+
                         }
                     }
                     Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -120,11 +131,28 @@ public class SkillGui extends InventoryGUI {
 
                         lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                         lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "Current level bonuses:");
-                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~" + ChatColor.RESET + ChatColor.RED + "" + ChatColor.BOLD + "Health added: " + EnduranceManager.getEndurance_hp(player));
-                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~" + ChatColor.RESET + ChatColor.RED + "" + ChatColor.BOLD + "Armor added: " + EnduranceManager.getEndurance_armor(player));
+                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~" + ChatColor.RESET + ChatColor.RED + "" + ChatColor.BOLD + "Health added: " + EnduranceManager.getEndurance_hp( player));
+                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~" + ChatColor.RESET + ChatColor.RED + "" + ChatColor.BOLD + "Armor added: " + EnduranceManager.getEndurance_armor( player));
                         lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "Next level bonuses:");
-                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~" + ChatColor.RESET + ChatColor.RED + "" + ChatColor.BOLD + "Health added: " + (EnduranceManager.getEndurance_hp(player) + EnduranceManager.HP_per_lvl));
-                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~" + ChatColor.RESET + ChatColor.RED + "" + ChatColor.BOLD + "Armor added: " + (EnduranceManager.getEndurance_armor(player) + EnduranceManager.Armor_per_lvl));
+                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~" + ChatColor.RESET + ChatColor.RED + "" + ChatColor.BOLD + "Health added: " + (EnduranceManager.getEndurance_hp( player) + EnduranceManager.HP_per_lvl));
+                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~" + ChatColor.RESET + ChatColor.RED + "" + ChatColor.BOLD + "Armor added: " + (EnduranceManager.getEndurance_armor( player) + EnduranceManager.Armor_per_lvl));
+                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                        itemMeta.setLore(lore);
+
+                        itemStack.setItemMeta(itemMeta);
+                    }
+                    if (slot == 21) {
+
+                        itemMeta.setDisplayName(ChatColor.WHITE + "" + ChatColor.BOLD + "Strength level: " + StrengthManager.getStrength_lvl(player));
+                        List<String> lore = new ArrayList<>();
+
+                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "Current level bonuses:");
+                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~" + ChatColor.RESET + ChatColor.RED + "" + ChatColor.BOLD + "Damage Added: " + StrengthManager.getStrength_dmg(player));
+                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~" + ChatColor.RESET + ChatColor.RED + "" + ChatColor.BOLD + "Knockback res added: " + StrengthManager.getStrength_knockback_resistance(player));
+                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "Next level bonuses:");
+                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~" + ChatColor.RESET + ChatColor.RED + "" + ChatColor.BOLD + "Damage added: " + (StrengthManager.getStrength_dmg(player) + StrengthManager.DMG_per_lvl));
+                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~" + ChatColor.RESET + ChatColor.RED + "" + ChatColor.BOLD + "Knockback added: " + (StrengthManager.getStrength_knockback_resistance(player) + StrengthManager.knockback_resistance_per_lvl));
                         lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                         itemMeta.setLore(lore);
 

@@ -11,31 +11,13 @@ import rpg.rpg_base.CustomItemsManager.ItemHandlers;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class DamageManager implements Listener {
+public class DamageManager {
     private static final HashMap<Player, Integer> playerBaseDamage = new HashMap<>();
     private static final HashMap<Player, Integer> playerDamage = new HashMap<>();
     private static final HashMap<UUID, Integer> entityBaseDamage = new HashMap<>();
     private static final HashMap<UUID, Integer> entityDamage = new HashMap<>();
-    @EventHandler
-    public static void switchedItems(PlayerItemHeldEvent e) {
-        Player player = e.getPlayer();
 
-        // Remove damage from the previously held item
-//        ItemStack previousItem = player.getInventory().getItem(e.getPreviousSlot());
-//        if (previousItem != null) {
-//            int previousItemDamage = ItemHandlers.getItemDamage(previousItem);
-//            remPlayerDamage(player, previousItemDamage);
-//        }
-
-        // Add damage for the newly held item
-        ItemStack newItem = player.getInventory().getItem(e.getNewSlot());
-        if (newItem != null) {
-            int newItemDamage = ItemHandlers.getItemDamage(newItem);
-            addPlayerDamage(player, newItemDamage);
-        }
-    }
-
-    public static int getPlayerBaseDamage(Player player){
+    public static int getPlayerBaseDamage(Player  player){
         return playerBaseDamage.getOrDefault(player, 0);
     }
     public static void setPlayerBaseDamage(Player player, int i){

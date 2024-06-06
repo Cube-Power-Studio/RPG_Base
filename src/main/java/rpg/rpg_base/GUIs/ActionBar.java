@@ -10,7 +10,10 @@ import rpg.rpg_base.StatManager.HealthManager;
 public class ActionBar {
     public static void statisticBar(){
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "❤" + HealthManager.getPlayerHealth(player) + "/" + HealthManager.getPlayerMaxHealth(player)));
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR,
+                    new TextComponent(ChatColor.RED + "❤"
+                            + HealthManager.getPlayerHealth(player) + "/"
+                            + HealthManager.getPlayerMaxHealth(player)));
         }
     }
 }

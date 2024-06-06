@@ -6,6 +6,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import rpg.rpg_base.RPG_Base;
 
@@ -14,18 +15,16 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-public class ItemHandlers {
+public class ItemHandlers{
     private final RPG_Base plugin;
 
     public ItemHandlers(RPG_Base plugin) {
         this.plugin = plugin;
     }
-    private static final HashMap<ItemStack, Integer> enduranceLvlReq = new HashMap<>();
-    private static final HashMap<ItemStack, Integer> strengthLvlReq = new HashMap<>();
-    private static final HashMap<ItemStack, Integer> agilityLvlReq = new HashMap<>();
-    private static final HashMap<ItemStack, Integer> intelligenceLvlReq = new HashMap<>();
+    private static final HashMap<ItemStack, String> customItems = new HashMap<>();
+    public static final String splitter = ",";
     private static final HashMap<String, ItemStack> customItemsByName = new HashMap<>();
-    private static final HashMap<ItemStack, Integer> itemDamage = new HashMap<>();
+    private static final HashMap<UUID, ItemStack[]> entityItemList = new HashMap<>();
 
     public void loadCustomItems() {
         File customItemsFolder = getCustomItemsFolder();
@@ -48,8 +47,6 @@ public class ItemHandlers {
             }
         }
     }
-
-
     private void createDefaultItemFile(File customItemsFolder) {
         File defaultItemFile = new File(customItemsFolder, "default_item.yml");
         FileConfiguration config = YamlConfiguration.loadConfiguration(defaultItemFile);
@@ -71,6 +68,7 @@ public class ItemHandlers {
         config.set("default_item.material", defaultItem.getType().toString());
         config.set("default_item.display_name", ChatColor.stripColor(itemMeta.getDisplayName()));
         config.set("default_item.damage", 10);
+        config.set("default_item.health", 10);
 
         // Save lore to the config
         config.set("default_item.lore", lore);
@@ -85,6 +83,9 @@ public class ItemHandlers {
     }
     public static ItemStack getCustomItemByName(String itemName) {
         return customItemsByName.getOrDefault(itemName,new ItemStack(Material.STONE));
+    }
+    public static Set<String> getCustomItemsName(){
+        return customItemsByName.keySet();
     }
 
 
@@ -101,25 +102,74 @@ public class ItemHandlers {
                 String materialName = config.getString(key + ".material");
                 String displayName = config.getString(key + ".display_name");
                 List<String> lore = config.getStringList(key + ".lore");
+
                 // Reconstruct the ItemStack
                 Material material = Material.matchMaterial(materialName);
-                ItemStack loadedItem = null;
+                ItemStack loadedItem;
                 if (material != null) {
                     loadedItem = new ItemStack(material);
-                    ItemMeta itemMeta = loadedItem.getItemMeta();
+                } else {
+                    loadedItem = new ItemStack(Material.DIRT);
+                }
+                ItemMeta itemMeta = loadedItem.getItemMeta();
+                String itemAttrib = "";
 
-                    // Set display name and lore
-                    if (itemMeta != null) {
-                        itemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName));
-                        itemMeta.setLore(lore);
-                        loadedItem.setItemMeta(itemMeta);
+                // Set display name and lore
+                if (itemMeta != null) {
+                    itemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName));
+                    itemMeta.setLore(lore);
+                    loadedItem.setItemMeta(itemMeta);
 
-                        setItemDamage(loadedItem, config.getInt(key + ".damage"));
-                        setRequiredAgilityLvl(loadedItem, config.getInt(key + ".requirements.agility"));
-                        setRequiredIntelligenceLvl(loadedItem, config.getInt(key + ".requirements.intelligence"));
-                        setRequiredEnduranceLvl(loadedItem, config.getInt(key + ".requirements.endurance"));
-                        setRequiredStrengthLvl(loadedItem, config.getInt(key + ".requirements.strength"));
+                    if (config.contains(key + ".damage")) {
+                        String damageValue = config.getString(key + ".damage");
+                        if (damageValue != null) {
+                            itemAttrib += "damage" + splitter + damageValue + splitter;
+                            //System.out.println("Added damage: " + damageValue);
+                        }
                     }
+
+                    if (config.contains(key + ".health")){
+                        String healthValue = config.getString(key + ".health");
+                        if(healthValue != null){
+                            itemAttrib += "health" + splitter + healthValue + splitter;
+                        }
+                    }
+
+                    if (config.contains(key + ".requirements.agility")) {
+                        String agilityValue = config.getString(key + ".requirements.agility");
+                        if (agilityValue != null) {
+                            itemAttrib += "agility" + splitter + agilityValue + splitter;
+                            //System.out.println("Added agility: " + agilityValue);
+                        }
+                    }
+
+                    if (config.contains(key + ".requirements.intelligence")) {
+                        String intelligenceValue = config.getString(key + ".requirements.intelligence");
+                        if (intelligenceValue != null) {
+                            itemAttrib += "intelligence" + splitter + intelligenceValue + splitter;
+                            //System.out.println("Added intelligence: " + intelligenceValue);
+                        }
+                    }
+
+                    if (config.contains(key + ".requirements.endurance")) {
+                        String enduranceValue = config.getString(key + ".requirements.endurance");
+                        if (enduranceValue != null) {
+                            itemAttrib += "endurance" + splitter + enduranceValue + splitter;
+                            //System.out.println("Added endurance: " + enduranceValue);
+                        }
+                    }
+
+                    if (config.contains(key + ".requirements.strength")) {
+                        String strengthValue = config.getString(key + ".requirements.strength");
+                        if (strengthValue != null) {
+                            itemAttrib += "strength" + splitter + strengthValue + splitter;
+                            //System.out.println("Added strength: " + strengthValue);
+                        }
+                    }
+
+
+                    //System.out.println("Final Item Attributes: " + itemAttrib);
+                    customItems.put(loadedItem, itemAttrib);
                 }
                 customItemsByName.put(key, loadedItem);
             }
@@ -132,34 +182,45 @@ public class ItemHandlers {
     }
 
     public static int getItemDamage(ItemStack itemStack) {
-        Integer damage = itemDamage.get(itemStack);
-        return (damage != null) ? damage : 0;
+        if (itemStack != null) { // Null check added here
+            String dmgValue = ItemUtil.getAttributeValue(itemStack, "damage");
+            if (!dmgValue.isEmpty()) {
+                return Integer.parseInt(dmgValue);
+            } else {
+                return 0;
+            }
+        } else {
+            return 0; // Return 0 if itemStack is null
+        }
     }
-    public static void setItemDamage(ItemStack itemStack, int i){
-        itemDamage.put(itemStack, i);
+    public static int getItemHealth(ItemStack itemStack){
+        if(itemStack != null){
+            String healthValue = ItemUtil.getAttributeValue(itemStack, "health");
+            if(!healthValue.isEmpty()){
+                return Integer.parseInt(healthValue);
+            }else{
+                return 0;
+            }
+        }else{
+            return 0;
+        }
     }
-    public int getRequiredEnduranceLvl(ItemStack itemStack){
-        return enduranceLvlReq.get(itemStack);
+    public static String getCustomItemsAttrib(ItemStack itemStack) {
+        String attrib = customItems.get(itemStack);
+//        if(customItems.containsKey(itemStack)){
+//            System.out.println("not found");
+//        }else{
+//            System.out.println("test");
+//            System.out.println("l1" + customItems);
+//            System.out.println("l2" + customItemsByName);
+//        }
+        if (attrib == null) {
+            // Item not found in map, log a warning message
+//            System.out.println("Warning: Item attributes not found for ItemStack: " + itemStack);
+        }
+        return attrib;
     }
-    public static void setRequiredEnduranceLvl(ItemStack itemStack, int Lvl){
-        enduranceLvlReq.put(itemStack, Lvl);
-    }
-    public int getRequiredStrengthLvl(ItemStack itemStack){
-        return strengthLvlReq.get(itemStack);
-    }
-    public static void setRequiredStrengthLvl(ItemStack itemStack, int Lvl){
-        strengthLvlReq.put(itemStack, Lvl);
-    }
-    public int getRequiredAgilityLvl(ItemStack itemStack){
-        return agilityLvlReq.get(itemStack);
-    }
-    public static void setRequiredAgilityLvl(ItemStack itemStack, int Lvl){
-        agilityLvlReq.put(itemStack, Lvl);
-    }
-    public int getRequiredIntelligenceLvl(ItemStack itemStack){
-        return intelligenceLvlReq.get(itemStack);
-    }
-    public static void setRequiredIntelligenceLvl(ItemStack itemStack, int Lvl){
-        intelligenceLvlReq.put(itemStack, Lvl);
-    }
+
+    public static ItemStack[] getEntityItem(UUID uuid){return entityItemList.get(uuid);}
+    public static void setEntityItem(UUID uuid, ItemStack[] itemList){entityItemList.put(uuid, itemList);}
 }

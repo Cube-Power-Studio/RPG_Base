@@ -7,6 +7,7 @@ import rpg.rpg_base.RPG_Base;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class StrengthManager {
     private static RPG_Base plugin;
@@ -15,9 +16,8 @@ public class StrengthManager {
         StrengthManager.plugin = plugin;
     }
     public static int Strength_Lvl_Cap;
-    public static int DMG_per_lvl;
+    public static int DMG_per_lvl = 5;
     public static int knockback_resistance_per_lvl = 1;
-    public static final int baseDMG = 1;
     private static final Map<Player, Integer> strength_lvl = new HashMap<>();
     private static final Map<Player, Integer> strength_dmg = new HashMap<>();
     private static final Map<Player, Integer> strength_knockback_resistance = new HashMap<>();
@@ -25,7 +25,6 @@ public class StrengthManager {
 
         setStrength_knockback_resistance(player, knockback_resistance_per_lvl*getStrength_lvl(player));
         setStrength_dmg(player, DMG_per_lvl * getStrength_lvl(player));
-        player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(baseDMG+getStrength_dmg(player));
         player.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).setBaseValue(getStrength_knockback_resistance(player));
     }
 
@@ -34,6 +33,12 @@ public class StrengthManager {
     }
     public static void setStrength_lvl(Player player, int strength_Level){
         strength_lvl.put(player, strength_Level);
+    }
+    public static void addStrength_lvl(Player player, int lvlsAdded){
+        strength_lvl.put(player, getStrength_lvl(player) + lvlsAdded);
+    }
+    public static void remStrength_lvl(Player player, int lvlsRemoved){
+        strength_lvl.put(player, getStrength_lvl(player) - lvlsRemoved);
     }
     public static int getStrength_dmg(Player player){
         return strength_dmg.getOrDefault(player, 0);
@@ -49,6 +54,6 @@ public class StrengthManager {
     }
 
     public static void updateStrengthRules(){
-        Strength_Lvl_Cap = plugin.getConfig().getConfigurationSection("Skills").getInt("strength.Max");
+        Strength_Lvl_Cap = plugin.getConfig().getConfigurationSection("Skills").getInt("Strength.Max");
     }
 }

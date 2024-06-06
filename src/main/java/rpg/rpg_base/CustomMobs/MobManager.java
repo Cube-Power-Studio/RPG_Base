@@ -2,11 +2,14 @@
 
     import com.sk89q.worldedit.bukkit.BukkitAdapter;
     import com.sk89q.worldedit.math.BlockVector3;
+    import com.sk89q.worldedit.world.World;
     import com.sk89q.worldguard.WorldGuard;
     import com.sk89q.worldguard.protection.ApplicableRegionSet;
+    import com.sk89q.worldguard.protection.flags.StateFlag;
     import com.sk89q.worldguard.protection.managers.RegionManager;
     import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
+    import com.sk89q.worldguard.protection.regions.RegionContainer;
     import org.bukkit.ChatColor;
     import org.bukkit.Material;
     import org.bukkit.configuration.file.YamlConfiguration;
@@ -19,78 +22,58 @@
     import org.bukkit.event.entity.EntityDeathEvent;
     import org.bukkit.event.entity.EntitySpawnEvent;
     import org.bukkit.inventory.ItemStack;
+    import org.bukkit.persistence.PersistentDataType;
+    import org.bukkit.scheduler.BukkitRunnable;
+    import org.bukkit.util.BlockVector;
     import rpg.rpg_base.CustomItemsManager.ItemHandlers;
     import rpg.rpg_base.RPG_Base;
     import rpg.rpg_base.StatManager.DamageManager;
     import rpg.rpg_base.StatManager.HealthManager;
 
     import java.io.File;
-    import java.util.HashMap;
-    import java.util.List;
-    import java.util.UUID;
+    import java.util.*;
 
 
     public class MobManager implements Listener {
 
         private static final HashMap<UUID, List<String>> customEntitiesDrops = new HashMap<>();
-        @EventHandler
-        public static void spawnEntity(EntitySpawnEvent event) {
+        private static final List<UUID> mobList = new ArrayList<>();
+        public static RPG_Base rpg_base;
 
-            Entity entity = event.getEntity();
-
-            if (entity instanceof LivingEntity && !(entity instanceof Player)) {
-
-
-                com.sk89q.worldedit.world.World weWorld = BukkitAdapter.adapt(entity.getWorld());
-                RegionManager regionManager = WorldGuard.getInstance().getPlatform().getRegionContainer().get(weWorld);
-                BlockVector3 location = BlockVector3.at(entity.getLocation().getX(), entity.getLocation().getY(), entity.getLocation().getZ());
-                ApplicableRegionSet regions = regionManager.getApplicableRegions(location);
-
-                for (ProtectedRegion region : regions) {
-                    File regionFile = new File(RPG_Base.getInstance().getDataFolder() + "/WG/" + region.getId() + ".yml");
-                    YamlConfiguration regionConfig = YamlConfiguration.loadConfiguration(regionFile);
-
-                    String entityTypeName = entity.getName().toLowerCase();
-
-                    if (!entityTypeName.equals("player") && !entityTypeName.equals("armor stand") && !entityTypeName.equals("glow squid")) {
-                        if (regionConfig.isConfigurationSection(entityTypeName)) {
-                            if (regionConfig.getBoolean(entityTypeName + ".spawn")) {
-                                entity.addScoreboardTag("custom_mob");
-                                int levelMin = regionConfig.getInt(entityTypeName + ".minlvl", -1);
-                                int levelMax = regionConfig.getInt(entityTypeName + ".maxlvl", -1);
-
-                                DamageManager.setEntityDamage(entity.getUniqueId(), regionConfig.getInt(entityTypeName + ".damage", 10));
-                                List<String> drops = regionConfig.getStringList(entityTypeName + ".drops");
-
-                                customEntitiesDrops.put(entity.getUniqueId(), drops);
-                                if (levelMin != -1 && levelMax != -1) {
-                                    MobLevelManager.setEntityLevel(entity.getUniqueId(), levelMin, levelMax);
-
-                                } else {
-                                    System.out.println("Missing or invalid minlvl or maxlvl for " + entityTypeName);
-                                }
-                            } else {
-                                event.setCancelled(true);
-                            }
-                        } else {
-                            System.out.println("Entity section is missing for " + entityTypeName);
-                        }
-                    }
-                }
-            }
-            if (entity.getType().isAlive()) {
-                entity.setCustomName(ChatColor.GOLD + "[" + MobLevelManager.getEntityLevel(entity.getUniqueId()) + "Lvl] - " + ChatColor.RESET + entity.getName() + " " + ChatColor.RED + HealthManager.getEntityHealth(entity.getUniqueId()) + "/" + HealthManager.getEntityMaxHealth((entity.getUniqueId())) + "❤");
-                entity.setCustomNameVisible(true);
-            }
+        public MobManager(RPG_Base rpg_base){
+            MobManager.rpg_base = rpg_base;
         }
 
         @EventHandler
-        public static void onEntityDamage(EntityDamageEvent event) {
-            Entity entity = event.getEntity();
-            if (entity.getType().isAlive()) {
-                entity.setCustomNameVisible(true);
-                entity.setCustomName(null);
-                entity.setCustomName(ChatColor.GOLD + "[" + MobLevelManager.getEntityLevel(entity.getUniqueId()) + "Lvl] - " + ChatColor.RESET + entity.getName() + ChatColor.RED + HealthManager.getEntityHealth(entity.getUniqueId()) + "/" + HealthManager.getEntityMaxHealth((entity.getUniqueId())));
+        public void spawnEntity(EntitySpawnEvent event) {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    Entity entity = event.getEntity();
+
+                    World weWorld = BukkitAdapter.adapt(entity.getWorld());
+                    RegionManager regionManager = WorldGuard.getInstance().getPlatform().getRegionContainer().get(weWorld);
+                    BlockVector3 location = BlockVector3.at(entity.getLocation().getX(), entity.getLocation().getY(), entity.getLocation().getZ());
+                    ApplicableRegionSet regions = regionManager.getApplicableRegions(location);
+
+                    for (ProtectedRegion region : regions) {
+                        if(region.getFlag(MobFlags.customMobsFlag) == StateFlag.State.ALLOW){
+                            if (mobList.contains(entity.getUniqueId())) {
+
+                            }else{
+                                System.out.println("Canceled spawn event for: " + event.getEntity().getName());
+                                event.setCancelled(true);
+                            }
+                        }
+                    }
+                    if (entity.getType().isAlive()) {
+                        entity.setCustomName(ChatColor.GOLD + "[" + MobLevelManager.getEntityLevel(entity.getUniqueId()) + "Lvl] - " + ChatColor.RESET + entity.getName() + " " + ChatColor.RED + HealthManager.getEntityHealth(entity.getUniqueId()) + "/" + HealthManager.getEntityMaxHealth((entity.getUniqueId())) + "❤");
+                        entity.setCustomNameVisible(true);
+                    }
+                }
+            }.runTaskLater(rpg_base, 10);
+            if(event.isCancelled()){
+                rpg_base.getLogger().warning("ENTITY SPAWN CANCELLED FOR: " + event.getEntity());
             }
         }
 
@@ -98,47 +81,54 @@
         public static void onEntityKill(EntityDeathEvent event) {
             event.getDrops().clear();
             Entity entity = event.getEntity();
+            entity.setCustomName(null);
 
             if (!(entity instanceof Player)) {
-                com.sk89q.worldedit.world.World weWorld = BukkitAdapter.adapt(entity.getWorld());
-                RegionManager regionManager = WorldGuard.getInstance().getPlatform().getRegionContainer().get(weWorld);
-                BlockVector3 location = BlockVector3.at(entity.getLocation().getX(), entity.getLocation().getY(), entity.getLocation().getZ());
-                ApplicableRegionSet regions = regionManager.getApplicableRegions(location);
-
-                for (ProtectedRegion region : regions) {
-                    File regionFile = new File(RPG_Base.getInstance().getDataFolder() + "/WG/" + region.getId() + ".yml");
-                    YamlConfiguration regionConfig = YamlConfiguration.loadConfiguration(regionFile);
-                    String entityTypeName = entity.getName().toLowerCase();
-
+                String entityTypeName = entity.getName().toLowerCase();
+                if(mobList.contains(entity.getUniqueId())) {
                     if (!entityTypeName.equals("player") && !entityTypeName.equals("armor stand") && !entityTypeName.equals("glow squid")) {
                         if (entity.getType().isAlive() && customEntitiesDrops.containsKey(entity.getUniqueId())) {
 
-                            // Get the drops from the YAML file
-                            List<String> customDrops = customEntitiesDrops.get(entity.getUniqueId());
+//                            // Get the drops from the YAML file
+//                            List<String> customDrops = customEntitiesDrops.get(entity.getUniqueId());
+//
+//                            for (String customDrop : customDrops) {
+//                                Material material = Material.matchMaterial(customDrop);
+//
+//                                if (material != null) {
+//                                    // If the string represents a valid material, create ItemStack with that material
+//                                    ItemStack itemStack = new ItemStack(material);
+//                                    entity.getLocation().getWorld().dropItem(entity.getLocation(), itemStack);
+//                                } else {
+//                                    // If it's not a valid material, assume it's a custom item identifier and handle accordingly
+//                                    ItemStack customItemStack = ItemHandlers.getCustomItemByName(customDrop);
+//
+//                                    if (customItemStack != null) {
+//                                        entity.getLocation().getWorld().dropItem(entity.getLocation(), customItemStack);
+//                                    } else {
+//                                        // Handle the case when the custom item is not found
+//                                        // For now, let's print a message to the console
+//                                        RPG_Base.getInstance().getLogger().warning("Custom item not found: " + customDrop + " For mob: " + entityTypeName);
+//                                    }
+//                                }
+//                            }
 
-                            for (String customDrop : customDrops) {
-                                Material material = Material.matchMaterial(customDrop);
-
-                                if (material != null) {
-                                    // If the string represents a valid material, create ItemStack with that material
-                                    ItemStack itemStack = new ItemStack(material);
-                                    entity.getLocation().getWorld().dropItem(entity.getLocation(), itemStack);
-                                } else {
-                                    // If it's not a valid material, assume it's a custom item identifier and handle accordingly
-                                    ItemStack customItemStack = ItemHandlers.getCustomItemByName(customDrop);
-
-                                    if (customItemStack != null) {
-                                        entity.getLocation().getWorld().dropItem(entity.getLocation(), customItemStack);
-                                    } else {
-                                        // Handle the case when the custom item is not found
-                                        // For now, let's print a message to the console
-                                        RPG_Base.getInstance().getLogger().warning("Custom item not found: " + customDrop);
-                                    }
-                                }
-                            }
                         }
                     }
                 }
             }
+
+            World world = BukkitAdapter.adapt(entity.getWorld());
+            RegionContainer regionContainer = WorldGuard.getInstance().getPlatform().getRegionContainer();
+            if(entity.getPersistentDataContainer().get(CustomEntity.regionKey, PersistentDataType.STRING) != null) {
+                System.out.println("SPAWNING MOB");
+                ProtectedRegion protectedRegion = regionContainer.get(world).getRegion(entity.getPersistentDataContainer().get(CustomEntity.regionKey, PersistentDataType.STRING));
+                new SpawnMobs(rpg_base, protectedRegion, entity.getWorld()).run();
+            }else{
+                System.out.println("Nothing happened");
+            }
+        }
+        public static void registerMob(UUID uuid){
+            mobList.add(uuid);
         }
     }
