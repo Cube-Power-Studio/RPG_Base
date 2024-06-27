@@ -104,6 +104,8 @@ public final class RPG_Base extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(mobManager, this);
         Bukkit.getPluginManager().registerEvents(miningManager, this);
 
+        StrengthManager strengthManager = new StrengthManager(this);
+        HealthManager healthManager = new HealthManager(this);
         EnduranceManager enduranceManager = new EnduranceManager(this);
         LevelManager skillPointHandler = new LevelManager(this);
 

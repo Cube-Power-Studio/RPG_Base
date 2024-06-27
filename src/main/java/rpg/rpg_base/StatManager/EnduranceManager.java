@@ -24,7 +24,7 @@ public class EnduranceManager implements Listener {
     private static final Map<Player, Integer> endurance_Armor = new HashMap<>();
     private static final Map<Player, Integer> endurance_HP_Regen = new HashMap<>();
 
-    public static void EnduranceStats(Player player){
+    public static void enduranceStats(Player player){
         setEndurance_armor(player , Armor_per_lvl*getEndurance_lvl(player ));
         setEndurance_hp(player , HP_per_lvl * getEndurance_lvl(player ));
         setEndurance_HP_Regen(player , HP_regen_per_lvl*getEndurance_lvl(player ));

@@ -98,15 +98,11 @@ public class SkillGui extends InventoryGUI {
                             if (EnduranceManager.getEndurance_lvl( player) < EnduranceManager.Endurance_Lvl_Cap) {
                                 EnduranceManager.setEndurance_lvl( player,EnduranceManager.getEndurance_lvl( player)+1);
                                 LevelManager.setPlayerSpentSkillPoints(player, LevelManager.getPlayerSpentSkillPoints(player) + 1);
-                                LevelManager.UpdateLevel(player);
-                                EnduranceManager.EnduranceStats(player);
                             }
                         } else if (event.getSlot() == 12) {
                             if (StrengthManager.getStrength_lvl(player)  < StrengthManager.Strength_Lvl_Cap){
                                 StrengthManager.setStrength_lvl(player, StrengthManager.getStrength_lvl(player) + 1);
                                 LevelManager.setPlayerSpentSkillPoints(player, LevelManager.getPlayerSpentSkillPoints(player) + 1);
-                                LevelManager.UpdateLevel(player);
-                                StrengthManager.strengthStats(player);
                             }
 
                         }

@@ -3,15 +3,13 @@ package rpg.rpg_base.StatManager;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.UUID;
-
 public class HealthRegen extends BukkitRunnable {
-    private Player player;
+    private final Player player;
     private volatile boolean isRunning = false;
     private volatile boolean isScheduled = false;
 
     public HealthRegen(Player player) {
-        player = player;
+        this.player = player;
     }
 
     @Override

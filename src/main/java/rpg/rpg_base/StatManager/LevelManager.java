@@ -12,9 +12,13 @@ import java.util.UUID;
 public class LevelManager {
     public static int LevelMax;
     public static int skillPointsPerLevel;
+    public static double xpForNextLevelScale = 1;
 
     private static RPG_Base plugin;
 
+    private static final Map<Player, Integer> totalXp = new HashMap<>();
+    private static final Map<Player, Integer> xp = new HashMap<>();
+    private static final Map<Player, Integer> xpToNextLevel = new HashMap<>();
     private static final Map<Player, Integer> previousLevels = new HashMap<>();
     private static final Map<Player, Integer> totalSkillPoints = new HashMap<>();
     private static final Map<Player, Integer> spentSkillPoints = new HashMap<>();
@@ -33,10 +37,18 @@ public class LevelManager {
         skillPointsPerLevel = plugin.getConfig().getConfigurationSection("Levels").getInt("SkillPointsPerLevel");
     }
 
-    public static void UpdateLevel(Player player) {
-        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
-            updateSkillPoints(player);
-        }, 5L);
+    public static void updatePlayerLevel(Player player) {
+        if(!xp.containsKey(player)){
+            xp.put(player, 0);
+            xpToNextLevel.put(player, 10);
+        }
+        if(xp.get(player) >= xpToNextLevel.get(player)){
+            addPlayer_lvl(player, 1);
+            xpToNextLevel.put(player, Math.toIntExact(Math.round(xpToNextLevel.get(player) * xpForNextLevelScale)));
+        }
+
+
+        updateSkillPoints(player);
     }
 
     public static synchronized void updateSkillPoints(Player player) {
@@ -71,6 +83,7 @@ public class LevelManager {
         setPlayerPreviousLevel(player);
     }
 
+    //LEVELS
     public static int getPlayerPreviousLevel(Player player) {
         return previousLevels.getOrDefault(player, 0);
     }
@@ -90,10 +103,29 @@ public class LevelManager {
         previousLevels.put(player, getPlayerLevel(player));
     }
 
+
+    //EXPERIENCE
+    public static int getXP(Player player){
+        return xp.get(player);
+    }
+    public static void setXp(Player player, int Xp){
+        xp.put(player, Xp);
+    }
+    public static void addXp(Player player, int Xp){
+        xp.put(player, getXP(player) + Xp);
+    }
+    public static void remXp(Player player, int Xp){
+        xp.put(player, getXP(player) - Xp);
+    }
+    public static void setTotalXp(Player player, int Xp){
+        totalXp.put(player, Xp);
+    }
+
+
+    //SKILL POINTS
     public static int getPlayerTotalSkillPoints(Player player) {
         return totalSkillPoints.getOrDefault(player, skillPointsPerLevel);
     }
-
     public static void setPlayerSpentSkillPoints(Player player, int SpentSkillPoints) {
         spentSkillPoints.put(player, SpentSkillPoints);
     }

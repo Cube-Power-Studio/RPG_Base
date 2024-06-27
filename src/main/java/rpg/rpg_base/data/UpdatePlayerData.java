@@ -23,16 +23,11 @@ public class UpdatePlayerData extends BukkitRunnable {
 
             // Iterate over online players and update their stats
             for (Player player : Bukkit.getOnlinePlayers()) {
-                LevelManager.UpdateLevel(player);
-                ActionBar.statisticBar();
+
                 PlayerDataManager.savePlayerData(player);
 
-                if(HealthManager.getPlayerHealth(player) <= 0 ){
-                    HealthManager.setPlayerHealth(player, 0);
-                }
-                if(EnduranceManager.getEndurance_lvl(player)<0){
-                    EnduranceManager.setEndurance_lvl(player, 0);
-                }
+
+
             }
         } else {
             // Print a warning if the plugin is not found

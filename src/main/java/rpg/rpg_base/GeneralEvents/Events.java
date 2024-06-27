@@ -46,8 +46,6 @@ public class Events implements Listener {
                 e.printStackTrace();
             }
         }
-        EnduranceManager.EnduranceStats(event.getPlayer());
-        StrengthManager.strengthStats(event.getPlayer());
         HealthManager.setPlayerHealth(event.getPlayer(), HealthManager.getPlayerMaxHealth(event.getPlayer()));
     }
 

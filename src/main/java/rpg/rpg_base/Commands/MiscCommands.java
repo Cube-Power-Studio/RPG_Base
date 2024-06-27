@@ -106,17 +106,37 @@ public class MiscCommands implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] args) {
         List<String> list = new ArrayList<>();
         if(command.getName().equals("RPG")){
-            if(args.length == 1){
+            if(args.length == 0){
                 list.add("reload");
                 list.add("spawnMobs");
                 list.add("give");
+                list.add("levelAdd");
+                list.add("levelRem");
                 Collections.sort(list);
+
+                return list;
             }
-            if(args.length == 2){
-                if(args[1].equals("give")){
+            if(args[0].equals("give")){
+                if(args[1] == null) {
                     list.addAll(ItemHandlers.getCustomItemsName());
                     Collections.sort(list);
                 }
+
+                return list;
+            }
+            if(args[0].equals("levelAdd") || args[0].equals("levelRem")){
+                if(args[1] == null) {
+                    list.add("endurance");
+                    list.add("strength");
+                    list.add("general");
+                }
+                if(args[2] == null){
+                    for(Player player : Bukkit.getOnlinePlayers()){
+                        list.add(player.getName());
+                    }
+                }
+
+                return list;
             }
         }
         return list;
