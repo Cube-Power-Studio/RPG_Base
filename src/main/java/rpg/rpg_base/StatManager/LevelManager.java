@@ -1,13 +1,10 @@
 package rpg.rpg_base.StatManager;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import rpg.rpg_base.GuiHandlers.GUIManager;
 import rpg.rpg_base.RPG_Base;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 public class LevelManager {
     public static int LevelMax;

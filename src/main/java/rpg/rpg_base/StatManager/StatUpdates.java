@@ -45,11 +45,7 @@ public class StatUpdates extends BukkitRunnable {
             DamageManager.setPlayerDamage(player, itemDamage + StrengthManager.getStrength_dmg(player));
             HealthManager.setPlayerMaxHealth(player, itemHealth + EnduranceManager.getEndurance_hp(player)+100);
             if (HealthManager.getPlayerHealth(player) < HealthManager.getPlayerMaxHealth(player)) {
-                HealthRegen healthRegen = new HealthRegen(player);
-                if (!healthRegen.isRunning()) {
-                    healthRegen.runTaskTimer(plugin, 0, 20);  // Schedule the task to run every second (20 ticks)
-                    healthRegen.setScheduled(true);
-                }
+                HealthManager.healthRegen(player);
             }
             if (HealthManager.getPlayerHealth(player) > HealthManager.getPlayerMaxHealth(player)) {
                 HealthManager.setPlayerHealth(player, HealthManager.getPlayerMaxHealth(player));

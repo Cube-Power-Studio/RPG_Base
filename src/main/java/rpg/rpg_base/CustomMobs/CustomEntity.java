@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Set;
 
 public class CustomEntity {
+    public static String name;
     public static EntityType type;
     public static NamespacedKey regionKey = new NamespacedKey(RPG_Base.getInstance(), "region");;
     public static String tagVal;
@@ -58,6 +59,8 @@ public class CustomEntity {
                         ((Piglin) entity).setAdult();
                     }
 
+                    MobLevelManager.setEntityScaling(name, entityStatScalePerLvl);
+                    MobLevelManager.setEntityLevel(entity.getUniqueId(), Integer.parseInt(entityLvlMin), Integer.parseInt(entityLvlMax));
                     HealthManager.setEntityMaxHealth(entity.getUniqueId(), Integer.parseInt(entityHealth));
                     HealthManager.setEntityHealth(entity.getUniqueId(), HealthManager.getEntityMaxHealth(entity.getUniqueId()));
                     DamageManager.setEntityBaseDamage(entity.getUniqueId(), Integer.parseInt(entityDamage));
@@ -84,6 +87,7 @@ public class CustomEntity {
             Set<String> mobKeys = entitySection.getKeys(false);
 
             for(String key : mobKeys) {
+                name = key;
                 String entityType = entity.getString(key + ".type");
                 entityHealth = entity.getString(key + ".health");
                 entityDamage = entity.getString(key + ".damage");
