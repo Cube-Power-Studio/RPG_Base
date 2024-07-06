@@ -1,37 +1,19 @@
-package rpg.rpg_base.CustomMining;
+package rpg.rpg_base.CustomMobs;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
-public class BlockChanceSelector {
-    private final Map<Material, Float> blockChances = new HashMap<>();
+public class MobDrops {
+
     private final Map<ItemStack, Integer> dropChances = new HashMap<>();
     private final Random random = new Random();
 
-    public void addBlockChance(Material material, float chance) {
-        blockChances.put(material, chance);
-    }
-
-    public String selectBlock() {
-        List<Material> materials = new ArrayList<>();
-        for (Map.Entry<Material, Float> entry : blockChances.entrySet()) {
-            for (int i = 0; i < entry.getValue(); i++) {
-                materials.add(entry.getKey());
-            }
-        }
-        if (materials.isEmpty()) {
-            return null; // No blocks defined
-        }
-        Material selectedMaterial = materials.get(random.nextInt(materials.size()));
-        return selectedMaterial.name();
-    }
     public void addDropChance(ItemStack item, float chance) {
         int scaledChance = (int) (chance * 10000); // Scale chance by 10000
         dropChances.put(item, scaledChance);
     }
-
     public ItemStack[] itemDrops() {
         List<ItemStack> drops = new ArrayList<>();
 
@@ -79,3 +61,4 @@ public class BlockChanceSelector {
         return new ItemStack(Material.AIR); // Default to air if no item is selected
     }
 }
+

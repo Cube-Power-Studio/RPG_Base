@@ -1,15 +1,16 @@
 package rpg.rpg_base.GuiHandlers;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Consumer;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class InventoryButton {
-    private Function<Player, ItemStack> iconCreator;
-    private Consumer<InventoryClickEvent> eventConsumer;
+    private Function<Player, ItemStack> iconCreator = player -> new ItemStack(Material.AIR); // Default creator
+    private Consumer<InventoryClickEvent> eventConsumer = event -> {}; // Default consumer does nothing
 
     public InventoryButton creator(Function<Player, ItemStack> iconCreator) {
         this.iconCreator = iconCreator;

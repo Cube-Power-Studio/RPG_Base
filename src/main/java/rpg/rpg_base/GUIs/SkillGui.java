@@ -60,6 +60,7 @@ public class SkillGui extends InventoryGUI {
         }
                 .creator(player -> new ItemStack(material))
                 .consumer(event -> {
+                    event.setCancelled(true);
                 });
     }
     private InventoryButton createUpdateButtons(ItemStack itemStack, int slot, long cooldownTicks){

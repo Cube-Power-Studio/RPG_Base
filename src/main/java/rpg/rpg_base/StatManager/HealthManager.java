@@ -1,10 +1,15 @@
 package rpg.rpg_base.StatManager;
 
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.persistence.PersistentDataType;
+import rpg.rpg_base.CustomMobs.MobManager;
 import rpg.rpg_base.RPG_Base;
 
 import java.util.HashMap;
@@ -18,9 +23,9 @@ public class HealthManager {
     private static final HashMap<Player, Integer> playerMaxHealth = new HashMap<>();
     private static final HashMap<Player, Integer> playerHealth = new HashMap<>();
     private static final HashMap<Player, Integer> playerHealthRegen = new HashMap<>();
+    public static final HashMap<UUID, HealthRegen> healthRegenTasks = new HashMap<>();
     private static final HashMap<UUID, Integer> entityMaxHealth = new HashMap<>();
     private static final HashMap<UUID, Integer> entityHealth = new HashMap<>();
-
 
     @SuppressWarnings({"ConstantConditions","StatementWithEmptyBody"})
 
@@ -84,6 +89,7 @@ public class HealthManager {
             remEntityHealth(entityUUID, damageAmount);
 
             if (getEntityHealth(entityUUID) <= 0) {
+                target.getPersistentDataContainer().set(MobManager.killerKey, PersistentDataType.STRING, damager.getUniqueId().toString());
                 ((Damageable) target).setHealth(0);
             }
         }
@@ -91,11 +97,24 @@ public class HealthManager {
         e.setDamage(0);
     }
 
-    //Player section of HealthManager
-    public static void healthRegen(Player uuid){
-        if(getPlayerHealth(uuid) <= getPlayerMaxHealth(uuid)) {
-            new HealthRegen(uuid).runTaskTimer(plugin, 0, 20);
+    public static void healthRegen(Player player) {
+        UUID playerId = player.getUniqueId();
+        if (getPlayerHealth(player) < getPlayerMaxHealth(player)) {
+            // Check if there is a running HealthRegen task for the player
+            HealthRegen existingTask = healthRegenTasks.get(playerId);
+            if (existingTask == null || !existingTask.isRunning()) {
+                // Create and start a new HealthRegen task
+                HealthRegen healthRegen = new HealthRegen(player);
+                healthRegen.runTaskTimer(plugin, 0, 20);
+                healthRegenTasks.put(playerId, healthRegen);
+            }
         }
+    }
+
+    public boolean isHealthRegenRunning(Player player) {
+        UUID playerId = player.getUniqueId();
+        HealthRegen healthRegen = healthRegenTasks.get(playerId);
+        return healthRegen != null && healthRegen.isRunning();
     }
 
     public static int getPlayerMaxHealth(Player p){

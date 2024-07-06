@@ -93,7 +93,7 @@ public final class RPG_Base extends JavaPlugin {
 
         ItemHandlers itemHandlers = new ItemHandlers(this);
         GUIManager guiManager = new GUIManager();
-        Events events = new Events();
+        Events events = new Events(this, guiManager);
         GUIListener guiListener = new GUIListener(guiManager);
         MobManager mobManager = new MobManager(this);
         MiningManager miningManager = new MiningManager(this);
@@ -122,7 +122,7 @@ public final class RPG_Base extends JavaPlugin {
         new StatUpdates(this).runTaskTimer(this,0,5);
         new MobSpawningTask(this).run();
 
-        playersFolder = new File(getDataFolder() + File.separator + "players");
+        playersFolder = new File(getDataFolder() + File.separator + "player");
         if (!playersFolder.exists()) {
             playersFolder.mkdir();
         }

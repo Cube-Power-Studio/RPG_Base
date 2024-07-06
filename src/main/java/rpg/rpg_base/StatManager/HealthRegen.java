@@ -6,7 +6,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class HealthRegen extends BukkitRunnable {
     private final Player player;
     private volatile boolean isRunning = false;
-    private volatile boolean isScheduled = false;
 
     public HealthRegen(Player player) {
         this.player = player;
@@ -15,32 +14,26 @@ public class HealthRegen extends BukkitRunnable {
     @Override
     public void run() {
         isRunning = true;
-        if (HealthManager.getPlayerHealth( player) + HealthManager.getPlayerHealthRegen(player) > HealthManager.getPlayerMaxHealth(player)) {
-            HealthManager.addPlayerHealth( player, HealthManager.getPlayerMaxHealth(player) - HealthManager.getPlayerHealth(player));
-        } else {
-            HealthManager.addPlayerHealth( player, HealthManager.getPlayerHealthRegen(player));
-        }
-        if (HealthManager.getPlayerHealth( player) >= HealthManager.getPlayerMaxHealth(player)) {
-            isRunning = false;
-            if (isScheduled) {
-                this.cancel();
-            }
-        }
-    }
 
-    @Override
-    public synchronized void cancel() throws IllegalStateException {
-        if (isScheduled) {
+        // Add health regeneration logic
+        double currentHealth = HealthManager.getPlayerHealth(player);
+        double regenAmount = HealthManager.getPlayerHealthRegen(player);
+        double maxHealth = HealthManager.getPlayerMaxHealth(player);
+
+        if (currentHealth + regenAmount > maxHealth) {
+            HealthManager.addPlayerHealth(player, (int) (maxHealth - currentHealth));
+        } else {
+            HealthManager.addPlayerHealth(player, (int) regenAmount);
+        }
+
+        // Check if the player's health is at max
+        if (HealthManager.getPlayerHealth(player) >= maxHealth) {
             isRunning = false;
-            super.cancel();
+            cancel();  // Cancel the task and it will be removed from the scheduler automatically
         }
     }
 
     public boolean isRunning() {
         return isRunning;
-    }
-
-    public void setScheduled(boolean scheduled) {
-        isScheduled = scheduled;
     }
 }

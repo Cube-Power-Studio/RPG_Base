@@ -1,5 +1,6 @@
 package rpg.rpg_base.StatManager;
 
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import rpg.rpg_base.RPG_Base;
 
@@ -9,7 +10,7 @@ import java.util.Map;
 public class LevelManager {
     public static int LevelMax;
     public static int skillPointsPerLevel;
-    public static double xpForNextLevelScale = 1;
+    public static double xpForNextLevelScale = 1.2;
 
     private static RPG_Base plugin;
 
@@ -40,6 +41,7 @@ public class LevelManager {
             xpToNextLevel.put(player, 10);
         }
         if(xp.get(player) >= xpToNextLevel.get(player)){
+            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
             addPlayer_lvl(player, 1);
             xpToNextLevel.put(player, Math.toIntExact(Math.round(xpToNextLevel.get(player) * xpForNextLevelScale)));
         }
@@ -116,6 +118,9 @@ public class LevelManager {
     }
     public static void setTotalXp(Player player, int Xp){
         totalXp.put(player, Xp);
+    }
+    public static int getXpToNextLvl(Player player){
+        return xpToNextLevel.get(player);
     }
 
 

@@ -6,14 +6,7 @@ import java.util.UUID;
 
 public class MobLevelManager {
     public static HashMap<UUID, Integer> entityLevels = new HashMap<>();
-    public static HashMap<String, Double> entityScaling = new HashMap<>();
 
-    public static void setEntityScaling(String mobName, double scale){
-        entityScaling.put(mobName, scale);
-    }
-    public static double getEntityScaling(String mobName){
-        return entityScaling.get(mobName);
-    }
     public static int getEntityLevel(UUID uuid){
         return entityLevels.getOrDefault(uuid,0);
     }
