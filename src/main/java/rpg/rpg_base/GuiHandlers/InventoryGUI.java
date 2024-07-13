@@ -3,6 +3,7 @@ package rpg.rpg_base.GuiHandlers;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -34,6 +35,9 @@ public abstract class InventoryGUI implements InventoryHandler{
             ItemStack icon = button.getIconCreator().apply(player);
             this.inventory.setItem(slot, icon);
         });
+    }
+
+    public void onDrag(InventoryDragEvent e) {
     }
 
     @Override

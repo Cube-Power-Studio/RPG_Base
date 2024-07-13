@@ -25,7 +25,6 @@ import java.io.File;
 import java.util.*;
 
 public class MiningManager implements Listener {
-    private static final HashMap<UUID, List<String>> customBlockDrops = new HashMap<>();
     private static RPG_Base plugin;
     private static final Random random = new Random();
 

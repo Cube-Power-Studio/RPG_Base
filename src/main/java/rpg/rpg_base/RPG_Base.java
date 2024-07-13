@@ -3,7 +3,6 @@ package rpg.rpg_base;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
-import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.session.SessionManager;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -20,10 +19,12 @@ import rpg.rpg_base.CustomMining.MiningFlagHandler;
 import rpg.rpg_base.CustomMining.MiningFlags;
 import rpg.rpg_base.CustomMining.MiningManager;
 import rpg.rpg_base.CustomMobs.*;
+import rpg.rpg_base.GUIs.CraftingGui;
 import rpg.rpg_base.GeneralEvents.ChatListener;
 import rpg.rpg_base.GeneralEvents.Events;
 import rpg.rpg_base.GuiHandlers.GUIListener;
 import rpg.rpg_base.GuiHandlers.GUIManager;
+import rpg.rpg_base.GUIs.RecipeLoader;
 import rpg.rpg_base.IslandManager.*;
 import rpg.rpg_base.IslandManager.events.IslandDeleteEvent;
 import rpg.rpg_base.IslandManager.events.IslandPreDeleteEvent;
@@ -49,6 +50,7 @@ public final class RPG_Base extends JavaPlugin {
     private IslandGrid grid;
     private ChatListener chatListener;
     private File playersFolder;
+    private File recipeFolder;
     private boolean newIsland = false;
     private Messages messages;
     private Map<String,RPGlocale> availableLocales = new HashMap<>();
@@ -95,6 +97,7 @@ public final class RPG_Base extends JavaPlugin {
         GUIManager guiManager = new GUIManager();
         Events events = new Events(this, guiManager);
         GUIListener guiListener = new GUIListener(guiManager);
+        CraftingGui craftingGui = new CraftingGui(this);
         MobManager mobManager = new MobManager(this);
         MiningManager miningManager = new MiningManager(this);
 
@@ -127,10 +130,25 @@ public final class RPG_Base extends JavaPlugin {
             playersFolder.mkdir();
         }
 
+        loadRecipes();
+
+
         try {
             getLogger().info("RPG_Base Plugin Enabled successfully!");
         }catch(Exception e){
             getLogger().info("RPG_Base Plugin catched an error!!! Check for updates or contact technician!!!" + e);
+        }
+    }
+
+    public void loadRecipes(){
+        recipeFolder = new File(getDataFolder() + File.separator + "recipes");
+        if(!recipeFolder.exists()) {
+            recipeFolder.mkdir();
+        }
+        if(recipeFolder.listFiles().length >= 1) {
+            for (File file : recipeFolder.listFiles()){
+                RecipeLoader.loadRecipe(YamlConfiguration.loadConfiguration(file));
+            }
         }
     }
 

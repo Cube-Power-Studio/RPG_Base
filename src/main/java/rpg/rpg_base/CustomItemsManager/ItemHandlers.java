@@ -82,7 +82,7 @@ public class ItemHandlers{
         }
     }
     public static ItemStack getCustomItemByName(String itemName) {
-        return customItemsByName.getOrDefault(itemName,new ItemStack(Material.STONE));
+        return customItemsByName.getOrDefault(itemName,new ItemStack(Material.AIR));
     }
     public static Set<String> getCustomItemsName(){
         return customItemsByName.keySet();

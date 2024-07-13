@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import rpg.rpg_base.CustomItemsManager.ItemHandlers;
 import rpg.rpg_base.CustomMobs.MobSpawningTask;
+import rpg.rpg_base.GUIs.CraftingHandler;
 import rpg.rpg_base.RPG_Base;
 import rpg.rpg_base.StatManager.EnduranceManager;
 import rpg.rpg_base.StatManager.LevelManager;
@@ -97,6 +98,14 @@ public class MiscCommands implements CommandExecutor, TabCompleter {
                         LevelManager.updateSkillPoints(target);
                     }
                 }
+                if (args[0].equals("recipe")){
+                    if (args[1].equals("reload")){
+                        for(ItemStack[] recipe : CraftingHandler.craftingList.keySet()){
+                            CraftingHandler.remRecipe(recipe);
+                        }
+                        RPG_Base.getInstance().loadRecipes();
+                    }
+                }
             }
         }
         return true;
@@ -105,38 +114,38 @@ public class MiscCommands implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] args) {
         List<String> list = new ArrayList<>();
-        if(command.getName().equals("RPG")){
-            if(args.length == 0){
+
+        if (command.getName().equalsIgnoreCase("RPG")) {
+            if (args.length == 1) {
                 list.add("reload");
                 list.add("spawnMobs");
                 list.add("give");
                 list.add("levelAdd");
                 list.add("levelRem");
+                list.add("recipe");
                 Collections.sort(list);
-
                 return list;
             }
-            if(args[0].equals("give")){
-                if(args[1] == null) {
-                    list.addAll(ItemHandlers.getCustomItemsName());
-                    Collections.sort(list);
-                }
-
+            if (args.length == 2 && args[0].equalsIgnoreCase("give")) {
+                list.addAll(ItemHandlers.getCustomItemsName());
+                Collections.sort(list);
                 return list;
             }
-            if(args[0].equals("levelAdd") || args[0].equals("levelRem")){
-                if(args[1] == null) {
+            if (args.length >= 2 && (args[0].equalsIgnoreCase("levelAdd") || args[0].equalsIgnoreCase("levelRem"))) {
+                if (args.length == 2) {
                     list.add("endurance");
                     list.add("strength");
                     list.add("general");
-                }
-                if(args[2] == null){
-                    for(Player player : Bukkit.getOnlinePlayers()){
+                } else if (args.length == 3) {
+                    for (Player player : Bukkit.getOnlinePlayers()) {
                         list.add(player.getName());
                     }
                 }
-
+                Collections.sort(list);
                 return list;
+            }
+            if(args.length == 2 && args[0].equalsIgnoreCase("recipe")){
+                list.add("reload");
             }
         }
         return list;

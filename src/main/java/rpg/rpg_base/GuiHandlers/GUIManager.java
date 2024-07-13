@@ -3,6 +3,7 @@ package rpg.rpg_base.GuiHandlers;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
 
@@ -39,6 +40,12 @@ public class GUIManager {
         if (handler != null) {
             handler.onClose(event);
             this.unregisterInventory(inventory);
+        }
+    }
+    public void handleDrage(InventoryDragEvent event){
+        InventoryHandler handler = this.activeInventories.get(event.getInventory());
+        if(handler != null){
+            handler.onDrag(event);
         }
     }
 }
