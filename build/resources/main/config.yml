@@ -1,0 +1,29 @@
+version: 1.1
+
+Skills:
+  Endurance:
+    Max: 50
+  Strength:
+    Max: 50
+Levels:
+  LevelMax: 50
+  SkillPointsPerLevel: 2
+
+IslandWorld: "isWorld"
+
+schematicsection:
+  schematics:
+  # default heading is required
+    default:
+      # Icon - if this is missing or wrong, it will be a MAP
+      icon: DIRT
+      # Order of preference in listing
+      order: 1
+      # Short name - color codes with & okay
+      name: "The Original"
+      # Longer description. Use | for new lines. Color codes okay.
+      description: "Challenging|starter|island!"
+      # Filename of the schematic in the schematic folder
+      filename: island.schematic
+      # Use default chest if true, or use schematic chest contents if false
+      useDefaultChest: true

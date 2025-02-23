@@ -14,6 +14,7 @@ public class GUIManager {
     private final Map<Inventory, InventoryHandler> activeInventories = new HashMap<>();
     public void openGui(InventoryGUI gui, Player player){
         this.registerHandledInventory(gui.getInventory(), gui);
+        gui.decorate(player);
         player.openInventory(gui.getInventory());
     }
     public void registerHandledInventory(Inventory inventory, InventoryHandler handler){
@@ -42,7 +43,7 @@ public class GUIManager {
             this.unregisterInventory(inventory);
         }
     }
-    public void handleDrage(InventoryDragEvent event){
+    public void handleDrag(InventoryDragEvent event){
         InventoryHandler handler = this.activeInventories.get(event.getInventory());
         if(handler != null){
             handler.onDrag(event);

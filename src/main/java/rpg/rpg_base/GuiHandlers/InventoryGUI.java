@@ -12,11 +12,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class InventoryGUI implements InventoryHandler{
-    private final Inventory inventory;
-    private final Map<Integer, InventoryButton> buttonMap = new HashMap<>();
+    protected Inventory inventory;
+    public String name;
+    protected Map<Integer, InventoryButton> buttonMap = new HashMap<>();
 
-    public InventoryGUI() {
-        this.inventory = this.createInventory();
+    public InventoryGUI(String invName) {
+        this.name = invName;
+        this.inventory = this.createInventory(name);
     }
 
     public Inventory getInventory() {
@@ -37,7 +39,9 @@ public abstract class InventoryGUI implements InventoryHandler{
         });
     }
 
+    @Override
     public void onDrag(InventoryDragEvent e) {
+
     }
 
     @Override
@@ -46,18 +50,19 @@ public abstract class InventoryGUI implements InventoryHandler{
         InventoryButton button = this.buttonMap.get(slot);
         if (button != null) {
             button.getEventConsumer().accept(event);
+            decorate((Player) event.getWhoClicked());
         }
     }
 
     @Override
     public void onOpen(InventoryOpenEvent event) {
-        this.decorate((Player) event.getPlayer());
+        decorate((Player) event.getPlayer());
     }
 
     @Override
     public void onClose(InventoryCloseEvent event) {
     }
 
-    protected abstract Inventory createInventory();
+    protected abstract Inventory createInventory(String invName);
 
 }

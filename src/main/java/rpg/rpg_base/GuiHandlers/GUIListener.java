@@ -26,5 +26,5 @@ public class GUIListener implements Listener {
         this.guiManager.handleClose(event);
     }
     @EventHandler
-    public void onDrag(InventoryDragEvent event){this.guiManager.handleDrage(event);}
+    public void onDrag(InventoryDragEvent event){this.guiManager.handleDrag(event);}
 }

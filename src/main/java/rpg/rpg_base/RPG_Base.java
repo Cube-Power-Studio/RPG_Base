@@ -4,60 +4,60 @@ import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import com.sk89q.worldguard.session.SessionManager;
+import net.citizensnpcs.api.CitizensAPI;
+import net.citizensnpcs.api.npc.NPC;
+import net.citizensnpcs.api.npc.NPCRegistry;
+import net.md_5.bungee.api.ChatColor;
+import org.betonquest.betonquest.BetonQuest;
+import org.betonquest.betonquest.api.logger.BetonQuestLoggerFactory;
+import org.betonquest.betonquest.quest.PrimaryServerThreadData;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.entity.*;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffect;
 import rpg.rpg_base.Commands.*;
-import rpg.rpg_base.CustomItemsManager.ItemHandlers;
-import rpg.rpg_base.CustomMining.MiningFlagHandler;
-import rpg.rpg_base.CustomMining.MiningFlags;
-import rpg.rpg_base.CustomMining.MiningManager;
-import rpg.rpg_base.CustomMobs.*;
-import rpg.rpg_base.GUIs.CraftingGui;
-import rpg.rpg_base.GeneralEvents.ChatListener;
+import rpg.rpg_base.CustomizedClasses.EntityHandler.EntitySpawner;
+import rpg.rpg_base.CustomizedClasses.EntityHandler.MobFlags;
+import rpg.rpg_base.CustomizedClasses.EntityHandler.MobFlagsHandler;
+import rpg.rpg_base.CustomizedClasses.EntityHandler.MobManager;
+import rpg.rpg_base.CustomizedClasses.ItemHandler.ItemManager;
+import rpg.rpg_base.CustomizedClasses.PlayerHandler.CPlayer;
+import rpg.rpg_base.Mining.MiningFlagHandler;
+import rpg.rpg_base.Mining.MiningFlags;
+import rpg.rpg_base.Mining.MiningManager;
+import rpg.rpg_base.Data.*;
+import rpg.rpg_base.Crafting.CraftingGui;
 import rpg.rpg_base.GeneralEvents.Events;
 import rpg.rpg_base.GuiHandlers.GUIListener;
 import rpg.rpg_base.GuiHandlers.GUIManager;
-import rpg.rpg_base.GUIs.RecipeLoader;
-import rpg.rpg_base.IslandManager.*;
-import rpg.rpg_base.IslandManager.events.IslandDeleteEvent;
-import rpg.rpg_base.IslandManager.events.IslandPreDeleteEvent;
-import rpg.rpg_base.StatManager.*;
-import rpg.rpg_base.data.PlayerCashe;
-import rpg.rpg_base.data.SavePlayerData;
-import rpg.rpg_base.data.UpdatePlayerData;
-import rpg.rpg_base.data.PlayerDataManager;
+import rpg.rpg_base.Crafting.RecipeLoader;
+import rpg.rpg_base.MoneyHandlingModule.MoneyManager;
+import rpg.rpg_base.Placeholders.CustomItemCount;
+import rpg.rpg_base.PlayerMenu.PlayerInventoryButtons;
+import rpg.rpg_base.PlayerMenu.PlayerMenuItem;
+import rpg.rpg_base.QuestModule.conditions.CustomItemCountFactory;
+import rpg.rpg_base.QuestModule.events.*;
+import rpg.rpg_base.QuestModule.objectives.CollectCustomItemsObjective;
+import rpg.rpg_base.QuestModule.objectives.KillCustomMobsObjective;
+import rpg.rpg_base.Shops.ShopsManager;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 
 public final class RPG_Base extends JavaPlugin {
     public File config;
     public FileConfiguration configData;
     private SessionManager sessionManager;
-    public static World islandWorld;
-    private PlayerCashe players;
-    private IslandGrid grid;
-    private ChatListener chatListener;
-    private File playersFolder;
     private File recipeFolder;
-    private boolean newIsland = false;
-    private Messages messages;
-    private Map<String,RPGlocale> availableLocales = new HashMap<>();
+    Util util = new Util();
+    private BetonQuestLoggerFactory loggerFactory;
+    private PrimaryServerThreadData data;
 
     @Override
     public void onLoad(){
 
+        DataBaseManager.connectToDb();
         WorldGuardPlugin worldGuardPlugin = (WorldGuardPlugin) this.getServer().getPluginManager().getPlugin("WorldGuard");
 
 
@@ -72,6 +72,7 @@ public final class RPG_Base extends JavaPlugin {
         try{
             FlagRegistry flagRegistry = worldGuard.getFlagRegistry();
             flagRegistry.register(MobFlags.customMobsFlag);
+            flagRegistry.register(MobFlags.customMobsTeleportBackFlag);
             flagRegistry.register(MiningFlags.customBlockMechanics);
         }catch (Exception e)
         {
@@ -84,6 +85,22 @@ public final class RPG_Base extends JavaPlugin {
     }
     @Override
     public void onEnable() {
+        if (Bukkit.getPluginManager().getPlugin("Citizens") == null) {
+            getLogger().warning("Citizens plugin not found. This plugin requires Citizens.");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) { //
+            new CustomItemCount().register(); //
+        }
+        if (Bukkit.getPluginManager().getPlugin("BetonQuest") == null){
+            getLogger().warning("BetonQuest plugin not found. This plugin requires BetonQuest");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+
+
+
         setup();
 
         WorldGuard worldGuard = WorldGuard.getInstance();
@@ -93,50 +110,66 @@ public final class RPG_Base extends JavaPlugin {
         this.sessionManager.registerHandler(MobFlagsHandler.FACTORY(), null);
         this.sessionManager.registerHandler(MiningFlagHandler.FACTORY(), null);
 
-        ItemHandlers itemHandlers = new ItemHandlers(this);
+
+        BetonQuest betonQuest = BetonQuest.getInstance();
+
+        this.loggerFactory = betonQuest.getLoggerFactory();
+        this.data = new PrimaryServerThreadData(getServer(), getServer().getScheduler(), betonQuest);
+
+        betonQuest.registerObjectives("custommobkill", KillCustomMobsObjective.class);
+        betonQuest.registerObjectives("customitemcollect", CollectCustomItemsObjective.class);
+
+        betonQuest.getQuestRegistries().getConditionTypes().registerCombined("hascustomitem", new CustomItemCountFactory(data));
+
+        betonQuest.getQuestRegistries().getEventTypes().register("givemoney", new GiveMoneyFactory(loggerFactory));
+        betonQuest.getQuestRegistries().getEventTypes().register("givexp", new GiveXPFactory(loggerFactory));
+        betonQuest.getQuestRegistries().getEventTypes().register("removecustomitem", new RemoveItemsFactory(loggerFactory));
+        betonQuest.getQuestRegistries().getEventTypes().register("givecustomitem", new GiveItemsFactory(loggerFactory));
+        betonQuest.getQuestRegistries().getEventTypes().register("shopopen", new ShopOpenFactory(loggerFactory));
+
+        ItemManager itemManager = new ItemManager(this, util);
         GUIManager guiManager = new GUIManager();
-        Events events = new Events(this, guiManager);
-        GUIListener guiListener = new GUIListener(guiManager);
-        CraftingGui craftingGui = new CraftingGui(this);
-        MobManager mobManager = new MobManager(this);
-        MiningManager miningManager = new MiningManager(this);
 
-        Bukkit.getPluginManager().registerEvents(guiListener, this);
-        Bukkit.getPluginManager().registerEvents(new EnduranceManager(this), this);
-        Bukkit.getPluginManager().registerEvents(events, this);
+        EntitySpawner entitySpawner = new EntitySpawner(util);
+        MobManager mobManager = new MobManager(util, entitySpawner);
+        mobManager.reloadEntities();
+
+        getLogger().info("Registering listeners...");
+
+        Bukkit.getPluginManager().registerEvents(new GUIListener(guiManager), this);
+        Bukkit.getPluginManager().registerEvents(new Events(this, guiManager), this);
+        Bukkit.getPluginManager().registerEvents(new MiningManager(this),this);
+        Bukkit.getPluginManager().registerEvents(new PlayerMenuItem(guiManager), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerInventoryButtons(), this);
         Bukkit.getPluginManager().registerEvents(mobManager, this);
-        Bukkit.getPluginManager().registerEvents(miningManager, this);
 
-        StrengthManager strengthManager = new StrengthManager(this);
-        HealthManager healthManager = new HealthManager(this);
-        EnduranceManager enduranceManager = new EnduranceManager(this);
-        LevelManager skillPointHandler = new LevelManager(this);
+        getLogger().info("Listeners registered successfully.");
 
-        itemHandlers.loadCustomItems();
+        MiscCommands miscCommands = new MiscCommands(this, itemManager);
 
-        getCommand("RPG").setExecutor(new MiscCommands(this, itemHandlers));
-        getCommand("Skills").setExecutor(new SkillMenuCommands(guiManager, this, enduranceManager));
+        ShopsManager shopsManager = new ShopsManager(guiManager);
+
+        getCommand("RPG").setExecutor(miscCommands);
+        getCommand("Pay").setExecutor(miscCommands);
+        getCommand("Bal").setExecutor(miscCommands);
+        getCommand("Skills").setExecutor(new SkillMenuCommands(guiManager, this));
+
+
 //        getCommand("island").setExecutor(new IslandCommands(this));
 
-        setBasicConfigs();
+
 
         new UpdatePlayerData().runTaskTimer(this, 0, 5);
         new SavePlayerData().runTaskTimer(this, 0,6000);
-        new StatUpdates(this).runTaskTimer(this,0,5);
-        new MobSpawningTask(this).run();
 
-        playersFolder = new File(getDataFolder() + File.separator + "player");
-        if (!playersFolder.exists()) {
-            playersFolder.mkdir();
-        }
+        mobManager.spawnMobsInRegions().runTaskTimer(this, 0, 300);
 
-        loadRecipes();
-
+        updateConfig();
 
         try {
             getLogger().info("RPG_Base Plugin Enabled successfully!");
         }catch(Exception e){
-            getLogger().info("RPG_Base Plugin catched an error!!! Check for updates or contact technician!!!" + e);
+            getLogger().info("RPG_Base Plugin caught an error!!! Check for updates or contact technician!!!" + e);
         }
     }
 
@@ -151,19 +184,11 @@ public final class RPG_Base extends JavaPlugin {
             }
         }
     }
-
-    public void setBasicConfigs() {
-        LevelManager.UpdateLevelRules();
-        EnduranceManager.updateEnduranceRules();
-        StrengthManager.updateStrengthRules();
-    }
-
-    public RPGlocale myLocale(UUID player) {
-        String locale = players.getLocale(player);
-        if (locale.isEmpty() || !availableLocales.containsKey(locale)) {
-            return availableLocales.get(Settings.defaultLanguage);
-        }
-        return availableLocales.get(locale);
+    public boolean isCitizensNPC(Entity entity) {
+        if (CitizensAPI.getNPCRegistry() == null) return false; // Ensure API is loaded
+        NPCRegistry npcRegistry = CitizensAPI.getNPCRegistry();
+        NPC npc = npcRegistry.getNPC(entity);
+        return npc != null;
     }
     private void setup() {
         config = new File(this.getDataFolder(), "config.yml");
@@ -174,9 +199,7 @@ public final class RPG_Base extends JavaPlugin {
         }
 
         configData = YamlConfiguration.loadConfiguration(config);
-        if(Bukkit.getWorld(configData.getString("IslandWorld"))!=null){
-            islandWorld = Bukkit.getWorld(configData.getString("IslandWorld"));
-        }
+
         try {
             double configVersion = getConfig().getDouble("version");
 
@@ -191,12 +214,12 @@ public final class RPG_Base extends JavaPlugin {
         }
     }
     public void updateConfig(){
+        ItemManager.loadCustomItems();
 
-        ItemHandlers itemHandlers = new ItemHandlers(this);
+        ShopsManager.loadShops();
 
-        itemHandlers.loadCustomItems();
+        loadRecipes();
 
-        setBasicConfigs();
         config = new File(this.getDataFolder(), "config.yml");
         configData = YamlConfiguration.loadConfiguration(config);
     }
@@ -209,140 +232,30 @@ public final class RPG_Base extends JavaPlugin {
         return getPlugin(RPG_Base.class);
     }
 
-    public void deletePlayerIsland(final UUID player, boolean removeBlocks) {
-        // Removes the island
-        //getLogger().info("DEBUG: deleting player island");
-        CoopPlay.getInstance().clearAllIslandCoops(player);
-        Island island = grid.getIsland(player);
-        if (island != null) {
-            getServer().getPluginManager().callEvent(new IslandPreDeleteEvent(player, island));
-            if (removeBlocks) {
-                grid.removePlayersFromIsland(island, player);
-                new DeleteIslandChunk(this, island);
-                //new DeleteIslandByBlock(this, island);
-            } else {
-                island.setLocked(false);
-                grid.setIslandOwner(island, null);
-            }
-            getServer().getPluginManager().callEvent(new IslandDeleteEvent(player, island.getCenter()));
-        } else {
-            getLogger().severe("Could not delete player: " + player.toString() + " island!");
-            getServer().getPluginManager().callEvent(new IslandDeleteEvent(player, null));
-        }
-        players.zeroPlayerData(player);
-    }
-
-
-    /**
-     * @return the grid
-     */
-    public IslandGrid getGrid() {
-        /*
-	if (grid == null) {
-	    grid = new GridManager(this);
-	}*/
-        return grid;
-    }
-
-    @SuppressWarnings("deprecation")
-    public void resetPlayer(Player player) {
-        // getLogger().info("DEBUG: clear inventory = " +
-        // Settings.clearInventory);
-        if (Settings.clearInventory
-                && (player.getWorld().getName().equalsIgnoreCase(Settings.worldName) || player.getWorld().getName()
-                .equalsIgnoreCase(Settings.worldName + "_nether"))) {
-            // Clear their inventory and equipment and set them as survival
-            player.getInventory().clear(); // Javadocs are wrong - this does not
-            // clear armor slots! So...
-            player.getInventory().setArmorContents(null);
-            player.getInventory().setHelmet(null);
-            player.getInventory().setChestplate(null);
-            player.getInventory().setLeggings(null);
-            player.getInventory().setBoots(null);
-            player.getEquipment().clear();
-        }
-        if (!player.isOp()) {
-            player.setGameMode(GameMode.SURVIVAL);
-        }
-        // Clear the starter island
-        players.clearStartIslandRating(player.getUniqueId());
-        // Save the player
-        players.save(player.getUniqueId());
-        // Update the inventory
-        player.updateInventory();
-        if (Settings.resetEnderChest) {
-            // Clear any Enderchest contents
-            final ItemStack[] items = new ItemStack[player.getEnderChest().getContents().length];
-            player.getEnderChest().setContents(items);
-        }
-        // Clear any potion effects
-        for (PotionEffect effect : player.getActivePotionEffects())
-            player.removePotionEffect(effect.getType());
-    }
-    /**
-     * @return the players
-     */
-    public PlayerCashe getPlayers() {
-        if (players == null) {
-            players = new PlayerCashe(this);
-        }
-        return players;
-    }
-
-    public ChatListener getChatListener(){
-        return chatListener;
-    }
-    public Messages getMessages() {
-        return messages;
-    }
-    public void setNewIsland(boolean newIsland) {
-        this.newIsland = newIsland;
-    }
-    /**
-     * @return the playersFolder
-     */
-    public File getPlayersFolder() {
-        return playersFolder;
-    }
-
-    /**
-     * @return the newIsland
-     */
-    public boolean isNewIsland() {
-        return newIsland;
-    }
-
-    public static World getIslandWorld(){
-        return islandWorld;
-    }
-
 
     @Override
     public void onDisable() {
         for(Player player : Bukkit.getOnlinePlayers()) {
+            CPlayer cPlayer = CPlayer.getPlayerByUUID(player.getUniqueId());
 
-            File f = new File(PlayerDataManager.getFolderPath(player) + "/stats.yml");
-            FileConfiguration cfg = YamlConfiguration.loadConfiguration(f);
-
-            cfg.set("stats.level", LevelManager.getPlayerLevel(player));
-            cfg.set("stats.endurancelevel", EnduranceManager.getEndurance_lvl(player));
-            cfg.set("stats.sp", LevelManager.getPlayerCurrentSkillPoints(player));
-            cfg.set("stats.spentsp", LevelManager.getPlayerSpentSkillPoints(player));
-            try {
-                // Save the changes made to the cfg object
-                cfg.save(f);
-                System.out.println("Saved player data for: " + player.getName());
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.out.println("Failed to save player data for: " + player.getName());
-            }
+            DataBaseManager.addColumnValue(DataBaseColumn.LVL, cPlayer.level, cPlayer.getPlayer().getUniqueId().toString());
+            DataBaseManager.addColumnValue(DataBaseColumn.ELVL, cPlayer.playerSkills.enduranceLvl, cPlayer.getPlayer().getUniqueId().toString());
+            DataBaseManager.addColumnValue(DataBaseColumn.SLVL, cPlayer.playerSkills.strengthLvl, cPlayer.getPlayer().getUniqueId().toString());
+            DataBaseManager.addColumnValue(DataBaseColumn.XP, cPlayer.xp, cPlayer.getPlayer().getUniqueId().toString());
+            DataBaseManager.addColumnValue(DataBaseColumn.TOTALXP, cPlayer.totalXp, cPlayer.getPlayer().getUniqueId().toString());
+            DataBaseManager.addColumnValue(DataBaseColumn.USERNAME, cPlayer.getPlayer().getName(), cPlayer.getPlayer().getUniqueId().toString());
+            DataBaseManager.addColumnValue(DataBaseColumn.GOLD, MoneyManager.getPlayerGold(cPlayer.getPlayer()), cPlayer.getPlayer().getUniqueId().toString());
+            DataBaseManager.addColumnValue(DataBaseColumn.RUNICSIGILS, MoneyManager.getPlayerRunicSigils(cPlayer.getPlayer()) , cPlayer.getPlayer().getUniqueId().toString());
+            DataBaseManager.addColumnValue(DataBaseColumn.GUILDMEDALS, MoneyManager.getPlayerGuildMedals(cPlayer.getPlayer()) , cPlayer.getPlayer().getUniqueId().toString());
 
         }
 
+        DataBaseManager.disconnectFromDB();
+
         try {
-            getLogger().info("RPG_Base Plugin disabled successfully!");
+            getLogger().info(ChatColor.GREEN + "RPG_Base Plugin disabled successfully!");
         }catch(Exception e){
-            getLogger().info("RPG_Base Plugin catched an error!!! Check for updates or contact technician!!!" + e);
+            getLogger().info(ChatColor.RED + "RPG_Base Plugin caught an error!!! Check for updates or contact technician!!!" + e);
         }
     }
 }
