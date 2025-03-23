@@ -41,7 +41,7 @@ public class ShopUiFrame extends MultiPageInventoryGUI {
 
     public void loadShop(){
         for(String itemString : itemList){
-            ItemStack item = CItem.customItemsByName.get(itemString.split(",")[0]).getItem();
+            ItemStack item = CItem.customItemsByName.get(itemString.split(",")[0]).clone().getItem();
             int slot = Integer.parseInt(itemString.split(",")[1]);
             int price = Integer.parseInt(itemString.split(",")[2]);
             int page = Integer.parseInt(itemString.split(",")[3]);

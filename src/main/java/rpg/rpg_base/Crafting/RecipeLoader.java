@@ -6,8 +6,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import rpg.rpg_base.CustomizedClasses.ItemHandler.CItem;
 import rpg.rpg_base.CustomizedClasses.ItemHandler.ItemClass;
-import rpg.rpg_base.CustomizedClasses.ItemHandler.ItemManager;
-import rpg.rpg_base.Data.Util;
+import rpg.rpg_base.Utils.Util;
 import rpg.rpg_base.RPG_Base;
 
 import java.util.HashMap;

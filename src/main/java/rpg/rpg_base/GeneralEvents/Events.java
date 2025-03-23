@@ -10,10 +10,7 @@ import org.betonquest.betonquest.utils.PlayerConverter;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.damage.DamageType;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -174,13 +171,13 @@ public class Events implements Listener {
                 CPlayer player = CPlayer.getPlayerByUUID(e.getDamager().getUniqueId());
 
                 switch (e.getCause()) {
-                    case ENTITY_SWEEP_ATTACK -> damagedEntity.dealDamage(player.damage / 3);
-                    case ENTITY_ATTACK -> damagedEntity.dealDamage(player.damage);
+                    case ENTITY_SWEEP_ATTACK -> damagedEntity.dealDamage(player.damage / 3, e.getDamager());
+                    case ENTITY_ATTACK -> damagedEntity.dealDamage(player.damage, e.getDamager());
                 }
-            } else if (e.getDamager() instanceof LivingEntity) {
+            } else if (e.getDamager() instanceof Mob) {
                 CEntity damagerEntity = CEntity.getEntityByUUID(e.getDamager().getUniqueId());
 
-                damagedEntity.dealDamage(damagerEntity.damage);
+                damagedEntity.dealDamage(damagerEntity.damage, e.getDamager());
                 damagerEntity.updateDisplayName();
             } else {
                 e.setCancelled(true);
@@ -195,8 +192,12 @@ public class Events implements Listener {
                     case ENTITY_SWEEP_ATTACK -> damagedPlayer.dealDamage(player.damage / 3, player);
                     case ENTITY_ATTACK -> damagedPlayer.dealDamage(player.damage, player);
                 }
+            }else if(e.getDamager() instanceof Mob){
+                CEntity damager = CEntity.getEntityByUUID(e.getDamager().getUniqueId());
+                damagedPlayer.dealDamage(damager.damage, damager);
             }
         }
+        e.setDamage(0);
     }
 
     @EventHandler

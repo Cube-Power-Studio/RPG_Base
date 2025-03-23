@@ -10,22 +10,20 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
-import rpg.rpg_base.Data.Util;
+import rpg.rpg_base.Utils.Util;
 import rpg.rpg_base.RPG_Base;
 
-import javax.xml.stream.events.Namespace;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
-public class CItem {
+public class CItem implements Cloneable{
     private ItemStack item;
     private final RPG_Base plugin;
     private final Util util;
 
     public static NamespacedKey customItemConfig = new NamespacedKey(RPG_Base.getInstance(), "customItemConfig");
-    public static NamespacedKey customItemName = new NamespacedKey(RPG_Base.getInstance(), "customItemName");
 
     public static NamespacedKey itemDamage = new NamespacedKey(RPG_Base.getInstance(), "damage");
     public static NamespacedKey itemHealth = new NamespacedKey(RPG_Base.getInstance(), "health");
@@ -239,11 +237,22 @@ public class CItem {
 
 
     public ItemStack getItem() {
-        return item != null ? item : new ItemStack(Material.AIR);
+        return item.clone();
     }
 
     public CItem getItemFromName(String name){
         return customItemsByName.getOrDefault(name, new CItem(plugin, util));
     }
 
+
+    @Override
+    public CItem clone() {
+        try {
+            CItem clone = (CItem) super.clone();
+            clone.item = this.item != null ? this.item.clone() : null; // Deep copy ItemStack
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
 }

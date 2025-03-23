@@ -9,6 +9,7 @@ public class SavePlayerData extends BukkitRunnable {
     @Override
     public void run() {
         for (Player player : Bukkit.getOnlinePlayers()) {
+            player.saveData();
             PlayerDataManager.savePlayerData(player);
         }
         RPG_Base.getInstance().getLogger().info("Player Data Saved!");

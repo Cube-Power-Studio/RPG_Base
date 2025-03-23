@@ -4,9 +4,8 @@ import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.World;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Entity;
 import org.bukkit.persistence.PersistentDataType;
-import rpg.rpg_base.Data.Util;
+import rpg.rpg_base.Utils.Util;
 import rpg.rpg_base.RPG_Base;
 
 import java.io.File;
@@ -35,10 +34,12 @@ public class EntitySpawner {
 
             YamlConfiguration regionFile = YamlConfiguration.loadConfiguration(path);
             int maxNumberOfMobsInRegion = regionFile.getInt("numberOfMobsInRegion");
-            int currentMobsInRegion = getEntitiesWithTag(regionID, world);
+            int currentMobsInRegion = getEntitiesWithRegionTag(regionID);
+//            System.out.println("Entities in region: " + regionID + ":" + currentMobsInRegion);
             int scheduledSpawnsInRegion = scheduledSpawns.getOrDefault(region, 0);
+//            System.out.println("Scheduled entities in region: " + regionID + ":" + scheduledSpawnsInRegion);
 
-            if (currentMobsInRegion < maxNumberOfMobsInRegion) {
+            if (currentMobsInRegion + scheduledSpawnsInRegion <= maxNumberOfMobsInRegion) {
                 int mobsNeeded = maxNumberOfMobsInRegion - (currentMobsInRegion + scheduledSpawnsInRegion);
                 if (!scheduledRegions.contains(region)) {
                     scheduledRegions.add(region);
@@ -47,9 +48,11 @@ public class EntitySpawner {
                 Random random = new Random();
 
                 for (int i = 0; i < mobsNeeded; i++) {
+                    //System.out.println("DODANO MOBA DO " + regionID);
                     new SpawnEntitiesInRegion(util, region, world).runTaskLater(plugin, random.nextInt(100) + 20);
-                    scheduledSpawns.put(region, scheduledSpawns.getOrDefault(region, 0) + 1);
                 }
+                //System.out.println(mobsNeeded + " Potrzebnych mobów");
+                scheduledSpawns.put(region, scheduledSpawnsInRegion + mobsNeeded);
             } else {
                 scheduledSpawns.remove(region);
                 scheduledRegions.remove(region);
@@ -57,9 +60,15 @@ public class EntitySpawner {
         }
     }
 
-    public static int getEntitiesWithTag(String tag, World world) {
-        return (int) world.getEntitiesByClass(Entity.class).stream()
-                .filter(entity -> Objects.equals(entity.getPersistentDataContainer().get(CEntity.regionKey, PersistentDataType.STRING), tag))
+    private int getEntitiesWithRegionTag(String regionId) {
+        return (int) CEntity.customEntities.values().stream()
+                .filter(Objects::nonNull) // Ensure entity isn't null
+                .filter(entity -> entity.getEntity() != null && !entity.getEntity().isDead()) // Ensure entity exists & isn't dead
+                .filter(entity -> Objects.equals(
+                        entity.getEntity().getPersistentDataContainer().get(CEntity.regionKey, PersistentDataType.STRING),
+                        regionId
+                ))
                 .count();
     }
+
 }

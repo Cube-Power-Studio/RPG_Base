@@ -1,5 +1,8 @@
 package rpg.rpg_base.GUIs;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -7,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import rpg.rpg_base.CustomizedClasses.PlayerHandler.CPlayer;
 import rpg.rpg_base.CustomizedClasses.PlayerHandler.PlayerSkills;
 import rpg.rpg_base.GuiHandlers.HeadsHandlers;
@@ -25,7 +29,7 @@ public class SkillGui extends InventoryGUI {
         super("Skills");
         this.plugin = plugin;
     }
-    private static final Map<CPlayer, Long> cooldowns = new HashMap<CPlayer, Long>();
+    private static final Map<CPlayer, Long> cooldowns = new HashMap<>();
 
     @Override
     protected Inventory createInventory(String arg) {
@@ -40,17 +44,36 @@ public class SkillGui extends InventoryGUI {
         }
         ItemStack increase = HeadsHandlers.getHead(getUpgradeButton());
 
-        this.addButton(11, createUpdateButtons(increase, 11, 5));
-        this.addButton(12, createUpdateButtons(increase, 12, 5));
-        this.addButton(13, createUpdateButtons(increase, 13, 5));
-        this.addButton(14, createUpdateButtons(increase, 14, 5));
-        this.addButton(15, createUpdateButtons(increase, 15, 5));
+        this.addButton(11, createUpdateButtons(increase, 11));
+        this.addButton(12, createUpdateButtons(increase, 12));
+        this.addButton(13, createUpdateButtons(increase, 13));
+        this.addButton(14, createUpdateButtons(increase, 14));
+        this.addButton(15, createUpdateButtons(increase, 15));
 
-        Material levelDisplay = Material.ACACIA_LOG;
-        this.addButton(20, createStatsLevelDisplay(levelDisplay, 20));
-        this.addButton(21, createStatsLevelDisplay(levelDisplay, 21));
-        Material counter = Material.CHEST;
-        this.addButton(45, createSkillPointCounter(counter));
+        int[] customModelDataValues = {3, 5, 4, 2, 1}; // The CustomModelData values
+        int[] slots = {20, 21, 22, 23, 24}; // Corresponding button slots
+
+        for (int i = 0; i < customModelDataValues.length; i++) {
+            ItemStack item = new ItemStack(Material.BOOK);
+            ItemMeta meta = item.getItemMeta();
+
+            if (meta != null) {
+                meta.setCustomModelData(customModelDataValues[i]);
+                item.setItemMeta(meta);
+            }
+
+            this.addButton(slots[i], createStatsLevelDisplay(item, slots[i]));
+        }
+
+        ItemStack playerHead = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta skullMeta = (SkullMeta) playerHead.getItemMeta();
+
+        if(skullMeta!=null){
+            skullMeta.setOwningPlayer(player);
+            playerHead.setItemMeta(skullMeta);
+        }
+
+        this.addButton(45, createSkillPointCounter(playerHead));
 
         super.decorate(player);
     }
@@ -61,19 +84,24 @@ public class SkillGui extends InventoryGUI {
                 .consumer(e-> e.setCancelled(true));
     }
 
-    private InventoryButton createUpdateButtons(ItemStack itemStack, int slot, long cooldownTicks){
+    private InventoryButton createUpdateButtons(ItemStack itemStack, int slot){
         return new InventoryButton()
                 .creator(player ->{
                     ItemMeta itemMeta = itemStack.getItemMeta();
 
                     if (slot == 11) {
-
-                        itemMeta.setDisplayName(ChatColor.WHITE + "" + ChatColor.BOLD + "Increase endurance");
-                        itemMeta.setLore(null);
+                        itemMeta.displayName(Component
+                                .text("Increase endurance")
+                                .color(NamedTextColor.WHITE)
+                                .decorate(TextDecoration.BOLD));
+                        itemMeta.lore(null);
                         itemStack.setItemMeta(itemMeta);
                     } else if (slot == 12) {
-                        itemMeta.setDisplayName(ChatColor.WHITE + "" + ChatColor.BOLD + "Increase strength");
-                        itemMeta.setLore(null);
+                        itemMeta.displayName(Component
+                                .text("Increase strength")
+                                .color(NamedTextColor.WHITE)
+                                .decorate(TextDecoration.BOLD));
+                        itemMeta.lore(null);
                         itemStack.setItemMeta(itemMeta);
                     }
                     return itemStack;
@@ -84,7 +112,7 @@ public class SkillGui extends InventoryGUI {
                     CPlayer player = CPlayer.getPlayerByUUID(event.getWhoClicked().getUniqueId());
                     long currentTime = System.currentTimeMillis();
 
-                    if (isOnCooldown(player, cooldownTicks)) {
+                    if (isOnCooldown(player)) {
                         player.getPlayer().sendMessage(ChatColor.RED + "Slow down, you are going too fast!");
                         return;
                     }
@@ -102,70 +130,287 @@ public class SkillGui extends InventoryGUI {
                     }
                     Bukkit.getScheduler().runTaskLater(plugin, () -> {
                         removeCooldown(player);
-                    }, cooldownTicks);
+                    }, 5);
                     
                     UpdateGui((Player) event.getWhoClicked());
                 });
     }
-    private InventoryButton createStatsLevelDisplay(Material material, int slot){
+    private InventoryButton createStatsLevelDisplay(ItemStack itemStack, int slot){
         return new InventoryButton()
                 .creator(player ->{
-                    ItemStack itemStack = new ItemStack(material);
                     ItemMeta itemMeta = itemStack.getItemMeta();
                     CPlayer cPlayer = CPlayer.getPlayerByUUID(player.getUniqueId());
                     PlayerSkills playerSkills = cPlayer.playerSkills;
 
                     if (slot == 20) {
+                        Component displayName = Component.text("Endurance Level: " + playerSkills.enduranceLvl)
+                                .color(NamedTextColor.WHITE)
+                                .decorate(TextDecoration.BOLD);
 
-                        itemMeta.setDisplayName(ChatColor.WHITE + "" + ChatColor.BOLD + "Endurance Level: " + playerSkills.enduranceLvl);
-                        List<String> lore = new ArrayList<>();
+                        itemMeta.displayName(displayName);
 
-                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "Current level bonuses:");
-                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~" + ChatColor.RESET + ChatColor.RED + "" + ChatColor.BOLD + "Health bonus: " + (playerSkills.enduranceLvl * playerSkills.enduranceHealthBoost * 100) + "%");
-                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "Next level bonuses:");
-                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~" + ChatColor.RESET + ChatColor.RED + "" + ChatColor.BOLD + "Health added: " + ((playerSkills.enduranceLvl + 1) * playerSkills.enduranceHealthBoost * 100) + "%");
-                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                        itemMeta.setLore(lore);
+                        List<Component> lore = new ArrayList<>();
+
+                        lore.add(Component.text("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                                .color(NamedTextColor.GRAY)
+                                .decorate(TextDecoration.BOLD));
+
+                        lore.add(Component.text("~Current level bonuses:")
+                                .color(NamedTextColor.GRAY)
+                                .decorate(TextDecoration.BOLD));
+
+                        lore.add(Component
+                                .text("~")
+                                .color(NamedTextColor.GRAY)
+                                .decorate(TextDecoration.BOLD)
+                                .append(Component
+                                        .text(" Health bonus: " + (playerSkills.enduranceLvl * playerSkills.enduranceHealthBoost * 100) + "%")
+                                        .color(NamedTextColor.RED)
+                                        .decorate(TextDecoration.BOLD)));
+
+                        lore.add(Component.text("~Next level bonuses:")
+                                .color(NamedTextColor.GRAY)
+                                .decorate(TextDecoration.BOLD));
+
+                        lore.add(Component
+                                .text("~")
+                                .color(NamedTextColor.GRAY)
+                                .decorate(TextDecoration.BOLD)
+                                .append(Component
+                                        .text(" Health bonus: " + ((playerSkills.enduranceLvl + 1) * playerSkills.enduranceHealthBoost * 100) + "%")
+                                        .color(NamedTextColor.RED)
+                                        .decorate(TextDecoration.BOLD)));
+
+                        lore.add(Component.text("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                                .color(NamedTextColor.GRAY)
+                                .decorate(TextDecoration.BOLD));
+
+                        itemMeta.lore(lore);
 
                         itemStack.setItemMeta(itemMeta);
                     }
                     if (slot == 21) {
 
-                        itemMeta.setDisplayName(ChatColor.WHITE + "" + ChatColor.BOLD + "Strength level: " + playerSkills.strengthLvl);
-                        List<String> lore = new ArrayList<>();
+                        Component displayName = Component.text("Strength level: " + playerSkills.strengthLvl)
+                                .color(NamedTextColor.WHITE)
+                                .decorate(TextDecoration.BOLD);
 
-                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "Current level bonuses:");
-                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~" + ChatColor.RESET + ChatColor.RED + "" + ChatColor.BOLD + "Damage Added: " + (playerSkills.strengthLvl * playerSkills.strengthDmgBoost * 100));
-                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "Next level bonuses:");
-                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~" + ChatColor.RESET + ChatColor.RED + "" + ChatColor.BOLD + "Damage added: " + ((playerSkills.strengthLvl + 1) * playerSkills.strengthDmgBoost * 100));
-                        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                        itemMeta.setLore(lore);
+                        itemMeta.displayName(displayName);
+
+                        List<Component> lore = new ArrayList<>();
+
+                        lore.add(Component.text("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                                .color(NamedTextColor.GRAY)
+                                .decorate(TextDecoration.BOLD));
+
+                        lore.add(Component.text("~Current level bonuses:")
+                                .color(NamedTextColor.GRAY)
+                                .decorate(TextDecoration.BOLD));
+
+                        lore.add(Component
+                                .text("~")
+                                .color(NamedTextColor.GRAY)
+                                .decorate(TextDecoration.BOLD)
+                                .append(Component
+                                        .text(" Damage Added: " + (playerSkills.strengthLvl * playerSkills.strengthDmgBoost * 100))
+                                        .color(NamedTextColor.RED)
+                                        .decorate(TextDecoration.BOLD)));
+
+                        lore.add(Component.text("~Next level bonuses:")
+                                .color(NamedTextColor.GRAY)
+                                .decorate(TextDecoration.BOLD));
+
+                        lore.add(Component
+                                .text("~")
+                                .color(NamedTextColor.GRAY)
+                                .decorate(TextDecoration.BOLD)
+                                .append(Component
+                                        .text(" Damage added: " + ((playerSkills.strengthLvl + 1) * playerSkills.strengthDmgBoost * 100))
+                                        .color(NamedTextColor.RED)
+                                        .decorate(TextDecoration.BOLD)));
+
+                        lore.add(Component.text("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                                .color(NamedTextColor.GRAY)
+                                .decorate(TextDecoration.BOLD));
+
+                        itemMeta.lore(lore);
 
                         itemStack.setItemMeta(itemMeta);
                     }
+                    if (slot == 22) {
+
+                        Component displayName = Component.text("Intelligence level: " + playerSkills.inteligenceLvl)
+                                .color(NamedTextColor.WHITE)
+                                .decorate(TextDecoration.BOLD);
+
+                        itemMeta.displayName(displayName);
+
+                        List<Component> lore = new ArrayList<>();
+
+                        lore.add(Component.text("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                                .color(NamedTextColor.GRAY)
+                                .decorate(TextDecoration.BOLD));
+
+                        lore.add(Component.text("~Current level bonuses:")
+                                .color(NamedTextColor.GRAY)
+                                .decorate(TextDecoration.BOLD));
+
+//                        lore.add(Component
+//                                .text("~")
+//                                .color(NamedTextColor.GRAY)
+//                                .decorate(TextDecoration.BOLD)
+//                                .append(Component
+//                                        .text(" Damage Added: " + (playerSkills.strengthLvl * playerSkills.strengthDmgBoost * 100))
+//                                        .color(NamedTextColor.RED)
+//                                        .decorate(TextDecoration.BOLD)));
+
+                        lore.add(Component.text("~Next level bonuses:")
+                                .color(NamedTextColor.GRAY)
+                                .decorate(TextDecoration.BOLD));
+
+//                        lore.add(Component
+//                                .text("~")
+//                                .color(NamedTextColor.GRAY)
+//                                .decorate(TextDecoration.BOLD)
+//                                .append(Component
+//                                        .text(" Damage added: " + ((playerSkills.strengthLvl + 1) * playerSkills.strengthDmgBoost * 100))
+//                                        .color(NamedTextColor.RED)
+//                                        .decorate(TextDecoration.BOLD)));
+
+                        lore.add(Component.text("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                                .color(NamedTextColor.GRAY)
+                                .decorate(TextDecoration.BOLD));
+
+                        itemMeta.lore(lore);
+
+                        itemStack.setItemMeta(itemMeta);
+                    }
+                    if (slot == 23) {
+
+                        Component displayName = Component.text("Dexterity level: " + playerSkills.dexterityLvl)
+                                .color(NamedTextColor.WHITE)
+                                .decorate(TextDecoration.BOLD);
+
+                        itemMeta.displayName(displayName);
+
+                        List<Component> lore = new ArrayList<>();
+
+                        lore.add(Component.text("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                                .color(NamedTextColor.GRAY)
+                                .decorate(TextDecoration.BOLD));
+
+                        lore.add(Component.text("~Current level bonuses:")
+                                .color(NamedTextColor.GRAY)
+                                .decorate(TextDecoration.BOLD));
+
+//                        lore.add(Component
+//                                .text("~")
+//                                .color(NamedTextColor.GRAY)
+//                                .decorate(TextDecoration.BOLD)
+//                                .append(Component
+//                                        .text(" Damage Added: " + (playerSkills.strengthLvl * playerSkills.strengthDmgBoost * 100))
+//                                        .color(NamedTextColor.RED)
+//                                        .decorate(TextDecoration.BOLD)));
+
+                        lore.add(Component.text("~Next level bonuses:")
+                                .color(NamedTextColor.GRAY)
+                                .decorate(TextDecoration.BOLD));
+
+//                        lore.add(Component
+//                                .text("~")
+//                                .color(NamedTextColor.GRAY)
+//                                .decorate(TextDecoration.BOLD)
+//                                .append(Component
+//                                        .text(" Damage added: " + ((playerSkills.strengthLvl + 1) * playerSkills.strengthDmgBoost * 100))
+//                                        .color(NamedTextColor.RED)
+//                                        .decorate(TextDecoration.BOLD)));
+
+                        lore.add(Component.text("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                                .color(NamedTextColor.GRAY)
+                                .decorate(TextDecoration.BOLD));
+
+                        itemMeta.lore(lore);
+
+                        itemStack.setItemMeta(itemMeta);
+                    }
+                    if (slot == 24) {
+
+                        Component displayName = Component.text("Agility level: " + playerSkills.agilityLvl)
+                                .color(NamedTextColor.WHITE)
+                                .decorate(TextDecoration.BOLD);
+
+                        itemMeta.displayName(displayName);
+
+                        List<Component> lore = new ArrayList<>();
+
+                        lore.add(Component.text("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                                .color(NamedTextColor.GRAY)
+                                .decorate(TextDecoration.BOLD));
+
+                        lore.add(Component.text("~Current level bonuses:")
+                                .color(NamedTextColor.GRAY)
+                                .decorate(TextDecoration.BOLD));
+
+//                        lore.add(Component
+//                                .text("~")
+//                                .color(NamedTextColor.GRAY)
+//                                .decorate(TextDecoration.BOLD)
+//                                .append(Component
+//                                        .text(" Damage Added: " + (playerSkills.strengthLvl * playerSkills.strengthDmgBoost * 100))
+//                                        .color(NamedTextColor.RED)
+//                                        .decorate(TextDecoration.BOLD)));
+
+                        lore.add(Component.text("~Next level bonuses:")
+                                .color(NamedTextColor.GRAY)
+                                .decorate(TextDecoration.BOLD));
+
+//                        lore.add(Component
+//                                .text("~")
+//                                .color(NamedTextColor.GRAY)
+//                                .decorate(TextDecoration.BOLD)
+//                                .append(Component
+//                                        .text(" Damage added: " + ((playerSkills.strengthLvl + 1) * playerSkills.strengthDmgBoost * 100))
+//                                        .color(NamedTextColor.RED)
+//                                        .decorate(TextDecoration.BOLD)));
+
+                        lore.add(Component.text("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                                .color(NamedTextColor.GRAY)
+                                .decorate(TextDecoration.BOLD));
+
+                        itemMeta.lore(lore);
+
+                        itemStack.setItemMeta(itemMeta);
+                    }
+
                     return itemStack;
                 } )
                 .consumer(event -> {
                     event.setCancelled(true);
                 });
     }
-    private InventoryButton createSkillPointCounter(Material material){
+    private InventoryButton createSkillPointCounter(ItemStack itemStack){
         return new InventoryButton()
                 .creator(player -> {
-                    ItemStack itemStack = new ItemStack(material);
                     ItemMeta itemMeta = itemStack.getItemMeta();
                     CPlayer cPlayer = CPlayer.getPlayerByUUID(player.getUniqueId());
-                    itemMeta.setDisplayName(ChatColor.BLUE + "" + ChatColor.BOLD + player.getName() + "'s Level: " + ChatColor.WHITE + cPlayer.level);
-                    // Initialize lore if null
-                    List<String> lore = itemMeta.getLore();
-                    if (lore == null) {
-                        lore = new ArrayList<>();
-                    }
 
-                    lore.add(ChatColor.WHITE +""+ ChatColor.BOLD + "Skill points: " + ChatColor.RESET + "" + ChatColor.GREEN + cPlayer.skillPoints);
-                    itemMeta.setLore(lore);
+                    itemMeta.displayName(Component
+                            .text(player.getName() + "'s Level: ")
+                            .color(NamedTextColor.BLUE)
+                            .decorate(TextDecoration.BOLD)
+                            .append(Component
+                                    .text(cPlayer.level)
+                                    .color(NamedTextColor.WHITE)));
+
+                    List<Component> lore = new ArrayList<>();
+                    lore.add(Component
+                            .text("Skill points: ")
+                            .color(NamedTextColor.WHITE)
+                            .decorate(TextDecoration.BOLD)
+                            .append(Component.text(cPlayer.skillPoints)
+                                    .color(NamedTextColor.GREEN)));
+
+                    itemMeta.lore(lore);
 
                     itemStack.setItemMeta(itemMeta);
                     return itemStack;
@@ -179,8 +424,8 @@ public class SkillGui extends InventoryGUI {
             decorate(player);
         }, 5L);
     }
-    private boolean isOnCooldown(CPlayer player, long cooldownTicks) {
-        return cooldowns.containsKey(player) && (System.currentTimeMillis() - cooldowns.get(player)) < (cooldownTicks * 50);
+    private boolean isOnCooldown(CPlayer player) {
+        return cooldowns.containsKey(player) && (System.currentTimeMillis() - cooldowns.get(player)) < ((long) 5 * 50);
     }
 
     private void setCooldown(CPlayer player, long currentTime) {

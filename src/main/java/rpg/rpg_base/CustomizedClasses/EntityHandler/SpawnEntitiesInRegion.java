@@ -5,10 +5,9 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.scheduler.BukkitRunnable;
-import rpg.rpg_base.Data.Util;
+import rpg.rpg_base.Utils.Util;
 import rpg.rpg_base.RPG_Base;
 
 import java.io.File;
@@ -29,7 +28,6 @@ public class SpawnEntitiesInRegion extends BukkitRunnable {
 
     @Override
     public void run() {
-//        RPG_Base.getInstance().getLogger().info("Spawning mobs in " + region.getId());
         MobSpawnSelector mobSpawnSelector = new MobSpawnSelector();
 
         File mobsFolder = new File(plugin.getDataFolder() + "/custom_mobs");
@@ -56,8 +54,6 @@ public class SpawnEntitiesInRegion extends BukkitRunnable {
                                 chance = 0; // Default to 0 if the spawnChance is invalid
                                 plugin.getLogger().warning("Invalid spawn chance for mob " + mobKey);
                             }
-
-                            System.out.println("Adding mob: " + mobKey);
 
                             mobSpawnSelector.addMobChance(mobKey, chance); // Add mob spawn chance
                         }
@@ -106,7 +102,8 @@ public class SpawnEntitiesInRegion extends BukkitRunnable {
                 block.isSolid() ||
                 block.isLiquid() ||
                 blockAbove.isSolid() ||
-                blockAbove.isLiquid()
+                blockAbove.isLiquid() ||
+                !location.getChunk().isLoaded()
         ) {
             if (tries < 1000) {
                 x = random.nextInt(maxX - minX) + minX + 0.5;
@@ -121,6 +118,8 @@ public class SpawnEntitiesInRegion extends BukkitRunnable {
 
                 tries++;
             } else {
+                this.cancel();
+                EntitySpawner.scheduledSpawns.put(region, EntitySpawner.scheduledSpawns.getOrDefault(region, 1) - 1);
                 break;
             }
         }
@@ -128,6 +127,6 @@ public class SpawnEntitiesInRegion extends BukkitRunnable {
         location.setX(location.getX());
         location.setZ(location.getZ());
         EntitySpawner.scheduledSpawns.put(region, EntitySpawner.scheduledSpawns.getOrDefault(region, 1) - 1);
-        MobManager.spawnMob(mobSpawnSelector.selectMob() , location);
+        MobManager.spawnMob(mobSpawnSelector.selectMob(), location, region);
     }
 }

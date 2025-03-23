@@ -1,8 +1,17 @@
-package rpg.rpg_base.Data;
+package rpg.rpg_base.Utils;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.regions.RegionContainer;
+import com.sk89q.worldguard.protection.regions.RegionQuery;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.plugin.Plugin;
 
 import java.util.HashSet;
 import java.util.List;
@@ -95,5 +104,25 @@ public class Util {
         }
 
         return formattedComponent;
+    }
+    public boolean isLocationInRegion(Location loc, String regionName) {
+        // Get WorldGuard Plugin
+        WorldGuard worldGuard = WorldGuard.getInstance();
+        if (worldGuard == null) {
+            return false;
+        }
+
+        // Convert Bukkit Location to WorldEdit Location
+        com.sk89q.worldedit.util.Location weLoc = BukkitAdapter.adapt(loc);
+
+        // Get Region Query
+        RegionContainer container = worldGuard.getPlatform().getRegionContainer();
+        RegionQuery query = container.createQuery();
+
+        // Get all regions at this location
+        ApplicableRegionSet regions = query.getApplicableRegions(weLoc);
+
+        // Check if the specified region is in the list
+        return regions.getRegions().stream().anyMatch(region -> region.getId().equalsIgnoreCase(regionName));
     }
 }

@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import rpg.rpg_base.CustomizedClasses.ItemHandler.ItemManager;
+import rpg.rpg_base.CustomizedClasses.PlayerHandler.CPlayer;
 import rpg.rpg_base.RPG_Base;
 
 
@@ -21,7 +22,7 @@ public class UpdatePlayerData extends BukkitRunnable {
             for (Player player : Bukkit.getOnlinePlayers()) {
 
                 PlayerDataManager.savePlayerData(player);
-                ItemManager.updateItems(player.getInventory());
+                CPlayer.getPlayerByUUID(player.getUniqueId()).updateStats();
 
 
             }

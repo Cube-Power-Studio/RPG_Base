@@ -34,8 +34,8 @@ public class CollectCustomItemsObjective extends CountingObjective implements Li
 
     @EventHandler(ignoreCancelled = true)
     public void onItemPickup(final EntityPickupItemEvent event){
-        if(CItem.customItemsByName.get(event.getItem().getItemStack().getItemMeta().getPersistentDataContainer().get(CItem.customItemName, PersistentDataType.STRING)).getItem() != null){
-            if(itemToCollect.contains(event.getItem().getItemStack().getItemMeta().getPersistentDataContainer().get(CItem.customItemName, PersistentDataType.STRING))){
+        if(CItem.customItemsByName.get(event.getItem().getItemStack().getItemMeta().getPersistentDataContainer().get(CItem.customItemConfig, PersistentDataType.STRING)).getItem() != null){
+            if(itemToCollect.contains(event.getItem().getItemStack().getItemMeta().getPersistentDataContainer().get(CItem.customItemConfig, PersistentDataType.STRING))){
                 final OnlineProfile onlineProfile = PlayerConverter.getID((Player) event.getEntity());
 
                 getCountingData(onlineProfile).progress(event.getItem().getItemStack().getAmount());

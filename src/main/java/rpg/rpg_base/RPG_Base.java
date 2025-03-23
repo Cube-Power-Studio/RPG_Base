@@ -27,7 +27,6 @@ import rpg.rpg_base.Mining.MiningFlagHandler;
 import rpg.rpg_base.Mining.MiningFlags;
 import rpg.rpg_base.Mining.MiningManager;
 import rpg.rpg_base.Data.*;
-import rpg.rpg_base.Crafting.CraftingGui;
 import rpg.rpg_base.GeneralEvents.Events;
 import rpg.rpg_base.GuiHandlers.GUIListener;
 import rpg.rpg_base.GuiHandlers.GUIManager;
@@ -41,6 +40,7 @@ import rpg.rpg_base.QuestModule.events.*;
 import rpg.rpg_base.QuestModule.objectives.CollectCustomItemsObjective;
 import rpg.rpg_base.QuestModule.objectives.KillCustomMobsObjective;
 import rpg.rpg_base.Shops.ShopsManager;
+import rpg.rpg_base.Utils.Util;
 
 import java.io.File;
 
@@ -145,7 +145,7 @@ public final class RPG_Base extends JavaPlugin {
 
         getLogger().info("Listeners registered successfully.");
 
-        MiscCommands miscCommands = new MiscCommands(this, itemManager);
+        MiscCommands miscCommands = new MiscCommands(this);
 
         ShopsManager shopsManager = new ShopsManager(guiManager);
 

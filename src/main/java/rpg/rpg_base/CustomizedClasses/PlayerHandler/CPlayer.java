@@ -9,6 +9,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.checkerframework.checker.units.qual.C;
 import rpg.rpg_base.CustomizedClasses.EntityHandler.CEntity;
 import rpg.rpg_base.CustomizedClasses.ItemHandler.CItem;
+import rpg.rpg_base.CustomizedClasses.ItemHandler.ItemManager;
 import rpg.rpg_base.GUIs.ActionBar;
 import rpg.rpg_base.RPG_Base;
 
@@ -52,23 +53,30 @@ public class CPlayer {
         BukkitRunnable actionBar = new BukkitRunnable() {
             @Override
             public void run() {
-
                 ActionBar.statisticBar(CPlayer.this);
             }
         };
 
-        actionBar.runTaskTimer(RPG_Base.getInstance(), 0L, 20L);
+        actionBar.runTaskTimer(RPG_Base.getInstance(), 0L, 1L);
     }
 
     public void updateStats(){
 
         if(xp >= xpToNextLvl){
-            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP,1,1);
-            xp -= xpToNextLvl;
-            level++;
+            xpToNextLvl = Math.toIntExact(Math.round(100.0 * Math.pow(2.0, level / 4.0)));
 
-            totalSkillPoints += 2;
+            if(xp >= xpToNextLvl) {
+                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
+                xp -= xpToNextLvl;
+                xpToNextLvl = Math.toIntExact(Math.round(100.0 * Math.pow(2.0, level / 4.0)));
+                level++;
+
+                totalSkillPoints += 2;
+                skillPoints = totalSkillPoints - spentSkillPoints;
+            }
         }
+
+        ItemManager.updateItems(player.getInventory());
 
         int hpFromItems = 0;
         int dmgFromItems = 0;
@@ -94,9 +102,9 @@ public class CPlayer {
         armorFromItems += Integer.parseInt((String) CItem.getTagValue(CItem.itemArmor, itemInOffHand));
         hpRegenFromItems += Integer.parseInt((String) CItem.getTagValue(CItem.itemHealthRegen, itemInOffHand));
 
-        maxHP = (int) (baseMaxHP + ((baseMaxHP + hpFromItems) * playerSkills.enduranceLvl * playerSkills.enduranceHealthBoost));
+        maxHP = (int) (baseMaxHP + hpFromItems + ((baseMaxHP + hpFromItems) * playerSkills.enduranceLvl * playerSkills.enduranceHealthBoost));
         healthRegen = (int) (baseHealthRegen + hpRegenFromItems);
-        damage = (int) (baseDamage +((baseDamage + dmgFromItems) * playerSkills.strengthLvl * playerSkills.strengthDmgBoost));
+        damage = (int) (baseDamage + dmgFromItems +((baseDamage + dmgFromItems) * playerSkills.strengthLvl * playerSkills.strengthDmgBoost));
         armor = armorFromItems;
     }
 

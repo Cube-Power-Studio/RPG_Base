@@ -7,7 +7,7 @@ import java.util.*;
 
 public class MobDrops {
 
-    private final Map<CItem, Object[]> dropChances = new HashMap<>();
+    private final Map<Object, Object[]> dropChances = new HashMap<>();
     private final Random random = new Random();
 
     public void addDropChance(CItem item, double chance, int minDrop, int maxDrop) {
@@ -23,7 +23,7 @@ public class MobDrops {
     public CItem[] itemDrops() {
         List<CItem> drops = new ArrayList<>();
 
-        for(CItem item : dropChances.keySet()){
+        for(Object item : dropChances.keySet()){
             double chance = random.nextDouble() * 100;
             double itemChance = (double) dropChances.get(item)[0];
             if(chance <= itemChance){
@@ -33,7 +33,7 @@ public class MobDrops {
                 int finalDrops = random.nextInt((maximumDrops - minimumDrops) + 1) + minimumDrops;
                 if(finalDrops > 0){
                     for (int i = 0; i < finalDrops; i++){
-                        drops.add(item);
+                        drops.add((CItem) item);
                     }
                 }
             }
