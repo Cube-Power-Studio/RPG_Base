@@ -196,11 +196,11 @@ public class MobManager implements Listener {
             ((Piglin)entity.entity).setAdult();
         }
 
+        entity.getEntity().getEquipment().clear();
+
         if (entity.entity instanceof Pillager){
             entity.entity.getEquipment().setItemInMainHand(new ItemStack(Material.IRON_SWORD));
         }
-
-        entity.getEntity().getEquipment().clear();
 
         MobDrops mobDrops = new MobDrops();
 
