@@ -125,4 +125,13 @@ public class Util {
         // Check if the specified region is in the list
         return regions.getRegions().stream().anyMatch(region -> region.getId().equalsIgnoreCase(regionName));
     }
+
+    public static String numberToRoman(int number){
+        String[] romanNumerals = {
+                "1", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X",
+                "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX"
+        };
+
+        return romanNumerals[number - 1];
+    }
 }

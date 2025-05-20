@@ -8,11 +8,15 @@ public enum DataBaseColumn {
     TOTALXP("INTEGER"),
     ELVL("INTEGER"),
     SLVL("INTEGER"),
+    DLVL("INTEGER"),
     ILVL("INTEGER"),
     ALVL("INTEGER"),
     GOLD("INTEGER"),
     RUNICSIGILS("INTEGER"),
-    GUILDMEDALS("INTEGER");
+    GUILDMEDALS("INTEGER"),
+    SPENTSKILLPOINTS("INTEGER"),
+    SPENTABILITYPOINTS("INTEGER"),
+    UNLOCKEDABILITIES("INTEGER");
 
     private final String columnType;
 

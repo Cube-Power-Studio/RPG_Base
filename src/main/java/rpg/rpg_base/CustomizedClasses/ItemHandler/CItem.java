@@ -47,7 +47,7 @@ public class CItem implements Cloneable{
     public CItem(RPG_Base plugin, Util util) {
         this.plugin = plugin;
         this.util = util;
-        item = new ItemStack(Material.DIRT);
+        item = new ItemStack(Material.AIR);
     }
     
     public void loadItem(ConfigurationSection config) {
@@ -71,6 +71,10 @@ public class CItem implements Cloneable{
             } else {
                 displayName = "NULL";
                 itemMeta.displayName(Component.text(displayName));
+            }
+
+            if (true){
+                //TODO create a namespaced tag for mining level
             }
 
             for (String loreLine : config.getStringList(".lore")) {
@@ -121,7 +125,6 @@ public class CItem implements Cloneable{
                     }
                 }
             }
-
 
             if (config.contains(".requirements")) {
                 descParts.add(Component.text(" "));
@@ -203,7 +206,7 @@ public class CItem implements Cloneable{
                 descParts.add(completedRarity);
             }
 
-            if(config.contains(".class")){
+            if (config.contains(".class")) {
                 ItemClass classOfItem = ItemClass.valueOf(config.getString(".class").toUpperCase());
 
                 itemMeta.getPersistentDataContainer().set(itemClass, PersistentDataType.STRING, classOfItem.toString());

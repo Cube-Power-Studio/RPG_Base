@@ -1,4 +1,4 @@
-package rpg.rpg_base.Mining;
+package rpg.rpg_base.CustomizedClasses.MiningHandler;
 
 import org.bukkit.Location;
 import org.bukkit.Material;

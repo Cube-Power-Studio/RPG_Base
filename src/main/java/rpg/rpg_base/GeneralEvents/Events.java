@@ -6,6 +6,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.betonquest.betonquest.api.profiles.Profile;
 import org.betonquest.betonquest.conversation.Conversation;
+import org.betonquest.betonquest.database.PlayerData;
 import org.betonquest.betonquest.utils.PlayerConverter;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -23,6 +24,7 @@ import rpg.rpg_base.CustomizedClasses.PlayerHandler.CPlayer;
 import rpg.rpg_base.Data.DataBaseColumn;
 import rpg.rpg_base.Data.DataBaseManager;
 import rpg.rpg_base.Crafting.CraftingGui;
+import rpg.rpg_base.Data.PlayerDataManager;
 import rpg.rpg_base.GuiHandlers.GUIManager;
 import rpg.rpg_base.MoneyHandlingModule.MoneyManager;
 import rpg.rpg_base.RPG_Base;
@@ -44,74 +46,15 @@ public class Events implements Listener {
     private void onJoin(PlayerJoinEvent event){
         CPlayer player = new CPlayer(event.getPlayer());
 
-        if (DataBaseManager.getValueOfCell(DataBaseColumn.LVL, player.getPlayer().getUniqueId().toString()) != null) {
-            player.level = Integer.parseInt(DataBaseManager.getValueOfCell(DataBaseColumn.LVL, player.getPlayer().getUniqueId().toString()));
-        } else {
-            player.level = 0;
-        }
-        if (DataBaseManager.getValueOfCell(DataBaseColumn.ELVL, player.getPlayer().getUniqueId().toString()) != null) {
-            player.playerSkills.enduranceLvl = Integer.parseInt(DataBaseManager.getValueOfCell(DataBaseColumn.ELVL, player.getPlayer().getUniqueId().toString()));
-        } else {
-            player.playerSkills.enduranceLvl = 0;
-        }
-        if (DataBaseManager.getValueOfCell(DataBaseColumn.SLVL, player.getPlayer().getUniqueId().toString()) != null) {
-            player.playerSkills.strengthLvl = Integer.parseInt(DataBaseManager.getValueOfCell(DataBaseColumn.SLVL, player.getPlayer().getUniqueId().toString()));
-        } else {
-            player.playerSkills.strengthLvl = 0;
-        }
-
-        MoneyManager.setPlayerGold(player.getPlayer(), 0);
-        MoneyManager.setPlayerRunicSigils(player.getPlayer(), 0);
-        MoneyManager.setPlayerGuildMedals(player.getPlayer(), 0);
-
-        if (DataBaseManager.getValueOfCell(DataBaseColumn.GOLD, player.getPlayer().getUniqueId().toString()) != null) {
-            MoneyManager.setPlayerGold(player.getPlayer(), Integer.parseInt(DataBaseManager.getValueOfCell(DataBaseColumn.GOLD, player.getPlayer().getUniqueId().toString())));
-        } else {
-            MoneyManager.setPlayerGold(player.getPlayer(), 50);
-        }
-        if (DataBaseManager.getValueOfCell(DataBaseColumn.RUNICSIGILS, player.getPlayer().getUniqueId().toString()) != null) {
-            MoneyManager.setPlayerRunicSigils(player.getPlayer(), Integer.parseInt(DataBaseManager.getValueOfCell(DataBaseColumn.RUNICSIGILS, player.getPlayer().getUniqueId().toString())));
-        } else {
-            MoneyManager.setPlayerRunicSigils(player.getPlayer(), 0);
-        }
-        if (DataBaseManager.getValueOfCell(DataBaseColumn.GUILDMEDALS, player.getPlayer().getUniqueId().toString()) != null) {
-            MoneyManager.setPlayerGuildMedals(player.getPlayer(), Integer.parseInt(DataBaseManager.getValueOfCell(DataBaseColumn.GUILDMEDALS, player.getPlayer().getUniqueId().toString())));
-        } else {
-            MoneyManager.setPlayerGuildMedals(player.getPlayer(), 0);
-        }
-        if (DataBaseManager.getValueOfCell(DataBaseColumn.XP, player.getPlayer().getUniqueId().toString()) != null) {
-            player.xp = Integer.parseInt(DataBaseManager.getValueOfCell(DataBaseColumn.XP, player.getPlayer().getUniqueId().toString()));
-        } else {
-            player.xp = 0;
-        }
-        if (DataBaseManager.getValueOfCell(DataBaseColumn.TOTALXP, player.getPlayer().getUniqueId().toString()) != null) {
-            player.totalXp = Integer.parseInt(DataBaseManager.getValueOfCell(DataBaseColumn.TOTALXP, player.getPlayer().getUniqueId().toString()));
-        } else {
-            player.totalXp = 0;
-        }
-
-
-        player.updateStats();
-        player.currentHP = player.maxHP;
-
         CPlayer.customPlayer.put(player.getPlayer().getUniqueId(), player);
+
+        PlayerDataManager.loadPlayerData(event.getPlayer());
     }
 
     @EventHandler
     private void onLeave(PlayerQuitEvent event) {
-        CPlayer cPlayer = CPlayer.customPlayer.get(event.getPlayer().getUniqueId());
-
-        DataBaseManager.addColumnValue(DataBaseColumn.LVL, cPlayer.level, cPlayer.getPlayer().getUniqueId().toString());
-        DataBaseManager.addColumnValue(DataBaseColumn.ELVL, cPlayer.playerSkills.enduranceLvl, cPlayer.getPlayer().getUniqueId().toString());
-        DataBaseManager.addColumnValue(DataBaseColumn.SLVL, cPlayer.playerSkills.strengthLvl, cPlayer.getPlayer().getUniqueId().toString());
-        DataBaseManager.addColumnValue(DataBaseColumn.XP, cPlayer.xp, cPlayer.getPlayer().getUniqueId().toString());
-        DataBaseManager.addColumnValue(DataBaseColumn.TOTALXP, cPlayer.totalXp, cPlayer.getPlayer().getUniqueId().toString());
-        DataBaseManager.addColumnValue(DataBaseColumn.USERNAME, cPlayer.getPlayer().getName(), cPlayer.getPlayer().getUniqueId().toString());
-        DataBaseManager.addColumnValue(DataBaseColumn.GOLD, MoneyManager.getPlayerGold(cPlayer.getPlayer()), cPlayer.getPlayer().getUniqueId().toString());
-        DataBaseManager.addColumnValue(DataBaseColumn.RUNICSIGILS, MoneyManager.getPlayerRunicSigils(cPlayer.getPlayer()) , cPlayer.getPlayer().getUniqueId().toString());
-        DataBaseManager.addColumnValue(DataBaseColumn.GUILDMEDALS, MoneyManager.getPlayerGuildMedals(cPlayer.getPlayer()) , cPlayer.getPlayer().getUniqueId().toString());
-
-        cPlayer.regenTask.runTaskTimer(plugin, 10, 40);
+        PlayerDataManager.savePlayerData(event.getPlayer());
+        CPlayer.customPlayer.remove(event.getPlayer().getUniqueId());
     }
 
     int fireCount = 0;
@@ -170,9 +113,11 @@ public class Events implements Listener {
             } else if (e.getDamager() instanceof Player) {
                 CPlayer player = CPlayer.getPlayerByUUID(e.getDamager().getUniqueId());
 
+                int damage = player.damage;
+
                 switch (e.getCause()) {
-                    case ENTITY_SWEEP_ATTACK -> damagedEntity.dealDamage(player.damage / 3, e.getDamager());
-                    case ENTITY_ATTACK -> damagedEntity.dealDamage(player.damage, e.getDamager());
+                    case ENTITY_SWEEP_ATTACK -> damagedEntity.dealDamage(damage / 3, e.getDamager());
+                    case ENTITY_ATTACK -> damagedEntity.dealDamage(damage, e.getDamager());
                 }
             } else if (e.getDamager() instanceof Mob) {
                 CEntity damagerEntity = CEntity.getEntityByUUID(e.getDamager().getUniqueId());

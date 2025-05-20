@@ -1,4 +1,4 @@
-package rpg.rpg_base.Mining;
+package rpg.rpg_base.CustomizedClasses.MiningHandler;
 
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector3;
@@ -18,7 +18,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import rpg.rpg_base.CustomizedClasses.ItemHandler.CItem;
-import rpg.rpg_base.CustomizedClasses.ItemHandler.ItemManager;
 import rpg.rpg_base.RPG_Base;
 
 import java.io.File;
@@ -134,6 +133,7 @@ public class MiningManager implements Listener {
             }
         }
     }
+
     private static boolean isBlockInRegionWithFlag(Block block, StateFlag flag) {
         World weWorld = BukkitAdapter.adapt(block.getWorld());
         RegionManager regionManager = WorldGuard.getInstance().getPlatform().getRegionContainer().get(weWorld);

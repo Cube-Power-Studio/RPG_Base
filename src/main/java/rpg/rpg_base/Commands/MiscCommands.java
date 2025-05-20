@@ -14,15 +14,14 @@ import rpg.rpg_base.Crafting.Recipe;
 import rpg.rpg_base.CustomizedClasses.ItemHandler.CItem;
 import rpg.rpg_base.Crafting.CraftingHandler;
 import rpg.rpg_base.CustomizedClasses.PlayerHandler.CPlayer;
+import rpg.rpg_base.CustomizedClasses.PlayerHandler.SkillSystem.Skill;
+import rpg.rpg_base.CustomizedClasses.PlayerHandler.SkillSystem.SkillRegistry;
 import rpg.rpg_base.MoneyHandlingModule.MoneyManager;
 import rpg.rpg_base.RPG_Base;
 import rpg.rpg_base.Shops.ShopsManager;
 import rpg.rpg_base.Utils.PathFinder;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class MiscCommands implements CommandExecutor, TabCompleter {
     private final RPG_Base plugin;
@@ -251,6 +250,23 @@ public class MiscCommands implements CommandExecutor, TabCompleter {
                     }
 
                 }
+                if (args[0].equalsIgnoreCase("addSkill")){
+                    if(args.length < 2){
+                        return false;
+                    }
+
+                    if(Bukkit.getServer().getPlayer(args[1]) != null){
+                        player = Bukkit.getServer().getPlayer(args[1]);
+                        CPlayer cPlayer = CPlayer.getPlayerByUUID(player.getUniqueId());
+                        if(SkillRegistry.getSkill(args[2]) != null){
+                            Skill addedSkill = SkillRegistry.getSkill(args[2]);
+                            addedSkill.clone().level += 1;
+                            cPlayer.playerSkills.unlockedSkillList.add(addedSkill);
+                        }
+                    }
+
+                    return true;
+                }
             }
         }
         if(!sender.hasPermission("tradingBanned")){
@@ -291,6 +307,7 @@ public class MiscCommands implements CommandExecutor, TabCompleter {
                     list.add("openShop");
                     list.add("compareItems");
                     list.add("checkPathTo");
+                    list.add("addSkill");
                     Collections.sort(list);
                 }
                 return list;
@@ -307,7 +324,9 @@ public class MiscCommands implements CommandExecutor, TabCompleter {
                     }
                     return list;
                 }
-                if (args.length >= 2 && (args[0].equalsIgnoreCase("levelAdd") || args[0].equalsIgnoreCase("levelRem"))) {
+                if (args.length >= 2 &&
+                        (args[0].equalsIgnoreCase("levelAdd") ||
+                         args[0].equalsIgnoreCase("levelRem"))) {
                     if (args.length == 2) {
                         list.add("endurance");
                         list.add("strength");
@@ -326,6 +345,15 @@ public class MiscCommands implements CommandExecutor, TabCompleter {
                 if (args.length == 2 && args[0].equalsIgnoreCase("openShop")) {
                     for (String shopName : ShopsManager.shopRegister.keySet()) {
                         list.add(shopName.replace(" ", "_"));  // Add shop names with underscores for spaces
+                    }
+                }
+                if (args.length >= 2 && args[0].equalsIgnoreCase("addSkill")){
+                    if (args.length == 2) {
+                        for (Player player : Bukkit.getOnlinePlayers()) {
+                            list.add(player.getName());
+                        }
+                    } else if (args.length == 3) {
+                        list.addAll(SkillRegistry.registeredSkills.keySet());
                     }
                 }
             }

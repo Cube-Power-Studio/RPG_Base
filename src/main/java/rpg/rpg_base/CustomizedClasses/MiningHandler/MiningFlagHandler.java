@@ -1,4 +1,4 @@
-package rpg.rpg_base.Mining;
+package rpg.rpg_base.CustomizedClasses.MiningHandler;
 
 import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldguard.LocalPlayer;

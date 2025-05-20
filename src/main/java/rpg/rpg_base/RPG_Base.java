@@ -17,21 +17,17 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.*;
 import org.bukkit.plugin.java.JavaPlugin;
 import rpg.rpg_base.Commands.*;
-import rpg.rpg_base.CustomizedClasses.EntityHandler.EntitySpawner;
-import rpg.rpg_base.CustomizedClasses.EntityHandler.MobFlags;
-import rpg.rpg_base.CustomizedClasses.EntityHandler.MobFlagsHandler;
-import rpg.rpg_base.CustomizedClasses.EntityHandler.MobManager;
+import rpg.rpg_base.CustomizedClasses.EntityHandler.*;
 import rpg.rpg_base.CustomizedClasses.ItemHandler.ItemManager;
-import rpg.rpg_base.CustomizedClasses.PlayerHandler.CPlayer;
-import rpg.rpg_base.Mining.MiningFlagHandler;
-import rpg.rpg_base.Mining.MiningFlags;
-import rpg.rpg_base.Mining.MiningManager;
+import rpg.rpg_base.CustomizedClasses.PlayerHandler.SkillSystem.SkillRegistry;
+import rpg.rpg_base.CustomizedClasses.MiningHandler.MiningFlagHandler;
+import rpg.rpg_base.CustomizedClasses.MiningHandler.MiningFlags;
+import rpg.rpg_base.CustomizedClasses.MiningHandler.MiningManager;
 import rpg.rpg_base.Data.*;
 import rpg.rpg_base.GeneralEvents.Events;
 import rpg.rpg_base.GuiHandlers.GUIListener;
 import rpg.rpg_base.GuiHandlers.GUIManager;
 import rpg.rpg_base.Crafting.RecipeLoader;
-import rpg.rpg_base.MoneyHandlingModule.MoneyManager;
 import rpg.rpg_base.Placeholders.CustomItemCount;
 import rpg.rpg_base.PlayerMenu.PlayerInventoryButtons;
 import rpg.rpg_base.PlayerMenu.PlayerMenuItem;
@@ -159,7 +155,7 @@ public final class RPG_Base extends JavaPlugin {
 
 
 
-        new UpdatePlayerData().runTaskTimer(this, 0, 5);
+        new UpdatePlayerData().runTaskTimer(this, 0, 2);
         new SavePlayerData().runTaskTimer(this, 0,6000);
 
         mobManager.spawnMobsInRegions().runTaskTimer(this, 0, 300);
@@ -212,6 +208,8 @@ public final class RPG_Base extends JavaPlugin {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        SkillRegistry.registerAllSkills();
     }
     public void updateConfig(){
         ItemManager.loadCustomItems();
@@ -236,18 +234,11 @@ public final class RPG_Base extends JavaPlugin {
     @Override
     public void onDisable() {
         for(Player player : Bukkit.getOnlinePlayers()) {
-            CPlayer cPlayer = CPlayer.getPlayerByUUID(player.getUniqueId());
+            PlayerDataManager.savePlayerData(player);
+        }
 
-            DataBaseManager.addColumnValue(DataBaseColumn.LVL, cPlayer.level, cPlayer.getPlayer().getUniqueId().toString());
-            DataBaseManager.addColumnValue(DataBaseColumn.ELVL, cPlayer.playerSkills.enduranceLvl, cPlayer.getPlayer().getUniqueId().toString());
-            DataBaseManager.addColumnValue(DataBaseColumn.SLVL, cPlayer.playerSkills.strengthLvl, cPlayer.getPlayer().getUniqueId().toString());
-            DataBaseManager.addColumnValue(DataBaseColumn.XP, cPlayer.xp, cPlayer.getPlayer().getUniqueId().toString());
-            DataBaseManager.addColumnValue(DataBaseColumn.TOTALXP, cPlayer.totalXp, cPlayer.getPlayer().getUniqueId().toString());
-            DataBaseManager.addColumnValue(DataBaseColumn.USERNAME, cPlayer.getPlayer().getName(), cPlayer.getPlayer().getUniqueId().toString());
-            DataBaseManager.addColumnValue(DataBaseColumn.GOLD, MoneyManager.getPlayerGold(cPlayer.getPlayer()), cPlayer.getPlayer().getUniqueId().toString());
-            DataBaseManager.addColumnValue(DataBaseColumn.RUNICSIGILS, MoneyManager.getPlayerRunicSigils(cPlayer.getPlayer()) , cPlayer.getPlayer().getUniqueId().toString());
-            DataBaseManager.addColumnValue(DataBaseColumn.GUILDMEDALS, MoneyManager.getPlayerGuildMedals(cPlayer.getPlayer()) , cPlayer.getPlayer().getUniqueId().toString());
-
+        for(CEntity entity : CEntity.customEntities.values()){
+            entity.getEntity().remove();
         }
 
         DataBaseManager.disconnectFromDB();

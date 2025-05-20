@@ -1,11 +1,13 @@
 package rpg.rpg_base.Data;
 
 import net.md_5.bungee.api.ChatColor;
+import rpg.rpg_base.CustomizedClasses.PlayerHandler.CPlayer;
 import rpg.rpg_base.RPG_Base;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class DataBaseManager {
     private static final String DB_URL = "jdbc:sqlite:" + RPG_Base.getInstance().getDataFolder() + "/playerData.db";
@@ -60,8 +62,9 @@ public class DataBaseManager {
     }
 
 
-    public static void addColumnValue(DataBaseColumn data, String value, String uuid){
+    public static void addColumnValue(DataBaseColumn data, String value, CPlayer player){
         try {
+            String uuid = player.getPlayer().getUniqueId().toString();
             ResultSet rs = stmt.executeQuery("SELECT " + data + " FROM " + userDataTable + " WHERE UUID = '" + uuid + "'");
             if(!rs.next()){
                 stmt.execute("INSERT INTO " + userDataTable + " (UUID) VALUES ('" + uuid + "')");
@@ -71,8 +74,9 @@ public class DataBaseManager {
             throw new RuntimeException(e);
         }
     }
-    public static void addColumnValue(DataBaseColumn data, int value, String uuid){
+    public static void addColumnValue(DataBaseColumn data, int value, CPlayer player){
         try {
+            String uuid = player.getPlayer().getUniqueId().toString();
             ResultSet rs = stmt.executeQuery("SELECT " + data + " FROM " + userDataTable + " WHERE UUID = '" + uuid + "'");
             if(!rs.next()){
                 stmt.execute("INSERT INTO " + userDataTable + " (UUID) VALUES ('" + uuid + "')");
@@ -82,8 +86,9 @@ public class DataBaseManager {
             throw new RuntimeException(e);
         }
     }
-    public static String getValueOfCell(DataBaseColumn data, String uuid){
-        String str = null;
+    public static String getValueOfCell(DataBaseColumn data, CPlayer player){
+        String str = "0";
+        String uuid = player.getPlayer().getUniqueId().toString();
         try {
             ResultSet rs = stmt.executeQuery("SELECT " + data + " FROM " + userDataTable + " WHERE UUID = '" + uuid + "'");
 

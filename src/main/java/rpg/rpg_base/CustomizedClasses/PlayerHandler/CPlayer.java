@@ -7,14 +7,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.checkerframework.checker.units.qual.C;
+import rpg.rpg_base.CustomizedClasses.BonusStat;
 import rpg.rpg_base.CustomizedClasses.EntityHandler.CEntity;
 import rpg.rpg_base.CustomizedClasses.ItemHandler.CItem;
 import rpg.rpg_base.CustomizedClasses.ItemHandler.ItemManager;
 import rpg.rpg_base.GUIs.ActionBar;
 import rpg.rpg_base.RPG_Base;
 
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 
 public class CPlayer {
     public final Player player;
@@ -23,6 +23,10 @@ public class CPlayer {
     public int skillPoints = 0;
     public int spentSkillPoints = 0;
     public int totalSkillPoints = 0;
+    public int abilityPoints = 0;
+    public int spentAbilityPoints = 0;
+    public int totalAbilityPoints = 0;
+
 
     public int xp = 0;
     public int xpToNextLvl = 0;
@@ -30,11 +34,12 @@ public class CPlayer {
 
     public PlayerSkills playerSkills = new PlayerSkills();
 
+    public Map<stat, List<BonusStat>> statBonuses = new HashMap<>();
     public int baseMaxHP = 100;
     public int maxHP = 0;
     public int currentHP = 0;
     public float baseHealthRegen = 0.5F;
-    public float healthRegen = 0;
+    public float healthRegen = 1;
     public int armor = 0;
     public int baseDamage = 1;
     public int damage = 0;
@@ -57,7 +62,9 @@ public class CPlayer {
             }
         };
 
+        regenTask.runTaskTimer(RPG_Base.getInstance(), 0L, 20L);
         actionBar.runTaskTimer(RPG_Base.getInstance(), 0L, 1L);
+        playerSkills.activateSkills(this);
     }
 
     public void updateStats(){
@@ -70,11 +77,14 @@ public class CPlayer {
                 xp -= xpToNextLvl;
                 xpToNextLvl = Math.toIntExact(Math.round(100.0 * Math.pow(2.0, level / 4.0)));
                 level++;
-
-                totalSkillPoints += 2;
-                skillPoints = totalSkillPoints - spentSkillPoints;
             }
         }
+
+        totalSkillPoints = level*2;
+        skillPoints = totalSkillPoints - spentSkillPoints;
+
+        totalAbilityPoints = level/3;
+        abilityPoints = totalAbilityPoints - spentAbilityPoints;
 
         ItemManager.updateItems(player.getInventory());
 
@@ -104,8 +114,15 @@ public class CPlayer {
 
         maxHP = (int) (baseMaxHP + hpFromItems + ((baseMaxHP + hpFromItems) * playerSkills.enduranceLvl * playerSkills.enduranceHealthBoost));
         healthRegen = (int) (baseHealthRegen + hpRegenFromItems);
-        damage = (int) (baseDamage + dmgFromItems +((baseDamage + dmgFromItems) * playerSkills.strengthLvl * playerSkills.strengthDmgBoost));
+        damage = (int) ((baseDamage + dmgFromItems +((baseDamage + dmgFromItems) * playerSkills.strengthLvl * playerSkills.strengthDmgBoost)));
         armor = armorFromItems;
+
+        maxHP += addStatBonus(maxHP, stat.health);
+        healthRegen += addStatBonus((int) healthRegen, stat.healthRegen);
+        damage += addStatBonus(damage, stat.damage);
+        armor += addStatBonus(armor, stat.armor);
+
+        playerSkills.reactivateSkills(this);
     }
 
     public void dealDamage(int damage){
@@ -121,30 +138,34 @@ public class CPlayer {
 
     public void dealDamage(int damage, CEntity damager){
         regenTask.cooldown = 5;
-        if(damage-armor > currentHP){
+        if(damage-armor >= currentHP){
             player.setHealth(0);
             currentHP = maxHP;
             killer = damager;
         }else{
-            currentHP -= damage - armor;
+            currentHP -= Math.max(damage - armor,0);
         }
         updateStats();
     }
 
     public void dealDamage(int damage, CPlayer damager){
         regenTask.cooldown = 5;
-        if(damage-armor > currentHP){
+        if(damage-armor >= currentHP){
             player.setHealth(0);
             currentHP = maxHP;
             killer = damager;
         }else{
-            currentHP -= damage - armor;
+            currentHP -= Math.max(damage - armor,0);
         }
         updateStats();
     }
 
-    public void regenHp(){
-        currentHP = (int) Math.clamp(currentHP + healthRegen, 0, maxHP);
+    public void heal(int amount){
+        currentHP += amount;
+    }
+
+    public void regenHp() {
+        currentHP = (int) Math.max(0, Math.min(currentHP + healthRegen, maxHP));
     }
 
     public static CPlayer getPlayerByUUID(UUID uuid){
@@ -153,5 +174,37 @@ public class CPlayer {
 
     public Player getPlayer() {
         return player;
+    }
+
+    public int addStatBonus(int amount, stat stat){
+        List<BonusStat> activeBonuses = statBonuses.getOrDefault(stat, new ArrayList<>());
+
+        return (int) Math.round(activeBonuses.stream()
+                .sorted(Comparator.comparing(bonusStat -> bonusStat.type))
+                .mapToDouble(bonusStat -> {
+                    switch (bonusStat.type) {
+                        case flat -> {
+                            return bonusStat.amount; // Add directly
+                        }
+                        case scale -> {
+                            return amount * (bonusStat.amount - 1); // Adjust by removing the base 1
+                        }
+                        default -> {
+                            return 0; // Just in case, prevent errors
+                        }
+                    }
+                })
+                .sum());
+    }
+
+    public enum stat{
+        health,
+        maxHealth,
+        healthRegen,
+        armor,
+
+        damage,
+
+        xpgainBonus
     }
 }

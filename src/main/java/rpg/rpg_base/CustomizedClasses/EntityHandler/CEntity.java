@@ -148,8 +148,12 @@ public class CEntity implements Cloneable {
 
                         destinationCooldown[0] = 0;
                     }else{
-                        entity.getPathfinder().moveTo(currentStrollLocation, 0.9);
-                        destinationCooldown[0] += 1;
+                        if(currentStrollLocation == null){
+                            destinationCooldown[0] = 999999;
+                        }else{
+                            entity.getPathfinder().moveTo(currentStrollLocation, 0.9);
+                            destinationCooldown[0] += 1;
+                        }
                     }
                 } else {
                     if (entity.getTarget().getLocation().distanceSquared(entity.getLocation()) > seeRange * seeRange
@@ -176,6 +180,7 @@ public class CEntity implements Cloneable {
     }
 
     public void dealDamage(int damage, Entity damager){
+        System.out.println("Amount of damage dealt: " + damage);
         if(damage - def > currentHP){
             entity.setCustomNameVisible(false);
             currentHP = 0;
@@ -185,7 +190,7 @@ public class CEntity implements Cloneable {
                 MoneyManager.addPlayerGold(((Player) damager).getPlayer(), goldDrop);
             }
         }else{
-            currentHP -= damage - def;
+            currentHP -= Math.max(damage - def,0);
             updateDisplayName();
         }
     }
