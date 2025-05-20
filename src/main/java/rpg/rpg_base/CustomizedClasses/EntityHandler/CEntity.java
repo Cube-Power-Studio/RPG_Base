@@ -7,14 +7,17 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Mob;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import rpg.rpg_base.CustomizedClasses.ItemHandler.CItem;
 import rpg.rpg_base.CustomizedClasses.PlayerHandler.CPlayer;
-import rpg.rpg_base.Utils.PathFinder;
-import rpg.rpg_base.Utils.Util;
 import rpg.rpg_base.MoneyHandlingModule.MoneyManager;
 import rpg.rpg_base.RPG_Base;
+import rpg.rpg_base.Utils.PathFinder;
+import rpg.rpg_base.Utils.Util;
 
 import java.util.*;
 
@@ -132,8 +135,12 @@ public class CEntity implements Cloneable {
 
                         if (walkableBlocksInRadius.isEmpty()) {
                             //plugin.getLogger().warning("No walkable blocks found for entity " + entity.getName());
-                            dropList.clear();
+                            if(!dropList.isEmpty()){
+                                dropList.clear();
+                            }
                             killEntity();
+                            aiTask.cancel();
+                            aiTask = null;
                             return;
                         }
 

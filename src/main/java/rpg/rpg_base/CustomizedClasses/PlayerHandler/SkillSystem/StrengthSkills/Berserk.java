@@ -40,28 +40,29 @@ public class Berserk extends Skill {
 
     @Override
     public void activateEffect(CPlayer player) {
-        if(!active) {
-            List<BonusStat> bonusStatList = player.statBonuses.getOrDefault(CPlayer.stat.damage, new ArrayList<>());
+        if (player.playerSkills.unlockedSkillList.stream().noneMatch(skill -> skill.regName.equalsIgnoreCase(this.regName))) return;
+
+        List<BonusStat> bonusStatList = player.statBonuses.getOrDefault(CPlayer.stat.damage, new ArrayList<>());
 
 
-            double bonusAmount = 1.0; // Default (no change)
+        double bonusAmount = 1.0; // Default (no change)
 
-            double hpPercentage = (double) player.currentHP / player.maxHP;
-            double baseMaxBonus = 1.15; // Base max bonus (without level scaling)
-            double bonusPerLevel = 0.10; // 10% increase per level
-            double maxBonus = baseMaxBonus + (player.level * bonusPerLevel); // Scaled max bonus
+        double hpPercentage = (double) player.currentHP / player.maxHP;
+        double baseMaxBonus = 1.15; // Base max bonus (without level scaling)
+        double bonusPerLevel = 0.10; // 10% increase per level
+        double maxBonus = baseMaxBonus + (player.level * bonusPerLevel); // Scaled max bonus
 
-            if (hpPercentage <= 0.5) {
-                bonusAmount = 1.10 + ((maxBonus - 1.10) * ((0.5 - hpPercentage) / 0.4));
-                bonusAmount = Math.min(bonusAmount, maxBonus); // Clamp max based on level
-            }
-            bonusStats.add(new BonusStat(bonusAmount, BonusStat.bonusType.scale));
-
-            bonusStatList.addAll(bonusStats);
-            player.statBonuses.put(CPlayer.stat.damage, bonusStatList);
-            active = true;
-//            System.out.println("Added damage: " + bonusStat.amount);
+        if (hpPercentage <= 0.5) {
+            bonusAmount = 1.10 + ((maxBonus - 1.10) * ((0.5 - hpPercentage) / 0.4));
+            bonusAmount = Math.min(bonusAmount, maxBonus); // Clamp max based on level
         }
+        bonusStats.add(new BonusStat(bonusAmount, BonusStat.bonusType.scale));
+
+        bonusStatList.addAll(bonusStats);
+        player.statBonuses.put(CPlayer.stat.damage, bonusStatList);
+        active = true;
+//            System.out.println("Added damage: " + bonusStat.amount);
+
     }
 
     @Override

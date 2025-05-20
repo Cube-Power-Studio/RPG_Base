@@ -8,7 +8,6 @@ import rpg.rpg_base.CustomizedClasses.PlayerHandler.CPlayer;
 import rpg.rpg_base.CustomizedClasses.PlayerHandler.SkillSystem.RegisterSkill;
 import rpg.rpg_base.CustomizedClasses.PlayerHandler.SkillSystem.Skill;
 
-import javax.naming.Name;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,23 +45,23 @@ public class ToughSkin extends Skill {
 
     @Override
     public void activateEffect(CPlayer player) {
-        if(!active) {
-            List<BonusStat> healthBonusList = player.statBonuses.getOrDefault(CPlayer.stat.health, new ArrayList<>());
-            List<BonusStat> defenseBonusList = player.statBonuses.getOrDefault(CPlayer.stat.armor, new ArrayList<>());
+        if (player.playerSkills.unlockedSkillList.stream().noneMatch(skill -> skill.regName.equalsIgnoreCase(this.regName))) return;
 
-            BonusStat healthBonus = new BonusStat(10+5*level, BonusStat.bonusType.flat);
-            BonusStat defenseBonus = new BonusStat(3+2*level, BonusStat.bonusType.flat);
+        List<BonusStat> healthBonusList = player.statBonuses.getOrDefault(CPlayer.stat.health, new ArrayList<>());
+        List<BonusStat> defenseBonusList = player.statBonuses.getOrDefault(CPlayer.stat.armor, new ArrayList<>());
 
-            healthBonusList.add(healthBonus);
-            defenseBonusList.add(defenseBonus);
+        BonusStat healthBonus = new BonusStat(10+5*level, BonusStat.bonusType.flat);
+        BonusStat defenseBonus = new BonusStat(3+2*level, BonusStat.bonusType.flat);
 
-            bonusStats.add(healthBonus);
-            bonusStats.add(defenseBonus);
+        healthBonusList.add(healthBonus);
+        defenseBonusList.add(defenseBonus);
 
-            player.statBonuses.put(CPlayer.stat.health, healthBonusList);
-            player.statBonuses.put(CPlayer.stat.armor, defenseBonusList);
-            active = true;
-        }
+        bonusStats.add(healthBonus);
+        bonusStats.add(defenseBonus);
+
+        player.statBonuses.put(CPlayer.stat.health, healthBonusList);
+        player.statBonuses.put(CPlayer.stat.armor, defenseBonusList);
+        active = true;
     }
 
     @Override

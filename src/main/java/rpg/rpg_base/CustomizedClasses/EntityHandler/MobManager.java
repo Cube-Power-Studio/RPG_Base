@@ -19,10 +19,11 @@ import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import rpg.rpg_base.CustomizedClasses.ItemHandler.CItem;
-import rpg.rpg_base.Utils.Util;
 import rpg.rpg_base.RPG_Base;
+import rpg.rpg_base.Utils.Util;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -154,7 +155,7 @@ public class MobManager implements Listener {
             mobDrops.addDropChance(item, chance, dropMin, dropMax);
         }
 
-        entity.dropList = Arrays.asList(mobDrops.itemDrops());
+        entity.dropList = new ArrayList<>(Arrays.asList(mobDrops.itemDrops()));
 
         entity.entity.getPersistentDataContainer().set(CEntity.mobTypeKey, PersistentDataType.STRING, entity.customEntityType);
 
@@ -212,7 +213,7 @@ public class MobManager implements Listener {
             mobDrops.addDropChance(item, chance, dropMin, dropMax);
         }
 
-        entity.dropList = Arrays.asList(mobDrops.itemDrops());
+        entity.dropList = new ArrayList<>(Arrays.asList(mobDrops.itemDrops()));
 
         entity.region = region.getId();
         entity.entity.getPersistentDataContainer().set(CEntity.regionKey, PersistentDataType.STRING, region.getId());
