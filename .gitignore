@@ -5,7 +5,9 @@
 gradle/
 build.gradle
 gradle*
+.gradle
 
+#others
 
 .paper-nms
 
@@ -119,3 +121,4 @@ buildNumber.properties
 
 # Common working directory
 run/
+/build/tmp/fatJar/MANIFEST.MF
