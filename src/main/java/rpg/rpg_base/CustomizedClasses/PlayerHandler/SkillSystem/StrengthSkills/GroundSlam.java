@@ -60,8 +60,6 @@ public class GroundSlam extends Skill implements Listener {
 
         performSlam(cPlayer, player.getLocation());
         setCooldown(5, player);
-
-        event.setCancelled(true);
     }
 
     private boolean isAirborne(Player player) {
@@ -131,10 +129,14 @@ public class GroundSlam extends Skill implements Listener {
     @Override
     public void updateDescription() {
         description = List.of(
-                Component.text("Leap into the air and slam down,", NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false),
-                Component.text("damaging and knocking back enemies in a radius.", NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false),
-                Component.text("Deals ", NamedTextColor.GRAY).append(Component.text(20 + level * damageMultiplier + " damage", NamedTextColor.RED)),
+                Component.text("Leap into the air and slam down,", NamedTextColor.GRAY)
+                        .decoration(TextDecoration.ITALIC, false),
+                Component.text("damaging and knocking back enemies in a radius.", NamedTextColor.GRAY)
+                        .decoration(TextDecoration.ITALIC, false),
+                Component.text("Deals ", NamedTextColor.GRAY).append(Component.text(20 + level * damageMultiplier + " damage", NamedTextColor.RED))
+                        .decoration(TextDecoration.ITALIC, false),
                 Component.text("Cooldown ", NamedTextColor.GRAY).append(Component.text(5 + " seconds", NamedTextColor.DARK_GRAY))
+                        .decoration(TextDecoration.ITALIC, false)
         );
     }
 }

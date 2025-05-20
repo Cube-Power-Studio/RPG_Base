@@ -2,6 +2,7 @@ package rpg.rpg_base.CustomizedClasses.PlayerHandler.SkillSystem.DexteritySkills
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -49,7 +50,6 @@ public class ExecutionersSpecial extends Skill implements Listener {
         if(damagedEntityHPpercentage <= 10f) damagedEntity.killEntity();
 
         setCooldown(60, player);
-        e.setCancelled(true);
     }
 
     @Override
@@ -65,9 +65,12 @@ public class ExecutionersSpecial extends Skill implements Listener {
     @Override
     public void updateDescription() {
         description = List.of(
-                Component.text("Finish the weakliings.", NamedTextColor.GRAY),
-                Component.text("!!!Works only on mobs and NPC's!!!", NamedTextColor.DARK_RED),
+                Component.text("Finish the weakliings.", NamedTextColor.GRAY)
+                        .decoration(TextDecoration.ITALIC, false),
+                Component.text("!!!Works only on mobs and NPC's!!!", NamedTextColor.DARK_RED)
+                        .decoration(TextDecoration.ITALIC, false),
                 Component.text("Executes mobs below 10% HP.", NamedTextColor.GRAY)
+                        .decoration(TextDecoration.ITALIC, false)
         );
     }
 }

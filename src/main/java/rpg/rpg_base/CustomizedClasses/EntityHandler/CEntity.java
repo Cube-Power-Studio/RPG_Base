@@ -132,6 +132,7 @@ public class CEntity implements Cloneable {
 
                         if (walkableBlocksInRadius.isEmpty()) {
                             //plugin.getLogger().warning("No walkable blocks found for entity " + entity.getName());
+                            dropList.clear();
                             killEntity();
                             return;
                         }
