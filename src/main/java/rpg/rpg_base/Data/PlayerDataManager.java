@@ -6,7 +6,6 @@ import rpg.rpg_base.CustomizedClasses.PlayerHandler.SkillSystem.Skill;
 import rpg.rpg_base.CustomizedClasses.PlayerHandler.SkillSystem.SkillRegistry;
 import rpg.rpg_base.MoneyHandlingModule.MoneyManager;
 
-import java.io.File;
 import java.util.Objects;
 
 
@@ -54,6 +53,7 @@ public class PlayerDataManager {
         String unlockedAbilities = DataBaseManager.getValueOfCell(DataBaseColumn.UNLOCKEDABILITIES, player);
         if(!Objects.equals(unlockedAbilities, "0")){
             for(String str : unlockedAbilities.split(";")){
+                if(str.isBlank()) continue;
                 String[] parts = str.split(",");  // Split once and reuse
                 Skill skillToAdd = SkillRegistry.getSkill(parts[0]).clone();
                 skillToAdd.level = Integer.parseInt(parts[1]);

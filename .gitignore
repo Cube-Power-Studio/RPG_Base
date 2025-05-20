@@ -5,6 +5,7 @@
 gradle/
 build.gradle
 gradle*
+.gradle/
 
 #others
 

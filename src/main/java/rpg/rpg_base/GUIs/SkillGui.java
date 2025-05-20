@@ -23,11 +23,10 @@ import rpg.rpg_base.GuiHandlers.MultiPageInventoryGUI;
 import rpg.rpg_base.RPG_Base;
 import rpg.rpg_base.Utils.Util;
 
-import javax.naming.Name;
 import java.time.Duration;
 import java.util.*;
 
-import static rpg.rpg_base.GuiHandlers.HeadsList.*;
+import static rpg.rpg_base.GuiHandlers.HeadsList.getUpgradeButton;
 
 public class SkillGui extends MultiPageInventoryGUI {
     private final RPG_Base plugin;
@@ -541,6 +540,55 @@ public class SkillGui extends MultiPageInventoryGUI {
                                         .decoration(TextDecoration.ITALIC, false)
                                         .color(NamedTextColor.RED)
                         );
+                        List<Component> lore = new ArrayList<>();
+
+                        lore.add(Component.text("Requirements:")
+                                .decoration(TextDecoration.ITALIC, false)
+                                .color(NamedTextColor.WHITE));
+
+                        lore.add(Component.text("Endurance Level: ")
+                                .decoration(TextDecoration.ITALIC, false)
+                                .color(NamedTextColor.WHITE)
+                                .append(Component.text(skill.levelRequirements.getOrDefault("end", 0))
+                                        .color(NamedTextColor.GREEN)
+                                        .decoration(TextDecoration.ITALIC, false)));
+
+                        lore.add(Component.text("Strength Level: ")
+                                .decoration(TextDecoration.ITALIC, false)
+                                .color(NamedTextColor.WHITE)
+                                .append(Component.text(skill.levelRequirements.getOrDefault("str", 0))
+                                        .color(NamedTextColor.RED)
+                                        .decoration(TextDecoration.ITALIC, false)));
+
+                        lore.add(Component.text("Intelligence Level: ")
+                                .decoration(TextDecoration.ITALIC, false)
+                                .color(NamedTextColor.WHITE)
+                                .append(Component.text(skill.levelRequirements.getOrDefault("int", 0))
+                                        .color(NamedTextColor.LIGHT_PURPLE)
+                                        .decoration(TextDecoration.ITALIC, false)));
+
+                        lore.add(Component.text("Dexterity Level: ")
+                                .decoration(TextDecoration.ITALIC, false)
+                                .color(NamedTextColor.WHITE)
+                                .append(Component.text(skill.levelRequirements.getOrDefault("dex", 0))
+                                        .color(NamedTextColor.GOLD)
+                                        .decoration(TextDecoration.ITALIC, false)));
+
+                        lore.add(Component.text("Agility Level: ")
+                                .decoration(TextDecoration.ITALIC, false)
+                                .color(NamedTextColor.WHITE)
+                                .append(Component.text(skill.levelRequirements.getOrDefault("agi", 0))
+                                        .color(NamedTextColor.AQUA)
+                                        .decoration(TextDecoration.ITALIC, false)));
+
+                        lore.add(Component.text("Player Level: ")
+                                .decoration(TextDecoration.ITALIC, false)
+                                .color(NamedTextColor.WHITE)
+                                .append(Component.text(skill.levelRequirements.getOrDefault("gen", 0))
+                                        .decoration(TextDecoration.ITALIC, false)
+                                        .color(NamedTextColor.BLUE)));
+
+                        displayMeta.lore(lore);
                     }
 
                     displayMeta.getPersistentDataContainer().set(Skill.skillKey, PersistentDataType.STRING, skill.regName);

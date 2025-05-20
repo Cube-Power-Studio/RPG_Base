@@ -72,7 +72,7 @@ public class MobManager implements Listener {
 
     @EventHandler
     public void despawnUnregisteredEntities(EntityMoveEvent e) {
-        if (CEntity.getEntityByUUID(e.getEntity().getUniqueId()) == null
+        if ((CEntity.getEntityByUUID(e.getEntity().getUniqueId()) == null || CEntity.getEntityByUUID(e.getEntity().getUniqueId()).getEntity() == null)
             && !(e.getEntity() instanceof Player)
             && !CitizensAPI.getNPCRegistry().isNPC(e.getEntity())
             && e.getEntity().getType().isAlive()) {
