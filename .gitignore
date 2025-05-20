@@ -1,6 +1,10 @@
 # User-specific stuff
 .idea/
+
+#gradle
 gradle/
+build.gradle
+gradle*
 
 
 .paper-nms
