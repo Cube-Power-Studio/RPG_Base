@@ -9,6 +9,7 @@ import io.papermc.paper.event.entity.EntityMoveEvent;
 import net.citizensnpcs.api.CitizensAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.*;
@@ -16,6 +17,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import rpg.rpg_base.CustomizedClasses.ItemHandler.CItem;
@@ -192,6 +194,10 @@ public class MobManager implements Listener {
 
         if (entity.entity instanceof Piglin) {
             ((Piglin)entity.entity).setAdult();
+        }
+
+        if (entity.entity instanceof Pillager){
+            entity.entity.getEquipment().setItemInMainHand(new ItemStack(Material.IRON_SWORD));
         }
 
         entity.getEntity().getEquipment().clear();
