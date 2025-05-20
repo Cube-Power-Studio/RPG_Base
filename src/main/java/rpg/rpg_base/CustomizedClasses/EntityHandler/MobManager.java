@@ -182,16 +182,16 @@ public class MobManager implements Listener {
 
         entity.entity = (Mob) location.getWorld().spawnEntity(location, EntityType.valueOf(entity.mobType));
 
-        if (entity instanceof Zombie) {
-            ((Zombie)entity).setAdult();
+        if (entity.entity instanceof Zombie) {
+            ((Zombie)entity.entity).setAdult();
         }
 
-        if (entity instanceof Zoglin) {
-            ((Zoglin)entity).setAdult();
+        if (entity.entity instanceof Zoglin) {
+            ((Zoglin)entity.entity).setAdult();
         }
 
-        if (entity instanceof Piglin) {
-            ((Piglin)entity).setAdult();
+        if (entity.entity instanceof Piglin) {
+            ((Piglin)entity.entity).setAdult();
         }
 
         entity.getEntity().getEquipment().clear();
