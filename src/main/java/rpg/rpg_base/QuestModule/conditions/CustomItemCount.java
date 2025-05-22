@@ -1,9 +1,8 @@
 package rpg.rpg_base.QuestModule.conditions;
 
 
-import org.betonquest.betonquest.api.profiles.Profile;
+import org.betonquest.betonquest.api.profile.Profile;
 import org.betonquest.betonquest.api.quest.condition.nullable.NullableCondition;
-import org.betonquest.betonquest.exceptions.QuestRuntimeException;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -20,7 +19,7 @@ public class CustomItemCount implements NullableCondition {
     }
 
     @Override
-    public boolean check(@Nullable Profile profile) throws QuestRuntimeException {
+    public boolean check(@Nullable Profile profile) {
         int totalCount = 0;
 
         Inventory inv = profile.getPlayer().getPlayer().getInventory();

@@ -12,7 +12,7 @@ public class PlayerRegenTask extends BukkitRunnable {
 
     @Override
     public void run() {
-        if(cooldown == 0){
+        if(cooldown <= 0){
             player.regenHp();
         }else{
             cooldown--;

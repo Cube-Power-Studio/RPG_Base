@@ -1,32 +1,29 @@
 package rpg.rpg_base.GeneralEvents;
 
-import io.papermc.paper.event.entity.EntityMoveEvent;
 import net.citizensnpcs.api.CitizensAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.betonquest.betonquest.api.profiles.Profile;
+import org.betonquest.betonquest.BetonQuest;
+import org.betonquest.betonquest.api.profile.Profile;
 import org.betonquest.betonquest.conversation.Conversation;
-import org.betonquest.betonquest.database.PlayerData;
-import org.betonquest.betonquest.utils.PlayerConverter;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.damage.DamageType;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Mob;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.inventory.*;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
+import rpg.rpg_base.Crafting.CraftingGui;
 import rpg.rpg_base.CustomizedClasses.EntityHandler.CEntity;
 import rpg.rpg_base.CustomizedClasses.ItemHandler.ItemManager;
 import rpg.rpg_base.CustomizedClasses.PlayerHandler.CPlayer;
-import rpg.rpg_base.Data.DataBaseColumn;
-import rpg.rpg_base.Data.DataBaseManager;
-import rpg.rpg_base.Crafting.CraftingGui;
 import rpg.rpg_base.Data.PlayerDataManager;
 import rpg.rpg_base.GuiHandlers.GUIManager;
-import rpg.rpg_base.MoneyHandlingModule.MoneyManager;
 import rpg.rpg_base.RPG_Base;
 
 import java.util.Arrays;
@@ -152,7 +149,7 @@ public class Events implements Listener {
 
     @EventHandler
     private void onItemDrop(PlayerDropItemEvent event){
-        Profile profile = PlayerConverter.getID(event.getPlayer());
+        Profile profile = BetonQuest.getInstance().getProfileProvider().getProfile(event.getPlayer());
         
         if(Conversation.getConversation(profile) != null){
             event.setCancelled(true);

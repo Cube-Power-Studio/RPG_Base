@@ -14,27 +14,32 @@ import org.betonquest.betonquest.quest.PrimaryServerThreadData;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import rpg.rpg_base.Commands.*;
+import rpg.rpg_base.Commands.MiscCommands;
+import rpg.rpg_base.Commands.SkillMenuCommands;
+import rpg.rpg_base.Crafting.RecipeLoader;
 import rpg.rpg_base.CustomizedClasses.EntityHandler.*;
 import rpg.rpg_base.CustomizedClasses.ItemHandler.ItemManager;
-import rpg.rpg_base.CustomizedClasses.PlayerHandler.SkillSystem.SkillRegistry;
 import rpg.rpg_base.CustomizedClasses.MiningHandler.MiningFlagHandler;
 import rpg.rpg_base.CustomizedClasses.MiningHandler.MiningFlags;
 import rpg.rpg_base.CustomizedClasses.MiningHandler.MiningManager;
-import rpg.rpg_base.Data.*;
+import rpg.rpg_base.CustomizedClasses.PlayerHandler.SkillSystem.SkillRegistry;
+import rpg.rpg_base.Data.DataBaseManager;
+import rpg.rpg_base.Data.PlayerDataManager;
+import rpg.rpg_base.Data.SavePlayerData;
+import rpg.rpg_base.Data.UpdatePlayerData;
 import rpg.rpg_base.GeneralEvents.Events;
 import rpg.rpg_base.GuiHandlers.GUIListener;
 import rpg.rpg_base.GuiHandlers.GUIManager;
-import rpg.rpg_base.Crafting.RecipeLoader;
 import rpg.rpg_base.Placeholders.CustomItemCount;
 import rpg.rpg_base.PlayerMenu.PlayerInventoryButtons;
 import rpg.rpg_base.PlayerMenu.PlayerMenuItem;
 import rpg.rpg_base.QuestModule.conditions.CustomItemCountFactory;
 import rpg.rpg_base.QuestModule.events.*;
-import rpg.rpg_base.QuestModule.objectives.CollectCustomItemsObjective;
-import rpg.rpg_base.QuestModule.objectives.KillCustomMobsObjective;
+import rpg.rpg_base.QuestModule.objectives.CollectCustomItemsObjectiveFactory;
+import rpg.rpg_base.QuestModule.objectives.KillCustomMobsObjectiveFactory;
 import rpg.rpg_base.Shops.ShopsManager;
 import rpg.rpg_base.Utils.Util;
 
@@ -112,16 +117,16 @@ public final class RPG_Base extends JavaPlugin {
         this.loggerFactory = betonQuest.getLoggerFactory();
         this.data = new PrimaryServerThreadData(getServer(), getServer().getScheduler(), betonQuest);
 
-        betonQuest.registerObjectives("custommobkill", KillCustomMobsObjective.class);
-        betonQuest.registerObjectives("customitemcollect", CollectCustomItemsObjective.class);
+        betonQuest.getQuestRegistries().objective().register("custommobkill", new KillCustomMobsObjectiveFactory());
+        betonQuest.getQuestRegistries().objective().register("customitemcollect", new CollectCustomItemsObjectiveFactory());
 
-        betonQuest.getQuestRegistries().getConditionTypes().registerCombined("hascustomitem", new CustomItemCountFactory(data));
+        betonQuest.getQuestRegistries().condition().registerCombined("hascustomitem", new CustomItemCountFactory(data));
 
-        betonQuest.getQuestRegistries().getEventTypes().register("givemoney", new GiveMoneyFactory(loggerFactory));
-        betonQuest.getQuestRegistries().getEventTypes().register("givexp", new GiveXPFactory(loggerFactory));
-        betonQuest.getQuestRegistries().getEventTypes().register("removecustomitem", new RemoveItemsFactory(loggerFactory));
-        betonQuest.getQuestRegistries().getEventTypes().register("givecustomitem", new GiveItemsFactory(loggerFactory));
-        betonQuest.getQuestRegistries().getEventTypes().register("shopopen", new ShopOpenFactory(loggerFactory));
+        betonQuest.getQuestRegistries().event().register("givemoney", new GiveMoneyFactory(loggerFactory));
+        betonQuest.getQuestRegistries().event().register("givexp", new GiveXPFactory(loggerFactory));
+        betonQuest.getQuestRegistries().event().register("removecustomitem", new RemoveItemsFactory(loggerFactory));
+        betonQuest.getQuestRegistries().event().register("givecustomitem", new GiveItemsFactory(loggerFactory));
+        betonQuest.getQuestRegistries().event().register("shopopen", new ShopOpenFactory(loggerFactory));
 
         ItemManager itemManager = new ItemManager(this, util);
         GUIManager guiManager = new GUIManager();

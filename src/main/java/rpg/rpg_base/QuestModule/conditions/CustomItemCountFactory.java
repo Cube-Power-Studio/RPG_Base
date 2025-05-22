@@ -1,18 +1,17 @@
 package rpg.rpg_base.QuestModule.conditions;
 
-import org.betonquest.betonquest.Instruction;
+import org.betonquest.betonquest.api.quest.QuestException;
 import org.betonquest.betonquest.api.quest.condition.PlayerCondition;
 import org.betonquest.betonquest.api.quest.condition.PlayerConditionFactory;
 import org.betonquest.betonquest.api.quest.condition.PlayerlessCondition;
 import org.betonquest.betonquest.api.quest.condition.PlayerlessConditionFactory;
 import org.betonquest.betonquest.api.quest.condition.nullable.NullableConditionAdapter;
-import org.betonquest.betonquest.exceptions.InstructionParseException;
+import org.betonquest.betonquest.instruction.Instruction;
 import org.betonquest.betonquest.quest.PrimaryServerThreadData;
 import org.betonquest.betonquest.quest.condition.PrimaryServerThreadPlayerCondition;
 import org.betonquest.betonquest.quest.condition.PrimaryServerThreadPlayerlessCondition;
 import org.bukkit.inventory.ItemStack;
 import rpg.rpg_base.CustomizedClasses.ItemHandler.CItem;
-import rpg.rpg_base.CustomizedClasses.ItemHandler.ItemManager;
 
 public class CustomItemCountFactory implements PlayerConditionFactory, PlayerlessConditionFactory {
     private final PrimaryServerThreadData data;
@@ -22,16 +21,16 @@ public class CustomItemCountFactory implements PlayerConditionFactory, Playerles
     }
 
     @Override
-    public PlayerCondition parsePlayer(Instruction instruction) throws InstructionParseException {
+    public PlayerCondition parsePlayer(Instruction instruction) throws QuestException {
         return new PrimaryServerThreadPlayerCondition(parseItemCondition(instruction), data);
     }
 
     @Override
-    public PlayerlessCondition parsePlayerless(Instruction instruction) throws InstructionParseException {
+    public PlayerlessCondition parsePlayerless(Instruction instruction) throws QuestException {
         return new PrimaryServerThreadPlayerlessCondition(parseItemCondition(instruction), data);
     }
 
-    private NullableConditionAdapter parseItemCondition(final Instruction instruction) throws InstructionParseException{
+    private NullableConditionAdapter parseItemCondition(final Instruction instruction) throws QuestException {
 
         if(CItem.customItemsByName.get(instruction.getPart(1)).getItem() != null){
 

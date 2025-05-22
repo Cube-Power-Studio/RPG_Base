@@ -1,12 +1,12 @@
 package rpg.rpg_base.QuestModule.objectives;
 
-import org.betonquest.betonquest.Instruction;
 import org.betonquest.betonquest.api.CountingObjective;
-import org.betonquest.betonquest.api.profiles.OnlineProfile;
-import org.betonquest.betonquest.api.profiles.Profile;
-import org.betonquest.betonquest.exceptions.InstructionParseException;
-import org.betonquest.betonquest.instruction.variable.VariableNumber;
 import org.betonquest.betonquest.api.MobKillNotifier.MobKilledEvent;
+import org.betonquest.betonquest.api.profile.OnlineProfile;
+import org.betonquest.betonquest.api.profile.Profile;
+import org.betonquest.betonquest.api.quest.QuestException;
+import org.betonquest.betonquest.instruction.Instruction;
+import org.betonquest.betonquest.instruction.variable.Variable;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
@@ -16,18 +16,16 @@ import org.bukkit.persistence.PersistentDataType;
 import rpg.rpg_base.CustomizedClasses.EntityHandler.CEntity;
 import rpg.rpg_base.RPG_Base;
 
-import java.util.List;
 import java.util.Locale;
 
 public class KillCustomMobsObjective extends CountingObjective implements Listener {
 
-    private final List<String> mobTypes;
+    private final String mobType;
 
-    public KillCustomMobsObjective(Instruction instruction) throws InstructionParseException {
-        super(instruction, "mobs_left");
-        mobTypes = instruction.getList(original -> original);
+    public KillCustomMobsObjective(Instruction instruction, Variable<Number> amount, String mobType) throws QuestException {
+        super(instruction, amount, "mobs_left");
 
-        targetAmount = instruction.getVarNum(VariableNumber.NOT_LESS_THAN_ONE_CHECKER);
+        this.mobType = mobType;
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -40,7 +38,7 @@ public class KillCustomMobsObjective extends CountingObjective implements Listen
 
             String mobID = entity.getPersistentDataContainer().get(CEntity.mobTypeKey, PersistentDataType.STRING);
 
-            if (mobID == null || !mobTypes.contains(mobID)) return;
+            if (!mobType.equalsIgnoreCase(mobID)) return;
 
             if (checkConditions(onlineProfile)) {
                 getCountingData(onlineProfile).progress();

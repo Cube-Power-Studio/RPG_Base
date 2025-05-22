@@ -1,12 +1,9 @@
 package rpg.rpg_base.CustomizedClasses.PlayerHandler;
 
 import org.bukkit.Sound;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.checkerframework.checker.units.qual.C;
 import rpg.rpg_base.CustomizedClasses.BonusStat;
 import rpg.rpg_base.CustomizedClasses.EntityHandler.CEntity;
 import rpg.rpg_base.CustomizedClasses.ItemHandler.CItem;
@@ -165,7 +162,7 @@ public class CPlayer {
     }
 
     public void regenHp() {
-        currentHP = (int) Math.max(0, Math.min(currentHP + healthRegen, maxHP));
+        currentHP = (int) Math.min(currentHP + healthRegen, maxHP);
     }
 
     public static CPlayer getPlayerByUUID(UUID uuid){
