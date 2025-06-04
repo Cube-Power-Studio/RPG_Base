@@ -9,9 +9,10 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.components.ToolComponent;
 import org.bukkit.persistence.PersistentDataType;
-import rpg.rpg_base.Utils.Util;
 import rpg.rpg_base.RPG_Base;
+import rpg.rpg_base.Utils.Util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -73,8 +74,13 @@ public class CItem implements Cloneable{
                 itemMeta.displayName(Component.text(displayName));
             }
 
-            if (true){
-                //TODO create a namespaced tag for mining level
+            if (config.contains(".miningSpeed")){
+                String miningSpeed = config.getString("miningSpeed");
+                if(miningSpeed != null) {
+                    ToolComponent toolComponent = itemMeta.getTool();
+                    toolComponent.setDefaultMiningSpeed(Integer.parseInt(miningSpeed));
+                    itemMeta.setTool(toolComponent);
+                }
             }
 
             for (String loreLine : config.getStringList(".lore")) {
