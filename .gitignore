@@ -5,6 +5,8 @@
 gradle/
 build.gradle
 gradle*
+/.gradle
+/build
 
 #others
 
@@ -122,3 +124,19 @@ buildNumber.properties
 run/
 /build/tmp/fatJar/MANIFEST.MF
 /.gradle/8.9/*
+/.gradle/8.13/expanded/expanded.lock
+/.gradle/8.5/checksums/checksums.lock
+/.gradle/8.13/checksums/checksums.lock
+/.gradle/8.13/executionHistory/executionHistory.bin
+/.gradle/8.13/executionHistory/executionHistory.lock
+/.gradle/8.13/fileHashes/fileHashes.bin
+/.gradle/8.5/fileHashes/fileHashes.lock
+/.gradle/8.13/fileHashes/fileHashes.lock
+/.gradle/8.5/gc.properties
+/.gradle/8.13/gc.properties
+/.gradle/8.5/fileChanges/last-build.bin
+/.gradle/8.13/fileChanges/last-build.bin
+/.gradle/8.13/checksums/md5-checksums.bin
+/build/reports/problems/problems-report.html
+/.gradle/8.13/fileHashes/resourceHashesCache.bin
+/.gradle/8.13/checksums/sha1-checksums.bin

@@ -1,28 +1,35 @@
 package rpg.rpg_base.QuestModule.events;
 
+import org.betonquest.betonquest.BetonQuest;
 import org.betonquest.betonquest.api.profile.OnlineProfile;
 import org.betonquest.betonquest.api.quest.QuestException;
 import org.betonquest.betonquest.api.quest.event.online.OnlineEvent;
-import org.betonquest.betonquest.instruction.variable.Variable;
+import org.betonquest.betonquest.instruction.Instruction;
 import rpg.rpg_base.MoneyHandlingModule.MoneyManager;
 import rpg.rpg_base.MoneyHandlingModule.MoneyTypes;
 
 public class GiveMoney implements OnlineEvent {
-    final Variable<Number> amount;
+    final Instruction instruction;
     final MoneyTypes type;
 
-    public GiveMoney(Variable<Number> amount, MoneyTypes type){
-        this.amount = amount;
+    public GiveMoney(Instruction instruction, MoneyTypes type){
+        this.instruction = instruction;
         this.type = type;
     }
 
     @Override
     public void execute(OnlineProfile profile) throws QuestException {
-        int amountFinal = amount.getValue(profile).intValue();
+        int finalAmount;
+        if(BetonQuest.getInstance().getVariableProcessor().getValue(instruction.getPackage(), instruction.getPart(1), profile) != null){
+            finalAmount = Integer.parseInt(BetonQuest.getInstance().getVariableProcessor().getValue(instruction.getPackage(), instruction.getPart(1), profile));
+        }else{
+            finalAmount = Integer.parseInt(instruction.getPart(1));
+        }
+
         switch (type) {
-            case GOLD -> MoneyManager.addPlayerGold(profile.getPlayer().getPlayer(), amountFinal);
-            case RUNICSIGILS -> MoneyManager.addPlayerRunicSigils(profile.getPlayer().getPlayer(), amountFinal);
-            case GUILDMEDALS -> MoneyManager.addPlayerGuildMedals(profile.getPlayer().getPlayer(), amountFinal);
+            case GOLD -> MoneyManager.addPlayerGold(profile.getPlayer().getPlayer(), finalAmount);
+            case RUNICSIGILS -> MoneyManager.addPlayerRunicSigils(profile.getPlayer().getPlayer(), finalAmount);
+            case GUILDMEDALS -> MoneyManager.addPlayerGuildMedals(profile.getPlayer().getPlayer(), finalAmount);
         }
     }
 }

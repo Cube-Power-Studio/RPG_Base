@@ -146,7 +146,7 @@ public class CEntity implements Cloneable {
 
                         currentStrollLocation = walkableBlocksInRadius.get(random.nextInt(walkableBlocksInRadius.size()));
                         while(!util.isLocationInRegion(currentStrollLocation, region)){
-                            walkableBlocksInRadius.remove(currentStrollLocation);
+                            walkableBlocksInRadius.remove(currentStrollLocation); // THIS LINE MAKES IT SO THAT IF WALKABLE BLOCKS CONTAIN AAANYY LOCATION THAT IS OUTSIDE THE REGION IT GETS REMOVED, DONT REMOVE IT
                             currentStrollLocation = walkableBlocksInRadius.get(random.nextInt(walkableBlocksInRadius.size()));
                         }
 

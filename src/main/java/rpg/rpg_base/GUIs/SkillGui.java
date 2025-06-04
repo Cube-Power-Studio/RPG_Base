@@ -12,6 +12,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.persistence.PersistentDataType;
 import rpg.rpg_base.CustomizedClasses.PlayerHandler.CPlayer;
 import rpg.rpg_base.CustomizedClasses.PlayerHandler.PlayerSkills;
@@ -140,15 +141,17 @@ public class SkillGui extends MultiPageInventoryGUI {
         this.addButton(14,1, createUpdateButtons(increase, 14));
         this.addButton(15,1, createUpdateButtons(increase, 15));
 
-        int[] customModelDataValues = {3, 5, 4, 2, 1}; // The CustomModelData values
+        List<String> customModelDataValues = new ArrayList<>(Arrays.asList("skillEnd", "skillStr", "skillInt", "skillDex", "skillAgi"));
         int[] slots = {20, 21, 22, 23, 24}; // Corresponding button slots
 
-        for (int i = 0; i < customModelDataValues.length; i++) {
+        for (int i = 0; i < customModelDataValues.size(); i++) {
             ItemStack item = new ItemStack(Material.BOOK);
             ItemMeta meta = item.getItemMeta();
 
             if (meta != null) {
-                meta.setCustomModelData(customModelDataValues[i]);
+                CustomModelDataComponent component = meta.getCustomModelDataComponent();
+                component.setStrings(List.of(customModelDataValues.get(i)));
+                meta.setCustomModelDataComponent(component);
                 item.setItemMeta(meta);
             }
 

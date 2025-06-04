@@ -7,11 +7,14 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.scheduler.BukkitRunnable;
-import rpg.rpg_base.Utils.Util;
 import rpg.rpg_base.RPG_Base;
+import rpg.rpg_base.Utils.Util;
 
 import java.io.File;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
+import java.util.Set;
 
 public class SpawnEntitiesInRegion extends BukkitRunnable {
     private final RPG_Base plugin = RPG_Base.getInstance();
@@ -71,8 +74,8 @@ public class SpawnEntitiesInRegion extends BukkitRunnable {
         BlockVector3 minPoint = region.getMinimumPoint();
         BlockVector3 maxPoint = region.getMaximumPoint();
 
-        Location minLocation = new Location(world, minPoint.getX(), minPoint.getY(), minPoint.getZ());
-        Location maxLocation = new Location(world, maxPoint.getX(), maxPoint.getY(), maxPoint.getZ());
+        Location minLocation = new Location(world, minPoint.x(), minPoint.y(), minPoint.z());
+        Location maxLocation = new Location(world, maxPoint.x(), maxPoint.y(), maxPoint.z());
 
         int minX = minLocation.getBlockX();
         int maxX = maxLocation.getBlockX();

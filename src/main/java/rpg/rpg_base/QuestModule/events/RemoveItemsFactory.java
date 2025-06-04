@@ -7,10 +7,8 @@ import org.betonquest.betonquest.api.quest.event.PlayerEvent;
 import org.betonquest.betonquest.api.quest.event.PlayerEventFactory;
 import org.betonquest.betonquest.api.quest.event.online.OnlineEventAdapter;
 import org.betonquest.betonquest.instruction.Instruction;
-import org.betonquest.betonquest.instruction.argument.Argument;
-import org.betonquest.betonquest.instruction.variable.Variable;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import rpg.rpg_base.CustomizedClasses.ItemHandler.CItem;
 
 public class RemoveItemsFactory implements PlayerEventFactory {
 
@@ -24,12 +22,13 @@ public class RemoveItemsFactory implements PlayerEventFactory {
     public PlayerEvent parsePlayer(Instruction instruction) throws QuestException {
         final BetonQuestLogger log = loggerFactory.create(RemoveItems.class);
 
-        ItemStack item = CItem.customItemsByName.get(instruction.getPart(1)).getItem();
-        Variable<Number> amount = instruction.get(Argument.NUMBER);
+        ///ItemStack item = CItem.customItemsByName.getOrDefault(instruction.getPart(1), null).getItem();
+        ItemStack item = new ItemStack(Material.DIRT);
+
 
         return new OnlineEventAdapter( new RemoveItems(
                 item,
-                amount),
+                instruction),
                 log, instruction.getPackage()
         );
     }

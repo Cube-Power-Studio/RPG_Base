@@ -1,12 +1,14 @@
 package rpg.rpg_base.CustomizedClasses.EntityHandler;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.World;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.persistence.PersistentDataType;
-import rpg.rpg_base.Utils.Util;
 import rpg.rpg_base.RPG_Base;
+import rpg.rpg_base.Utils.Util;
 
 import java.io.File;
 import java.util.*;
@@ -23,6 +25,9 @@ public class EntitySpawner {
     }
 
     public void spawnEntitiesInRegion(ProtectedRegion region, World world){
+        if(!WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world)).hasRegion(region.getId())){
+            return;
+        }
         if(region.getFlag(MobFlags.customMobsFlag) == StateFlag.State.ALLOW){
             String regionID = region.getId();
 
