@@ -1,5 +1,6 @@
 package rpg.rpg_base.Commands;
 
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -26,6 +27,7 @@ public class RegisteredCommands {
     public void register(){
         List<String> items = new ArrayList<>();
         List<String> players = new ArrayList<>();
+        List<String> skillTypes = List.of("general", "strength", "endurance", "intelligence", "dexterity", "agility");
 
         LiteralCommandNode<CommandSourceStack> command = Commands.literal("rpg")
                 .requires(sender -> sender.getSender().hasPermission("rpg_base.admin"))
@@ -74,7 +76,8 @@ public class RegisteredCommands {
                                 RPG_Base.getInstance().getLogger().info("While performing command /RPG reload something went wrong: " + e);
                                 return 0;
                             }
-                        }))
+                        })
+                )
                 .then(Commands.literal("give")
                         .then(Commands.argument("item", StringArgumentType.word())
                                 .suggests((_, builder) -> {
@@ -115,7 +118,184 @@ public class RegisteredCommands {
 
                                             return 1;
                                         })
-                                )))
+                                ))
+                )
+                .then(Commands.literal("level")
+                        .then(Commands.literal("add")
+                                .then(Commands.argument("type", StringArgumentType.word())
+                                        .suggests((_, builder) -> {
+                                            skillTypes.stream()
+                                                    .filter(entry -> entry.toLowerCase().startsWith(builder.getRemainingLowerCase()))
+                                                    .forEach(builder::suggest);
+
+                                            return builder.buildFuture();
+                                        })
+                                        .then(Commands.argument("amount", IntegerArgumentType.integer(0))
+                                                .suggests((_, builder) -> {
+                                                    builder.suggest(1);
+                                                    return builder.buildFuture();
+                                                })
+                                                .executes(ctx -> {
+                                                    CPlayer player = CPlayer.getPlayerByUUID(((Player) ctx.getSource().getSender()).getUniqueId());
+
+                                                    switch (ctx.getArgument("type", String.class)) {
+                                                        case "general":
+                                                            player.level += ctx.getArgument("amount", int.class);
+                                                            break;
+                                                        case "strength":
+                                                            player.playerSkills.strengthLvl += ctx.getArgument("amount", int.class);
+                                                            break;
+                                                        case "endurance":
+                                                            player.playerSkills.enduranceLvl += ctx.getArgument("amount", int.class);
+                                                            break;
+                                                        case "intelligence":
+                                                            player.playerSkills.intelligenceLvl += ctx.getArgument("amount", int.class);
+                                                            break;
+                                                        case "dexterity":
+                                                            player.playerSkills.dexterityLvl += ctx.getArgument("amount", int.class);
+                                                            break;
+                                                        case "agility":
+                                                            player.playerSkills.agilityLvl += ctx.getArgument("amount", int.class);
+                                                            break;
+                                                        default:
+                                                            ctx.getSource().getSender().sendMessage("Invalid level type!!!");
+                                                            return 0;
+                                                    }
+
+                                                    player.updateStats();
+
+                                                    return 1;
+                                                })
+                                                .then(Commands.argument("target", StringArgumentType.word())
+                                                        .suggests((_, builder) -> {
+                                                            for (Player player : Bukkit.getOnlinePlayers()) {players.add(player.getName());}
+                                                            players.stream()
+                                                                    .filter(entry -> entry.toLowerCase().startsWith(builder.getRemainingLowerCase()))
+                                                                    .forEach(builder::suggest);
+
+                                                            return builder.buildFuture();
+                                                        })
+                                                        .executes(ctx -> {
+                                                            CPlayer player = CPlayer.getPlayerByUUID(Bukkit.getPlayerUniqueId(ctx.getArgument("target", String.class)));
+
+                                                            switch (ctx.getArgument("type", String.class)) {
+                                                                case "general":
+                                                                    player.level += ctx.getArgument("amount", int.class);
+                                                                    break;
+                                                                case "strength":
+                                                                    player.playerSkills.strengthLvl += ctx.getArgument("amount", int.class);
+                                                                    break;
+                                                                case "endurance":
+                                                                    player.playerSkills.enduranceLvl += ctx.getArgument("amount", int.class);
+                                                                    break;
+                                                                case "intelligence":
+                                                                    player.playerSkills.intelligenceLvl += ctx.getArgument("amount", int.class);
+                                                                    break;
+                                                                case "dexterity":
+                                                                    player.playerSkills.dexterityLvl += ctx.getArgument("amount", int.class);
+                                                                    break;
+                                                                case "agility":
+                                                                    player.playerSkills.agilityLvl += ctx.getArgument("amount", int.class);
+                                                                    break;
+                                                                default:
+                                                                    ctx.getSource().getSender().sendMessage("Invalid level type!!!");
+                                                                    return 0;
+                                                            }
+
+                                                            player.updateStats();
+
+                                                            return 1;
+                                                        })
+                                                ))))
+
+                        .then(Commands.literal("remove")
+                                .then(Commands.argument("type", StringArgumentType.word())
+                                        .suggests((_, builder) -> {
+                                            skillTypes.stream()
+                                                    .filter(entry -> entry.toLowerCase().startsWith(builder.getRemainingLowerCase()))
+                                                    .forEach(builder::suggest);
+
+                                            return builder.buildFuture();
+                                        })
+                                        .then(Commands.argument("amount", IntegerArgumentType.integer(0))
+                                                .suggests((_, builder)->{
+                                                    builder.suggest(1);
+                                                    return builder.buildFuture();
+                                                })
+                                                .executes(ctx -> {
+                                                    CPlayer player = CPlayer.getPlayerByUUID(((Player)ctx.getSource().getSender()).getUniqueId());
+
+                                                    switch(ctx.getArgument("type", String.class)){
+                                                        case "general":
+                                                            player.level -= ctx.getArgument("amount", int.class);
+                                                            break;
+                                                        case "strength":
+                                                            player.playerSkills.strengthLvl -= ctx.getArgument("amount", int.class);
+                                                            break;
+                                                        case "endurance":
+                                                            player.playerSkills.enduranceLvl -= ctx.getArgument("amount", int.class);
+                                                            break;
+                                                        case "intelligence":
+                                                            player.playerSkills.intelligenceLvl -= ctx.getArgument("amount", int.class);
+                                                            break;
+                                                        case "dexterity":
+                                                            player.playerSkills.dexterityLvl -= ctx.getArgument("amount", int.class);
+                                                            break;
+                                                        case "agility":
+                                                            player.playerSkills.agilityLvl -= ctx.getArgument("amount", int.class);
+                                                            break;
+                                                        default:
+                                                            ctx.getSource().getSender().sendMessage("Invalid level type!!!");
+                                                            return 0;
+                                                    }
+
+                                                    player.updateStats();
+
+                                                    return 1;
+                                                })
+                                                .then(Commands.argument("target", StringArgumentType.word())
+                                                        .suggests((_, builder) -> {
+                                                            for(Player player : Bukkit.getOnlinePlayers()){players.add(player.getName());}
+                                                            players.stream()
+                                                                    .filter(entry -> entry.toLowerCase().startsWith(builder.getRemainingLowerCase()))
+                                                                    .forEach(builder::suggest);
+
+                                                            return builder.buildFuture();
+                                                        })
+                                                        .executes(ctx -> {
+                                                            CPlayer player = CPlayer.getPlayerByUUID(Bukkit.getPlayerUniqueId(ctx.getArgument("target", String.class)));
+
+                                                            switch(ctx.getArgument("type", String.class)){
+                                                                case "general":
+                                                                    player.level -= ctx.getArgument("amount", int.class);
+                                                                    break;
+                                                                case "strength":
+                                                                    player.playerSkills.strengthLvl -= ctx.getArgument("amount", int.class);
+                                                                    break;
+                                                                case "endurance":
+                                                                    player.playerSkills.enduranceLvl -= ctx.getArgument("amount", int.class);
+                                                                    break;
+                                                                case "intelligence":
+                                                                    player.playerSkills.intelligenceLvl -= ctx.getArgument("amount", int.class);
+                                                                    break;
+                                                                case "dexterity":
+                                                                    player.playerSkills.dexterityLvl -= ctx.getArgument("amount", int.class);
+                                                                    break;
+                                                                case "agility":
+                                                                    player.playerSkills.agilityLvl -= ctx.getArgument("amount", int.class);
+                                                                    break;
+                                                                default:
+                                                                    ctx.getSource().getSender().sendMessage("Invalid level type!!!");
+                                                                    return 0;
+                                                            }
+
+                                                            player.updateStats();
+
+                                                            return 1;
+                                                        })
+                                                )))
+                        )
+                )
 
                 .build();
 

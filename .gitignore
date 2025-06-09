@@ -140,3 +140,5 @@ run/
 /build/reports/problems/problems-report.html
 /.gradle/8.13/fileHashes/resourceHashesCache.bin
 /.gradle/8.13/checksums/sha1-checksums.bin
+/build/
+/.gradle/

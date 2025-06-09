@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+@Deprecated(since = "Latest dev version", forRemoval = true)
 public class Events implements Listener {
     private final RPG_Base plugin;
     private final GUIManager guiManager;

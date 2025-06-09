@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+@Deprecated(since = "Latest dev version", forRemoval = true)
 public class MiscCommands implements CommandExecutor, TabCompleter {
     private final RPG_Base plugin;
 
@@ -91,7 +92,7 @@ public class MiscCommands implements CommandExecutor, TabCompleter {
                         return true;
                     }
 
-                }
+                } // @Depraciated
                 if (args[0].equalsIgnoreCase("levelAdd")){
                     if (args.length < 4) {
                         sender.sendMessage("Usage: /rpg levelAdd <type> <player> <lvl>");
@@ -110,7 +111,7 @@ public class MiscCommands implements CommandExecutor, TabCompleter {
                         target.updateStats();
                     }
                     sender.sendMessage("Added " + lvlAdded + " to " + target.getPlayer().getName() + "'s " + args[1]);
-                }
+                } // added
                 if (args[0].equalsIgnoreCase("levelRem")){
                     if (args.length < 4) {
                         sender.sendMessage("Usage: /rpg levelRem <type> <player> <lvl>");
@@ -129,7 +130,7 @@ public class MiscCommands implements CommandExecutor, TabCompleter {
                         target.updateStats();
                     }
                     sender.sendMessage("Removed " + lvlRemoved + " from " + target.getPlayer().getName() + "'s " + args[1]);
-                }
+                } // added
                 if (args[0].equalsIgnoreCase("recipe")){
                     if (args[1].equals("reload")){
                         List<Recipe> recipesToRemove = new ArrayList<>(CraftingHandler.craftingList);
