@@ -1,6 +1,11 @@
 package rpg.rpg_base.CustomizedClasses.PlayerHandler;
 
+import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -43,6 +48,7 @@ public class CPlayer {
     public int sanity = 0;
     public int maxSanity = 0;
 
+    public NamespacedKey miningSpeed = new NamespacedKey(RPG_Base.getInstance(), "miningSpeed");
     public Object killer;
 
     public PlayerRegenTask regenTask = new PlayerRegenTask(this);
@@ -56,11 +62,43 @@ public class CPlayer {
             @Override
             public void run() {
                 ActionBar.statisticBar(CPlayer.this);
+
+                if (!Bukkit.getOnlinePlayers().contains(player)) {
+                    cancel();
+                }
+            }
+        };
+
+        BukkitRunnable miningUpdate = new BukkitRunnable() {
+            @Override
+            public void run() {
+                AttributeInstance attr = player.getAttribute(Attribute.BLOCK_BREAK_SPEED);
+                if (player.getInventory().getItemInMainHand().getType().isAir()) {
+                    if (attr != null) {
+                        // Clear existing modifier if needed
+                        attr.getModifiers().stream()
+                                .filter(mod -> mod.getKey().equals(miningSpeed))
+                                .forEach(attr::removeModifier);
+
+                        // Apply reduction
+                        attr.addModifier(new AttributeModifier(
+                                miningSpeed,
+                                -1, // Multiplier: final speed = 1% of original
+                                AttributeModifier.Operation.ADD_SCALAR
+                        ));
+                    }
+                } else {
+                    attr.removeModifier(miningSpeed);
+                }
+                if (!Bukkit.getOnlinePlayers().contains(player)) {
+                    cancel();
+                }
             }
         };
 
         regenTask.runTaskTimer(RPG_Base.getInstance(), 0L, 20L);
         actionBar.runTaskTimer(RPG_Base.getInstance(), 0L, 1L);
+        miningUpdate.runTaskTimer(RPG_Base.getInstance(), 0L, 1L);
         playerSkills.activateSkills(this);
     }
 
@@ -164,6 +202,7 @@ public class CPlayer {
     public void regenHp() {
         currentHP = (int) Math.min(currentHP + healthRegen, maxHP);
     }
+
 
     public static CPlayer getPlayerByUUID(UUID uuid){
         return customPlayer.get(uuid);

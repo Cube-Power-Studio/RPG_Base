@@ -182,7 +182,7 @@ public class MobManager implements Listener {
 
         entity.spawnLocation = location;
 
-        entity.entity = (Mob) location.getWorld().spawnEntity(location, EntityType.valueOf(entity.mobType));
+        entity.entity = (Mob) location.getWorld().spawnEntity(location, EntityType.valueOf(entity.mobType.toUpperCase()));
 
         if (entity.entity instanceof Zombie) {
             ((Zombie)entity.entity).setAdult();

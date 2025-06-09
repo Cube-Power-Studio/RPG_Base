@@ -44,6 +44,8 @@ public class CItem implements Cloneable{
     public static NamespacedKey itemClass = new NamespacedKey(RPG_Base.getInstance(), "itemClass");
 
     public static HashMap<String, CItem> customItemsByName = new HashMap<>();
+
+    public String name = "";
     
     public CItem(RPG_Base plugin, Util util) {
         this.plugin = plugin;
@@ -68,6 +70,7 @@ public class CItem implements Cloneable{
             List<Component> descParts = new ArrayList<>();
 
             if (displayName != null) {
+                name = displayName;
                 itemMeta.displayName(Component.text(displayName).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE));
             } else {
                 displayName = "NULL";
@@ -81,6 +84,10 @@ public class CItem implements Cloneable{
                     toolComponent.setDefaultMiningSpeed(Integer.parseInt(miningSpeed));
                     itemMeta.setTool(toolComponent);
                 }
+            }else {
+                ToolComponent toolComponent = itemMeta.getTool();
+                toolComponent.setDefaultMiningSpeed(0);
+                itemMeta.setTool(toolComponent);
             }
 
             for (String loreLine : config.getStringList(".lore")) {

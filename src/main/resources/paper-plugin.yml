@@ -1,0 +1,21 @@
+name: RPG_Base
+version: '0.1'
+main: rpg.rpg_base.RPG_Base
+description: Paper Test Plugin
+api-version: '1.21.5'
+bootstrapper: rpg.rpg_base.RPG_BaseBootstrap
+
+dependencies:
+  server:
+    WorldGuard:
+      load: BEFORE
+      required: true
+      join-classpath: true # Defaults to true
+    Citizens:
+      load: BEFORE
+      required: true
+      join-classpath: true # Defaults to true
+    BetonQuest:
+      load: BEFORE
+      required: true
+      join-classpath: true # Defaults to true

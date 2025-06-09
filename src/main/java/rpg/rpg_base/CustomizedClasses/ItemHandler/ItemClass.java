@@ -4,6 +4,7 @@ public enum ItemClass {
     WEAPON,
     TOOL,
     ARMOR,
+    CONSUMABLE,
     MATERIAL,
     BLOCK,
     SPECIAL,

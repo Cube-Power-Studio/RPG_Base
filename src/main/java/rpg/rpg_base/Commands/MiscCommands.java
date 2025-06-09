@@ -10,9 +10,9 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import rpg.rpg_base.Crafting.CraftingHandler;
 import rpg.rpg_base.Crafting.Recipe;
 import rpg.rpg_base.CustomizedClasses.ItemHandler.CItem;
-import rpg.rpg_base.Crafting.CraftingHandler;
 import rpg.rpg_base.CustomizedClasses.PlayerHandler.CPlayer;
 import rpg.rpg_base.CustomizedClasses.PlayerHandler.SkillSystem.Skill;
 import rpg.rpg_base.CustomizedClasses.PlayerHandler.SkillSystem.SkillRegistry;
@@ -21,7 +21,10 @@ import rpg.rpg_base.RPG_Base;
 import rpg.rpg_base.Shops.ShopsManager;
 import rpg.rpg_base.Utils.PathFinder;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 public class MiscCommands implements CommandExecutor, TabCompleter {
     private final RPG_Base plugin;
@@ -36,31 +39,10 @@ public class MiscCommands implements CommandExecutor, TabCompleter {
         if (sender.hasPermission("RPG_Base.admin")) {
             if (command.getName().equals("RPG")) {
                 if (args[0].equalsIgnoreCase("reload")) {
-                    try {
-                        plugin.updateConfig();
-                        sender.sendMessage("Plugin reloaded successfully!");
-                        return true;
-                    } catch (Error e) {
-                        sender.sendMessage("Something went wrong, check console for further details");
-                        plugin.getLogger().info("While performing command /RPG reload something went wrong: " + e);
-                        return false;
-                    }
+
                 }
                 if (args[0].equalsIgnoreCase("give")){
-                    if(args.length != 2) {
-                        player = plugin.getServer().getPlayer(args[2]);
-                        if (player != null) {
 
-                        } else {
-                            player = (Player) sender;
-                        }
-                        String itemName = args[1];
-                        ItemStack customItem = CItem.customItemsByName.get(itemName).getItem();
-                        player.getInventory().addItem(customItem);
-                    }else{
-                        sender.sendMessage("Command usage: /rpg give <item> <player>");
-                    }
-                    return false;
                 }
                 if (args[0].equalsIgnoreCase("compareItems")){
                     if(args[1] == null || args[2] == null){

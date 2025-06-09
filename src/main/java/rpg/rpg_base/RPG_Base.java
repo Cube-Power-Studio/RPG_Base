@@ -18,13 +18,13 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import rpg.rpg_base.Commands.MiscCommands;
-import rpg.rpg_base.Commands.SkillMenuCommands;
 import rpg.rpg_base.Crafting.RecipeLoader;
 import rpg.rpg_base.CustomizedClasses.EntityHandler.*;
 import rpg.rpg_base.CustomizedClasses.ItemHandler.ItemManager;
 import rpg.rpg_base.CustomizedClasses.MiningHandler.MiningFlagHandler;
 import rpg.rpg_base.CustomizedClasses.MiningHandler.MiningFlags;
 import rpg.rpg_base.CustomizedClasses.MiningHandler.MiningManager;
+import rpg.rpg_base.CustomizedClasses.PlayerHandler.PlayerListeners;
 import rpg.rpg_base.CustomizedClasses.PlayerHandler.SkillSystem.SkillRegistry;
 import rpg.rpg_base.Data.DataBaseManager;
 import rpg.rpg_base.Data.PlayerDataManager;
@@ -47,13 +47,10 @@ import java.io.File;
 
 
 public final class RPG_Base extends JavaPlugin {
-    public File config;
-    public FileConfiguration configData;
-    private SessionManager sessionManager;
-    private File recipeFolder;
-    Util util = new Util();
-    private BetonQuestLoggerFactory loggerFactory;
-    private PrimaryServerThreadData data;
+    private File config;
+    private FileConfiguration configData;
+    private final Util util = new Util();
+    public GUIManager guiManager;
 
     @Override
     public void onLoad(){
@@ -100,22 +97,20 @@ public final class RPG_Base extends JavaPlugin {
             return;
         }
 
-
-
         setup();
 
         WorldGuard worldGuard = WorldGuard.getInstance();
 
-        this.sessionManager = worldGuard.getPlatform().getSessionManager();
+        SessionManager sessionManager = worldGuard.getPlatform().getSessionManager();
 
-        this.sessionManager.registerHandler(MobFlagsHandler.FACTORY(), null);
-        this.sessionManager.registerHandler(MiningFlagHandler.FACTORY(), null);
+        sessionManager.registerHandler(MobFlagsHandler.FACTORY(), null);
+        sessionManager.registerHandler(MiningFlagHandler.FACTORY(), null);
 
 
         BetonQuest betonQuest = BetonQuest.getInstance();
 
-        this.loggerFactory = betonQuest.getLoggerFactory();
-        this.data = new PrimaryServerThreadData(getServer(), getServer().getScheduler(), betonQuest);
+        BetonQuestLoggerFactory loggerFactory = betonQuest.getLoggerFactory();
+        PrimaryServerThreadData data = new PrimaryServerThreadData(getServer(), getServer().getScheduler(), betonQuest);
 
         betonQuest.getQuestRegistries().objective().register("custommobkill", new KillCustomMobsObjectiveFactory());
         betonQuest.getQuestRegistries().objective().register("customitemcollect", new CollectCustomItemsObjectiveFactory());
@@ -129,7 +124,7 @@ public final class RPG_Base extends JavaPlugin {
         betonQuest.getQuestRegistries().event().register("shopopen", new ShopOpenFactory(loggerFactory));
 
         ItemManager itemManager = new ItemManager(this, util);
-        GUIManager guiManager = new GUIManager();
+        guiManager = new GUIManager();
 
         EntitySpawner entitySpawner = new EntitySpawner(util);
         MobManager mobManager = new MobManager(util, entitySpawner);
@@ -142,6 +137,7 @@ public final class RPG_Base extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new MiningManager(this),this);
         Bukkit.getPluginManager().registerEvents(new PlayerMenuItem(guiManager), this);
         Bukkit.getPluginManager().registerEvents(new PlayerInventoryButtons(), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerListeners(), this);
         Bukkit.getPluginManager().registerEvents(mobManager, this);
 
         getLogger().info("Listeners registered successfully.");
@@ -150,13 +146,11 @@ public final class RPG_Base extends JavaPlugin {
 
         ShopsManager shopsManager = new ShopsManager(guiManager);
 
-        getCommand("RPG").setExecutor(miscCommands);
-        getCommand("Pay").setExecutor(miscCommands);
-        getCommand("Bal").setExecutor(miscCommands);
-        getCommand("Skills").setExecutor(new SkillMenuCommands(guiManager, this));
+//        getCommand("RPG").setExecutor(miscCommands);
+//        getCommand("Pay").setExecutor(miscCommands);
+//        getCommand("Bal").setExecutor(miscCommands);
+//        getCommand("Skills").setExecutor(new SkillMenuCommands(guiManager, this));
 
-
-//        getCommand("island").setExecutor(new IslandCommands(this));
 
 
 
@@ -175,7 +169,7 @@ public final class RPG_Base extends JavaPlugin {
     }
 
     public void loadRecipes(){
-        recipeFolder = new File(getDataFolder() + File.separator + "recipes");
+        File recipeFolder = new File(getDataFolder() + File.separator + "recipes");
         if(!recipeFolder.exists()) {
             recipeFolder.mkdir();
         }
@@ -234,7 +228,6 @@ public final class RPG_Base extends JavaPlugin {
     public static RPG_Base getInstance(){
         return getPlugin(RPG_Base.class);
     }
-
 
     @Override
     public void onDisable() {
