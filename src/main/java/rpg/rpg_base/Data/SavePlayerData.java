@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import rpg.rpg_base.RPG_Base;
 
+@Deprecated(since="Latest dev version")
 public class SavePlayerData extends BukkitRunnable {
     @Override
     public void run() {

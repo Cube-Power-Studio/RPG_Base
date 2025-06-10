@@ -4,11 +4,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import rpg.rpg_base.CustomizedClasses.ItemHandler.ItemManager;
 import rpg.rpg_base.CustomizedClasses.PlayerHandler.CPlayer;
 import rpg.rpg_base.RPG_Base;
 
-
+@Deprecated(since="Latest dev version")
 public class UpdatePlayerData extends BukkitRunnable {
 
     @Override

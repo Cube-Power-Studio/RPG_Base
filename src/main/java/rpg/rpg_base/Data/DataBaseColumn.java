@@ -1,5 +1,6 @@
 package rpg.rpg_base.Data;
 
+@Deprecated(since="Latest dev version")
 public enum DataBaseColumn {
     UUID("STRING"),
     USERNAME("STRING"),

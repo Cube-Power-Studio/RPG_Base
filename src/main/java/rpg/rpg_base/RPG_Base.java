@@ -17,7 +17,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import rpg.rpg_base.Commands.MiscCommands;
 import rpg.rpg_base.Crafting.RecipeLoader;
 import rpg.rpg_base.CustomizedClasses.EntityHandler.*;
 import rpg.rpg_base.CustomizedClasses.ItemHandler.ItemManager;
@@ -142,17 +141,7 @@ public final class RPG_Base extends JavaPlugin {
 
         getLogger().info("Listeners registered successfully.");
 
-        MiscCommands miscCommands = new MiscCommands(this);
-
         ShopsManager shopsManager = new ShopsManager(guiManager);
-
-//        getCommand("RPG").setExecutor(miscCommands);
-//        getCommand("Pay").setExecutor(miscCommands);
-//        getCommand("Bal").setExecutor(miscCommands);
-//        getCommand("Skills").setExecutor(new SkillMenuCommands(guiManager, this));
-
-
-
 
         new UpdatePlayerData().runTaskTimer(this, 0, 2);
         new SavePlayerData().runTaskTimer(this, 0,6000);

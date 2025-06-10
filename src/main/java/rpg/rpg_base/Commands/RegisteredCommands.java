@@ -15,6 +15,7 @@ import rpg.rpg_base.CustomizedClasses.PlayerHandler.CPlayer;
 import rpg.rpg_base.Data.DataBaseManager;
 import rpg.rpg_base.GUIs.SkillGui;
 import rpg.rpg_base.RPG_Base;
+import rpg.rpg_base.Shops.ShopsManager;
 
 import java.util.ArrayList;
 import java.util.Base64;
@@ -296,6 +297,29 @@ public class RegisteredCommands {
                                                 )))
                         )
                 )
+                .then(Commands.literal("openShop")
+                        .then(Commands.argument("shop", StringArgumentType.word())
+                                .suggests((_, builder) -> {
+                                    for(String str : ShopsManager.shopRegister.keySet()){
+                                        builder.suggest(str);
+                                    }
+
+                                    return builder.buildFuture();
+                                })
+                                .executes(ctx -> {
+                                    if(ctx.getSource().getSender() instanceof Player player){
+                                        String shopName = ctx.getArgument("shop", String.class);
+
+                                        if(ShopsManager.shopRegister.containsKey(shopName)){
+                                            ShopsManager.openShop(player, shopName);
+                                        }else{
+                                            ctx.getSource().getSender().sendMessage("Shop doesn't exist! Check syntax");
+                                        }
+                                    }else{
+                                        ctx.getSource().getSender().sendMessage("You can only use this command from chat command");
+                                    }
+                                    return 1;
+                                })))
 
                 .build();
 

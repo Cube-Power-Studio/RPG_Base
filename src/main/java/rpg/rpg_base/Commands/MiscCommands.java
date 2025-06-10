@@ -92,7 +92,7 @@ public class MiscCommands implements CommandExecutor, TabCompleter {
                         return true;
                     }
 
-                } // @Depraciated
+                } // @Deprecated
                 if (args[0].equalsIgnoreCase("levelAdd")){
                     if (args.length < 4) {
                         sender.sendMessage("Usage: /rpg levelAdd <type> <player> <lvl>");
@@ -154,7 +154,7 @@ public class MiscCommands implements CommandExecutor, TabCompleter {
                     } else {
                         sender.sendMessage("Usage: /rpg openShop <shop_name>");
                     }
-                }
+                } //added
                 if (args[0].equalsIgnoreCase("checkPathTo")){
                     if(sender instanceof Player player1){
                         List<Integer> locationCords = new ArrayList<>();
@@ -232,7 +232,7 @@ public class MiscCommands implements CommandExecutor, TabCompleter {
                         }
                     }
 
-                }
+                } // @Deprecated
                 if (args[0].equalsIgnoreCase("addSkill")){
                     if(args.length < 2){
                         return false;
