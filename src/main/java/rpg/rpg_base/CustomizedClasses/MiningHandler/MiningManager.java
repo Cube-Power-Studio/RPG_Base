@@ -17,11 +17,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
-import rpg.rpg_base.CustomizedClasses.ItemHandler.CItem;
 import rpg.rpg_base.RPG_Base;
 
 import java.io.File;
-import java.util.*;
+import java.util.List;
 
 public class MiningManager implements Listener {
     private static RPG_Base plugin;

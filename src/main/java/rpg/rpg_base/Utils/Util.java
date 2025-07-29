@@ -16,10 +16,11 @@ import java.util.Set;
 
 public class Util {
 
-    public Component formatYmlString(String str) {
-        List<String> formatableHashes = List.of("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "f");
+    public static Component formatYmlString(String str) {
+        //TODO add gradient support so it would work like <start of the gradient with start color> CONTENT <end of the gradient with ending color>
+        List<String> formatableHashes = List.of("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f");
         Component formattedComponent = Component.text("");
-        formattedComponent = formattedComponent.decoration(TextDecoration.ITALIC, TextDecoration.State.NOT_SET);
+        formattedComponent = formattedComponent.decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
 
         String[] words = str.split(" ");
         TextColor currentColor = null;
@@ -58,6 +59,7 @@ public class Util {
                 }
 
                 if (inFormatting) {
+                    ch = Character.toLowerCase(ch);
                     if (ch == '>') {
                         inFormatting = false;
                         if (colorCode.length() == 6) {
@@ -87,9 +89,11 @@ public class Util {
 
             if (!currentText.isEmpty()) {
                 Component tempComponent = Component.text(currentText.toString());
-                tempComponent = tempComponent.decoration(TextDecoration.ITALIC, TextDecoration.State.NOT_SET);
+                tempComponent = tempComponent.decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
                 if (currentColor != null) {
                     tempComponent = tempComponent.color(currentColor);
+                }else{
+                    tempComponent = tempComponent.color(TextColor.color(Integer.parseInt("757575" , 16)));
                 }
                 for (TextDecoration decoration : decorations) {
                     tempComponent = tempComponent.decorate(decoration);
@@ -102,7 +106,8 @@ public class Util {
 
         return formattedComponent;
     }
-    public boolean isLocationInRegion(Location loc, String regionName) {
+
+    public static boolean isLocationInRegion(Location loc, String regionName) {
         // Get WorldGuard Plugin
         WorldGuard worldGuard = WorldGuard.getInstance();
         if (worldGuard == null) {

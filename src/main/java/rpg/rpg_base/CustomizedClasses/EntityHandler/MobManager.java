@@ -6,7 +6,6 @@ import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import io.papermc.paper.event.entity.EntityMoveEvent;
-import net.citizensnpcs.api.CitizensAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -20,7 +19,7 @@ import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
-import rpg.rpg_base.CustomizedClasses.ItemHandler.CItem;
+import rpg.rpg_base.CustomizedClasses.Entities.MobClasses.MobFlags;
 import rpg.rpg_base.RPG_Base;
 import rpg.rpg_base.Utils.Util;
 
@@ -28,7 +27,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
-
+@Deprecated(forRemoval = true)
 public class MobManager implements Listener {
     private final Util util;
     private final EntitySpawner entitySpawner;
@@ -56,30 +55,31 @@ public class MobManager implements Listener {
 
     @EventHandler
     public void cancelEntitySpawn(EntitySpawnEvent e){
-        BukkitRunnable checkSpawn = new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (e.getEntity() instanceof LivingEntity) {
-                    if (!CitizensAPI.getNPCRegistry().isNPC(e.getEntity())
-                            && !(e.getEntity() instanceof Player)
-                            && CEntity.getEntityByUUID(e.getEntity().getUniqueId()) == null) {
-                        e.setCancelled(true);
-                    }
-                }
-            }
-        };
-
-        checkSpawn.runTaskLater(RPG_Base.getInstance(), 5);
+//
+//        BukkitRunnable checkSpawn = new BukkitRunnable() {
+//            @Override
+//            public void run() {
+//                if (e.getEntity() instanceof LivingEntity) {
+//                    if (!CitizensAPI.getNPCRegistry().isNPC(e.getEntity())
+//                            && !(e.getEntity() instanceof Player)
+//                            && CEntity.getEntityByUUID(e.getEntity().getUniqueId()) == null) {
+//                        e.setCancelled(true);
+//                    }
+//                }
+//            }
+//        };
+//
+//        checkSpawn.runTaskLater(RPG_Base.getInstance(), 5);
     }
 
     @EventHandler
     public void despawnUnregisteredEntities(EntityMoveEvent e) {
-        if ((CEntity.getEntityByUUID(e.getEntity().getUniqueId()) == null || CEntity.getEntityByUUID(e.getEntity().getUniqueId()).getEntity() == null)
-            && !(e.getEntity() instanceof Player)
-            && !CitizensAPI.getNPCRegistry().isNPC(e.getEntity())
-            && e.getEntity().getType().isAlive()) {
-            e.getEntity().remove();
-        }
+//        if ((CEntity.getEntityByUUID(e.getEntity().getUniqueId()) == null || CEntity.getEntityByUUID(e.getEntity().getUniqueId()).getEntity() == null)
+//            && !(e.getEntity() instanceof Player)
+//            && !CitizensAPI.getNPCRegistry().isNPC(e.getEntity())
+//            && e.getEntity().getType().isAlive()) {
+//            e.getEntity().remove();
+//        }
     }
 
     @EventHandler

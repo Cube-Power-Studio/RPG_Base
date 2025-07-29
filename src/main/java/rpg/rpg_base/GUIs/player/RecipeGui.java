@@ -1,4 +1,4 @@
-package rpg.rpg_base.GUIs;
+package rpg.rpg_base.GUIs.player;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -11,15 +11,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import rpg.rpg_base.Crafting.CraftingHandler;
 import rpg.rpg_base.Crafting.Recipe;
+import rpg.rpg_base.GUIs.player.menu.PlayerMenuGui;
 import rpg.rpg_base.GuiHandlers.GUIManager;
 import rpg.rpg_base.GuiHandlers.HeadsHandlers;
 import rpg.rpg_base.GuiHandlers.InventoryButton;
 import rpg.rpg_base.GuiHandlers.MultiPageInventoryGUI;
-import rpg.rpg_base.PlayerMenu.PlayerMenuGui;
-import rpg.rpg_base.RPG_Base;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static rpg.rpg_base.GuiHandlers.HeadsList.getLeftScrollButton;
 import static rpg.rpg_base.GuiHandlers.HeadsList.getRightScrollButton;

@@ -1,7 +1,7 @@
 package rpg.rpg_base.CustomizedClasses.EntityHandler;
 
 import java.util.*;
-
+@Deprecated(forRemoval = true)
 public class MobSpawnSelector {
     private final Map<String, Float> mobChances = new HashMap<>();
     private final Random random = new Random();

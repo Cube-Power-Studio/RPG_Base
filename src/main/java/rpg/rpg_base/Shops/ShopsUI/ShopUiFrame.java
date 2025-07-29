@@ -6,13 +6,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.*;
+import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
-import rpg.rpg_base.CustomizedClasses.ItemHandler.CItem;
-import rpg.rpg_base.CustomizedClasses.ItemHandler.ItemManager;
+import rpg.rpg_base.CustomizedClasses.items.ItemManager;
 import rpg.rpg_base.GuiHandlers.HeadsHandlers;
 import rpg.rpg_base.GuiHandlers.InventoryButton;
 import rpg.rpg_base.GuiHandlers.MultiPageInventoryGUI;
@@ -41,7 +43,7 @@ public class ShopUiFrame extends MultiPageInventoryGUI {
 
     public void loadShop(){
         for(String itemString : itemList){
-            ItemStack item = CItem.customItemsByName.get(itemString.split(",")[0]).clone().getItem();
+            ItemStack item = ItemManager.getItemFromRegistry(itemString.split(",")[0]).clone().getItem();
             int slot = Integer.parseInt(itemString.split(",")[1]);
             int price = Integer.parseInt(itemString.split(",")[2]);
             int page = Integer.parseInt(itemString.split(",")[3]);
@@ -172,7 +174,7 @@ public class ShopUiFrame extends MultiPageInventoryGUI {
                         if(MoneyManager.getPlayerGold(buyer) >= itemPrice){
                             MoneyManager.remPlayerGold(buyer, itemPrice);
 
-                            ItemStack itemBought = CItem.customItemsByName.get(e.getClickedInventory().getItem(e.getSlot()).getItemMeta().getPersistentDataContainer().get(itemKey, PersistentDataType.STRING)).getItem();
+                            ItemStack itemBought = ItemManager.getItemFromRegistry(e.getClickedInventory().getItem(e.getSlot()).getItemMeta().getPersistentDataContainer().get(itemKey, PersistentDataType.STRING)).getItem();
                             buyer.getInventory().addItem(itemBought);
                         }
                     }

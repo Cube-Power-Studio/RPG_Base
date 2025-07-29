@@ -18,23 +18,27 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import rpg.rpg_base.Crafting.RecipeLoader;
-import rpg.rpg_base.CustomizedClasses.EntityHandler.*;
-import rpg.rpg_base.CustomizedClasses.ItemHandler.ItemManager;
+import rpg.rpg_base.CustomizedClasses.Entities.MobClasses.MobFlags;
+import rpg.rpg_base.CustomizedClasses.Entities.MobClasses.MobFlagsHandler;
+import rpg.rpg_base.CustomizedClasses.Entities.MobClasses.MobManager;
+import rpg.rpg_base.CustomizedClasses.Entities.MobClasses.spawning.SpawnManager;
+import rpg.rpg_base.CustomizedClasses.EntityHandler.CEntity;
 import rpg.rpg_base.CustomizedClasses.MiningHandler.MiningFlagHandler;
 import rpg.rpg_base.CustomizedClasses.MiningHandler.MiningFlags;
 import rpg.rpg_base.CustomizedClasses.MiningHandler.MiningManager;
 import rpg.rpg_base.CustomizedClasses.PlayerHandler.PlayerListeners;
 import rpg.rpg_base.CustomizedClasses.PlayerHandler.SkillSystem.SkillRegistry;
+import rpg.rpg_base.CustomizedClasses.items.ItemManager;
 import rpg.rpg_base.Data.DataBaseManager;
 import rpg.rpg_base.Data.PlayerDataManager;
 import rpg.rpg_base.Data.SavePlayerData;
 import rpg.rpg_base.Data.UpdatePlayerData;
+import rpg.rpg_base.GUIs.player.menu.PlayerInventoryButtons;
+import rpg.rpg_base.GUIs.player.menu.PlayerMenuItem;
 import rpg.rpg_base.GeneralEvents.Events;
 import rpg.rpg_base.GuiHandlers.GUIListener;
 import rpg.rpg_base.GuiHandlers.GUIManager;
 import rpg.rpg_base.Placeholders.CustomItemCount;
-import rpg.rpg_base.PlayerMenu.PlayerInventoryButtons;
-import rpg.rpg_base.PlayerMenu.PlayerMenuItem;
 import rpg.rpg_base.QuestModule.conditions.CustomItemCountFactory;
 import rpg.rpg_base.QuestModule.events.*;
 import rpg.rpg_base.QuestModule.objectives.CollectCustomItemsObjectiveFactory;
@@ -122,12 +126,7 @@ public final class RPG_Base extends JavaPlugin {
         betonQuest.getQuestRegistries().event().register("givecustomitem", new GiveItemsFactory(loggerFactory));
         betonQuest.getQuestRegistries().event().register("shopopen", new ShopOpenFactory(loggerFactory));
 
-        ItemManager itemManager = new ItemManager(this, util);
         guiManager = new GUIManager();
-
-        EntitySpawner entitySpawner = new EntitySpawner(util);
-        MobManager mobManager = new MobManager(util, entitySpawner);
-        mobManager.reloadEntities();
 
         getLogger().info("Registering listeners...");
 
@@ -137,7 +136,7 @@ public final class RPG_Base extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new PlayerMenuItem(guiManager), this);
         Bukkit.getPluginManager().registerEvents(new PlayerInventoryButtons(), this);
         Bukkit.getPluginManager().registerEvents(new PlayerListeners(), this);
-        Bukkit.getPluginManager().registerEvents(mobManager, this);
+        Bukkit.getPluginManager().registerEvents(new MobManager(), this);
 
         getLogger().info("Listeners registered successfully.");
 
@@ -145,8 +144,6 @@ public final class RPG_Base extends JavaPlugin {
 
         new UpdatePlayerData().runTaskTimer(this, 0, 2);
         new SavePlayerData().runTaskTimer(this, 0,6000);
-
-        mobManager.spawnMobsInRegions().runTaskTimer(this, 0, 300);
 
         updateConfig();
 
@@ -200,9 +197,13 @@ public final class RPG_Base extends JavaPlugin {
         SkillRegistry.registerAllSkills();
     }
     public void updateConfig(){
-        ItemManager.loadCustomItems();
+        ItemManager.loadItems(DataBaseManager.getItems());
 
         ShopsManager.loadShops();
+
+        rpg.rpg_base.CustomizedClasses.Entities.MobClasses.MobManager.loadMobs();
+        SpawnManager.loadNodes(DataBaseManager.getSpawningNodes());
+        SpawnManager.spawnMobs();
 
         loadRecipes();
 
@@ -225,7 +226,9 @@ public final class RPG_Base extends JavaPlugin {
         }
 
         for(CEntity entity : CEntity.customEntities.values()){
-            entity.getEntity().remove();
+            if(entity.getEntity() != null) {
+                entity.getEntity().remove();
+            }
         }
 
         DataBaseManager.disconnectFromDB();

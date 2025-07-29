@@ -1,6 +1,6 @@
-package rpg.rpg_base.CustomizedClasses.ItemHandler;
+package rpg.rpg_base.CustomizedClasses.items.enums;
 
-public enum ItemClass {
+public enum ItemType {
     WEAPON,
     TOOL,
     ARMOR,

@@ -28,7 +28,7 @@ public class PlayerDataManager {
         DataBaseManager.addColumnValueToUserTable("GUILDMEDALS", MoneyManager.getPlayerGuildMedals(player.getPlayer()), player);
         DataBaseManager.addColumnValueToUserTable("SPENTSKILLPOINTS", player.spentSkillPoints, player);
         DataBaseManager.addColumnValueToUserTable("SPENTABILITYPOINTS", player.spentAbilityPoints, player);
-        DataBaseManager.addColumnValueToUserTable("UNLOCKEDABILITIES", String.join(";", player.playerSkills.unlockedSkillList.stream()
+        DataBaseManager.addColumnValueToUserTable("UNLOCKEDABILITIES", String.join(";", player.playerSkills.unlockedSkillMap.values().stream()
                 .map(skill -> skill.regName + "," + skill.level)
                 .toList()), player);
     }
@@ -57,7 +57,7 @@ public class PlayerDataManager {
                 String[] parts = str.split(",");  // Split once and reuse
                 Skill skillToAdd = SkillRegistry.getSkill(parts[0]).clone();
                 skillToAdd.level = Integer.parseInt(parts[1]);
-                player.playerSkills.unlockedSkillList.add(skillToAdd);
+                player.playerSkills.unlockedSkillMap.put(skillToAdd.regName, skillToAdd);
             }
         }
 

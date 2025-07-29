@@ -1,5 +1,6 @@
 package rpg.rpg_base.CustomizedClasses;
 
+@Deprecated(forRemoval = true)
 public class BonusStat implements Cloneable {
     public double amount;
     public bonusType type;

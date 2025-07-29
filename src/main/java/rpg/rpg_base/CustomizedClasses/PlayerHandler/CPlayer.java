@@ -11,9 +11,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import rpg.rpg_base.CustomizedClasses.BonusStat;
 import rpg.rpg_base.CustomizedClasses.EntityHandler.CEntity;
-import rpg.rpg_base.CustomizedClasses.ItemHandler.CItem;
-import rpg.rpg_base.CustomizedClasses.ItemHandler.ItemManager;
-import rpg.rpg_base.GUIs.ActionBar;
+import rpg.rpg_base.CustomizedClasses.items.ItemManager;
+import rpg.rpg_base.GUIs.player.ActionBar;
 import rpg.rpg_base.RPG_Base;
 
 import java.util.*;
@@ -28,7 +27,6 @@ public class CPlayer {
     public int abilityPoints = 0;
     public int spentAbilityPoints = 0;
     public int totalAbilityPoints = 0;
-
 
     public int xp = 0;
     public int xpToNextLvl = 0;

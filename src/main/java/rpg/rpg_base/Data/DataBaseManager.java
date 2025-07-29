@@ -1,13 +1,15 @@
 package rpg.rpg_base.Data;
 
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Location;
+import rpg.rpg_base.CustomizedClasses.Entities.MobClasses.spawning.RawSpawningNode;
+import rpg.rpg_base.CustomizedClasses.Entities.MobClasses.spawning.SpawningNode;
 import rpg.rpg_base.CustomizedClasses.PlayerHandler.CPlayer;
+import rpg.rpg_base.CustomizedClasses.items.RpgItem;
 import rpg.rpg_base.RPG_Base;
 
 import java.sql.*;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class DataBaseManager {
     private static final String DB_URL = "jdbc:sqlite:" + RPG_Base.getInstance().getDataFolder() + "/playerData.db";
@@ -48,14 +50,27 @@ public class DataBaseManager {
                     "SPENTABILITYPOINTS INTEGER," +
                     "UNLOCKEDABILITIES INTEGER)";
 
-        String sql1 ="CREATE TABLE IF NOT EXISTS itemData (" +
-                    "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    "itemSerial STRING, " +
-                    "playerUUID STRING, " +
-                    "place STRING)";
+        String sql1 ="""
+                    CREATE TABLE IF NOT EXISTS registeredItems (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        regName STRING UNIQUE,
+                        itemParameters STRING
+                    )
+                    """;
+
+        String sql3 = """
+                    CREATE TABLE IF NOT EXISTS spawnNodes (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        nodeId STRING UNIQUE,
+                        location STRING,
+                        spawns STRING
+                    )
+                """;
+
         try{
             stmt.execute(sql);
             stmt.execute(sql1);
+            stmt.execute(sql3);
         } catch (SQLException e) {
             RPG_Base.getInstance().getLogger().warning("Database table creation attempt FAILED!!! " + e.getMessage());
         }
@@ -81,10 +96,15 @@ public class DataBaseManager {
                 Map.entry("UNLOCKEDABILITIES", "INTEGER")
         ));
 
-        updateTableColumns(databaseConnection, "itemData", Map.ofEntries(
-                Map.entry("itemSerial", "STRING"),
-                Map.entry("playerUUID", "STRING"),
-                Map.entry("place", "STRING")
+        updateTableColumns(databaseConnection, "registeredItems", Map.ofEntries(
+                Map.entry("regName", "STRING"),
+                Map.entry("itemParameters", "STRING")
+        ));
+
+        updateTableColumns(databaseConnection, "spawnNodes", Map.ofEntries(
+                Map.entry("nodeId", "STRING UNIQUE"),
+                Map.entry("location", "STRING"),
+                Map.entry("spawns", "STRING")
         ));
     }
 
@@ -155,32 +175,6 @@ public class DataBaseManager {
         return str;
     }
 
-    public static void addColumnValueToItemTable(String column, String value, CPlayer player){
-        try {
-            String uuid = player.getPlayer().getUniqueId().toString();
-            ResultSet rs = stmt.executeQuery("SELECT " + column + " FROM itemData WHERE playerUUID = '" + uuid + "'");
-            if(!rs.next()){
-                stmt.execute("INSERT INTO itemData (playerUUID) VALUES ('" + uuid + "')");
-            }
-            stmt.execute("UPDATE itemData SET " + column + " = '" + value + "' WHERE playerUUID = '" + uuid + "'");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static void addColumnValueToItemTable(String column,  int value, CPlayer player){
-        try {
-            String uuid = player.getPlayer().getUniqueId().toString();
-            ResultSet rs = stmt.executeQuery("SELECT " + column + " FROM itemData WHERE playerUUID = '" + uuid + "'");
-            if(!rs.next()){
-                stmt.execute("INSERT INTO itemData (playerUUID) VALUES ('" + uuid + "')");
-            }
-            stmt.execute("UPDATE itemData SET " + column + " = '" + value + "' WHERE playerUUID = '" + uuid + "'");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public static String getValueOfCellInItemTable(String data, CPlayer player){
         String str = "0";
         String uuid = player.getPlayer().getUniqueId().toString();
@@ -196,6 +190,131 @@ public class DataBaseManager {
         return str;
     }
 
+    public static void addSpawningNodeToDb(SpawningNode spawningNode){
+        try {
+            String nodeId = spawningNode.getNodeId();
+
+            Location loc = spawningNode.getLocation();
+            String saveLocation = String.format("%s;%d;%d;%d",
+                    loc.getWorld().getName(),
+                    loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+
+            String possibleSpawns = String.join(
+                    ";",
+                    spawningNode.getPossibleSpawns().entrySet()
+                            .stream()
+                            .filter(Objects::nonNull)
+                            .map(x -> x.getKey() + "," + x.getValue())
+                            .toList()
+            );
+
+            String query = """
+            INSERT INTO spawnNodes (nodeId, location, spawns)
+            VALUES (?, ?, ?)
+            ON CONFLICT(nodeId) DO UPDATE SET
+                location = excluded.location,
+                spawns = excluded.spawns;
+            """;
+
+            try (PreparedStatement pstmt = databaseConnection.prepareStatement(query)) {
+                pstmt.setString(1, nodeId);
+                pstmt.setString(2, saveLocation);
+                pstmt.setString(3, possibleSpawns);
+                pstmt.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Optional: log better or wrap with a custom error
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void removeSpawningNodeFromDb(SpawningNode node) {
+        try {
+            String nodeId = node.getNodeId();
+
+            String querry = """
+                    DELETE FROM spawnNodes WHERE nodeId = ?;
+                    """;
+
+            try (PreparedStatement pstmt = databaseConnection.prepareStatement(querry)){
+                pstmt.setString(1, nodeId);
+                pstmt.executeUpdate();
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static List<RawSpawningNode> getSpawningNodes(){
+        List<RawSpawningNode> rawNodesList = new ArrayList<>();
+        try{
+            ResultSet result = stmt.executeQuery("SELECT * FROM spawnNodes");
+            while(result.next()){
+                RawSpawningNode node = new RawSpawningNode();
+                node.nodeId = result.getString("nodeId");
+                node.location = result.getString("location");
+                node.mobSpawns = result.getString("spawns");
+                rawNodesList.add(node);
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+        return rawNodesList;
+    }
+
+    public static void addItemToDb(String itemReg, String item){
+        try {
+            String query = """
+            INSERT INTO registeredItems (regName, itemParameters)
+            VALUES (?, ?)
+            ON CONFLICT(regName) DO UPDATE SET
+                itemParameters = excluded.itemParameters;
+            """;
+
+            try (PreparedStatement pstmt = databaseConnection.prepareStatement(query)) {
+                pstmt.setString(1, itemReg);
+                pstmt.setString(2, item);
+                pstmt.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Optional: log better or wrap with a custom error
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void removeItemFromDb(RpgItem rpgItem) {
+        try {
+            String itemReg = rpgItem.getRegName();
+
+            String querry = """
+                    DELETE FROM registeredItems WHERE regName = ?;
+                    """;
+
+            try (PreparedStatement pstmt = databaseConnection.prepareStatement(querry)){
+                pstmt.setString(1, itemReg);
+                pstmt.executeUpdate();
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static HashMap<String, String> getItems(){
+        HashMap<String, String> itemMap = new HashMap<>();
+        try{
+            ResultSet result = stmt.executeQuery("SELECT * FROM registeredItems");
+            while(result.next()){
+                itemMap.put(result.getString("regName"), result.getString("itemParameters"));
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+        return itemMap;
+    }
 
     public static void disconnectFromDB(){
         try {
@@ -206,4 +325,5 @@ public class DataBaseManager {
             e.printStackTrace();  // Optional: prints the stack trace for debugging
         }
     }
+
 }

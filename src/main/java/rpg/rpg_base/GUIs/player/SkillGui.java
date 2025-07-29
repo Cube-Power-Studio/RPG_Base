@@ -1,4 +1,4 @@
-package rpg.rpg_base.GUIs;
+package rpg.rpg_base.GUIs.player;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -480,10 +480,7 @@ public class SkillGui extends MultiPageInventoryGUI {
                     ItemStack display;
                     ItemMeta displayMeta;
 
-                    Skill playerSkill = cPlayer.playerSkills.unlockedSkillList.stream()
-                            .filter(obj -> obj.regName.equalsIgnoreCase(skill.regName))
-                            .findFirst()
-                            .orElse(null);
+                    Skill playerSkill = cPlayer.playerSkills.unlockedSkillMap.get(skill.regName);
 
                     if (playerSkill != null) {
                         display = new ItemStack(Material.ENCHANTED_BOOK);
@@ -603,11 +600,8 @@ public class SkillGui extends MultiPageInventoryGUI {
                 .consumer(e -> {
                     CPlayer player = CPlayer.getPlayerByUUID(e.getWhoClicked().getUniqueId());
                     if(skill.meetsRequirements(player)){
-                        if(player.playerSkills.unlockedSkillList.stream().anyMatch(obj -> obj.regName.equalsIgnoreCase(skill.regName))){
-                            Skill updatedSkill = player.playerSkills.unlockedSkillList.stream()
-                                    .filter(obj -> obj.regName.equalsIgnoreCase(skill.regName))
-                                    .findFirst()
-                                    .orElse(null);
+                        if(player.playerSkills.unlockedSkillMap.containsKey(skill.regName)){
+                            Skill updatedSkill = player.playerSkills.unlockedSkillMap.get(skill.regName);
 
                             if (updatedSkill != null && updatedSkill.level < updatedSkill.maxLevel && player.abilityPoints > 0) {
                                 updatedSkill.level++;
@@ -617,7 +611,7 @@ public class SkillGui extends MultiPageInventoryGUI {
                             if(player.abilityPoints > 0){
                                 Skill addedSkill = skill.clone();
                                 addedSkill.level = 1;
-                                player.playerSkills.unlockedSkillList.add(addedSkill);
+                                player.playerSkills.unlockedSkillMap.put(addedSkill.regName, addedSkill);
                                 player.spentAbilityPoints++;
                             }
                         }

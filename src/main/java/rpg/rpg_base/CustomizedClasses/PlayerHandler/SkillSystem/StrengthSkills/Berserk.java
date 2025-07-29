@@ -40,7 +40,7 @@ public class Berserk extends Skill {
 
     @Override
     public void activateEffect(CPlayer player) {
-        if (player.playerSkills.unlockedSkillList.stream().noneMatch(skill -> skill.regName.equalsIgnoreCase(this.regName))) return;
+        if (player.playerSkills.unlockedSkillMap.get(regName) == null) return;
 
         List<BonusStat> bonusStatList = player.statBonuses.getOrDefault(CPlayer.stat.damage, new ArrayList<>());
 

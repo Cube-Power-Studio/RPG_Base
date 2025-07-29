@@ -1,4 +1,4 @@
-package rpg.rpg_base.GUIs;
+package rpg.rpg_base.GUIs.player;
 
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;

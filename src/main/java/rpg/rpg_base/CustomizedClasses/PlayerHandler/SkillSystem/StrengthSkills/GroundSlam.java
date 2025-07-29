@@ -1,19 +1,13 @@
 package rpg.rpg_base.CustomizedClasses.PlayerHandler.SkillSystem.StrengthSkills;
 
-import com.comphenix.protocol.wrappers.EnumWrappers;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.*;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import rpg.rpg_base.CustomizedClasses.EntityHandler.CEntity;
@@ -49,18 +43,18 @@ public class GroundSlam extends Skill implements Listener {
         Bukkit.getPluginManager().registerEvents(this, RPG_Base.getInstance());
     }
 
-    @EventHandler
-    public void onPlayerLand(EntityDamageByEntityEvent event) {
-        if (!(event.getDamager() instanceof Player player)) return;
-        if (!isAirborne(player)) return;
-
-        CPlayer cPlayer = CPlayer.getPlayerByUUID(player.getUniqueId());
-        if (cPlayer.playerSkills.unlockedSkillList.stream().noneMatch(skill -> skill.regName.equalsIgnoreCase(this.regName))) return;
-        if (isOnCooldown) return;
-
-        performSlam(cPlayer, player.getLocation());
-        setCooldown(5, player);
-    }
+//    @EventHandler
+//    public void onPlayerLand(EntityDamageByEntityEvent event) {
+//        if (!(event.getDamager() instanceof Player player)) return;
+//        if (!isAirborne(player)) return;
+//
+//        CPlayer cPlayer = CPlayer.getPlayerByUUID(player.getUniqueId());
+//        if (cPlayer.playerSkills.unlockedSkillMap.get(regName) == null) return;
+//        if (isOnCooldown) return;
+//
+//        performSlam(cPlayer, player.getLocation());
+//        setCooldown(5, player);
+//    }
 
     private boolean isAirborne(Player player) {
         Location foot = player.getLocation().clone();

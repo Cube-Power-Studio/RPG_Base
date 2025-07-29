@@ -1,17 +1,13 @@
 package rpg.rpg_base.GeneralEvents;
 
-import net.citizensnpcs.api.CitizensAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.betonquest.betonquest.BetonQuest;
 import org.betonquest.betonquest.api.profile.Profile;
 import org.betonquest.betonquest.conversation.Conversation;
 import org.bukkit.Material;
-import org.bukkit.entity.Mob;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -20,8 +16,8 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
 import rpg.rpg_base.Crafting.CraftingGui;
 import rpg.rpg_base.CustomizedClasses.EntityHandler.CEntity;
-import rpg.rpg_base.CustomizedClasses.ItemHandler.ItemManager;
 import rpg.rpg_base.CustomizedClasses.PlayerHandler.CPlayer;
+import rpg.rpg_base.CustomizedClasses.items.ItemManager;
 import rpg.rpg_base.Data.PlayerDataManager;
 import rpg.rpg_base.GuiHandlers.GUIManager;
 import rpg.rpg_base.RPG_Base;
@@ -30,7 +26,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-@Deprecated(since = "Latest dev version", forRemoval = true)
 public class Events implements Listener {
     private final RPG_Base plugin;
     private final GUIManager guiManager;
@@ -102,46 +97,46 @@ public class Events implements Listener {
         }
     }
 
-    @EventHandler
-    public void onEntityDamage(EntityDamageByEntityEvent e){
-        if(!(e.getEntity() instanceof Player)) {
-            CEntity damagedEntity = CEntity.getEntityByUUID(e.getEntity().getUniqueId());
-            if (CitizensAPI.getNPCRegistry().isNPC(damagedEntity.getEntity())) {
-                e.setCancelled(true);
-            } else if (e.getDamager() instanceof Player) {
-                CPlayer player = CPlayer.getPlayerByUUID(e.getDamager().getUniqueId());
-
-                int damage = player.damage;
-
-                switch (e.getCause()) {
-                    case ENTITY_SWEEP_ATTACK -> damagedEntity.dealDamage(damage / 3, e.getDamager());
-                    case ENTITY_ATTACK -> damagedEntity.dealDamage(damage, e.getDamager());
-                }
-            } else if (e.getDamager() instanceof Mob) {
-                CEntity damagerEntity = CEntity.getEntityByUUID(e.getDamager().getUniqueId());
-
-                damagedEntity.dealDamage(damagerEntity.damage, e.getDamager());
-                damagerEntity.updateDisplayName();
-            } else {
-                e.setCancelled(true);
-            }
-        }else{
-            CPlayer damagedPlayer = CPlayer.getPlayerByUUID(e.getEntity().getUniqueId());
-
-            if(e.getDamager() instanceof Player){
-                CPlayer player = CPlayer.getPlayerByUUID(e.getDamager().getUniqueId());
-
-                switch (e.getCause()) {
-                    case ENTITY_SWEEP_ATTACK -> damagedPlayer.dealDamage(player.damage / 3, player);
-                    case ENTITY_ATTACK -> damagedPlayer.dealDamage(player.damage, player);
-                }
-            }else if(e.getDamager() instanceof Mob){
-                CEntity damager = CEntity.getEntityByUUID(e.getDamager().getUniqueId());
-                damagedPlayer.dealDamage(damager.damage, damager);
-            }
-        }
-        e.setDamage(0);
-    }
+//    @EventHandler
+//    public void onEntityDamage(EntityDamageByEntityEvent e){
+//        if(!(e.getEntity() instanceof Player)) {
+//            CEntity damagedEntity = CEntity.getEntityByUUID(e.getEntity().getUniqueId());
+//            if (CitizensAPI.getNPCRegistry().isNPC(damagedEntity.getEntity())) {
+//                e.setCancelled(true);
+//            } else if (e.getDamager() instanceof Player) {
+//                CPlayer player = CPlayer.getPlayerByUUID(e.getDamager().getUniqueId());
+//
+//                int damage = player.damage;
+//
+//                switch (e.getCause()) {
+//                    case ENTITY_SWEEP_ATTACK -> damagedEntity.dealDamage(damage / 3, e.getDamager());
+//                    case ENTITY_ATTACK -> damagedEntity.dealDamage(damage, e.getDamager());
+//                }
+//            } else if (e.getDamager() instanceof Mob) {
+//                CEntity damagerEntity = CEntity.getEntityByUUID(e.getDamager().getUniqueId());
+//
+//                damagedEntity.dealDamage(damagerEntity.damage, e.getDamager());
+//                damagerEntity.updateDisplayName();
+//            } else {
+//                e.setCancelled(true);
+//            }
+//        }else{
+//            CPlayer damagedPlayer = CPlayer.getPlayerByUUID(e.getEntity().getUniqueId());
+//
+//            if(e.getDamager() instanceof Player){
+//                CPlayer player = CPlayer.getPlayerByUUID(e.getDamager().getUniqueId());
+//
+//                switch (e.getCause()) {
+//                    case ENTITY_SWEEP_ATTACK -> damagedPlayer.dealDamage(player.damage / 3, player);
+//                    case ENTITY_ATTACK -> damagedPlayer.dealDamage(player.damage, player);
+//                }
+//            }else if(e.getDamager() instanceof Mob){
+//                CEntity damager = CEntity.getEntityByUUID(e.getDamager().getUniqueId());
+//                damagedPlayer.dealDamage(damager.damage, damager);
+//            }
+//        }
+//        e.setDamage(0);
+//    }
 
     @EventHandler
     private void onItemDamage(PlayerItemDamageEvent e){

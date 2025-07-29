@@ -45,7 +45,7 @@ public class ToughSkin extends Skill {
 
     @Override
     public void activateEffect(CPlayer player) {
-        if (player.playerSkills.unlockedSkillList.stream().noneMatch(skill -> skill.regName.equalsIgnoreCase(this.regName))) return;
+        if (player.playerSkills.unlockedSkillMap.get(regName) == null) return;
 
         List<BonusStat> healthBonusList = player.statBonuses.getOrDefault(CPlayer.stat.health, new ArrayList<>());
         List<BonusStat> defenseBonusList = player.statBonuses.getOrDefault(CPlayer.stat.armor, new ArrayList<>());

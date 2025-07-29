@@ -1,7 +1,6 @@
 package rpg.rpg_base.Crafting;
 
 import org.bukkit.inventory.ItemStack;
-import rpg.rpg_base.CustomizedClasses.ItemHandler.ItemClass;
 
 import java.util.Optional;
 

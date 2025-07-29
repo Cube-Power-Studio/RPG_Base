@@ -12,7 +12,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import rpg.rpg_base.CustomizedClasses.ItemHandler.CItem;
 import rpg.rpg_base.CustomizedClasses.PlayerHandler.CPlayer;
 import rpg.rpg_base.MoneyHandlingModule.MoneyManager;
 import rpg.rpg_base.RPG_Base;
@@ -22,9 +21,9 @@ import rpg.rpg_base.Utils.Util;
 import java.util.*;
 
 @SuppressWarnings("unused")
+@Deprecated(forRemoval = true)
 public class CEntity implements Cloneable {
     private final RPG_Base plugin;
-    private final Util util;
 
     public static EntityType type;
     public static NamespacedKey regionKey = new NamespacedKey(RPG_Base.getInstance(), "region");
@@ -69,7 +68,6 @@ public class CEntity implements Cloneable {
 
     public CEntity(RPG_Base plugin, Util util) {
         this.plugin = plugin;
-        this.util = util;
     }
 
     public void loadEntity(ConfigurationSection config) {
@@ -145,7 +143,7 @@ public class CEntity implements Cloneable {
                         }
 
                         currentStrollLocation = walkableBlocksInRadius.get(random.nextInt(walkableBlocksInRadius.size()));
-                        while(!util.isLocationInRegion(currentStrollLocation, region)){
+                        while(!Util.isLocationInRegion(currentStrollLocation, region)){
                             walkableBlocksInRadius.remove(currentStrollLocation); // THIS LINE MAKES IT SO THAT IF WALKABLE BLOCKS CONTAIN AAANYY LOCATION THAT IS OUTSIDE THE REGION IT GETS REMOVED, DONT REMOVE IT
                             currentStrollLocation = walkableBlocksInRadius.get(random.nextInt(walkableBlocksInRadius.size()));
                         }
@@ -188,7 +186,7 @@ public class CEntity implements Cloneable {
     }
 
     public void dealDamage(int damage, Entity damager){
-        System.out.println("Amount of damage dealt: " + damage);
+        //System.out.println("Amount of damage dealt: " + damage);
         if(damage - def > currentHP){
             entity.setCustomNameVisible(false);
             currentHP = 0;

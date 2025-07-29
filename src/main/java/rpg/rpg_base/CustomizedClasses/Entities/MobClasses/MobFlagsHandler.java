@@ -1,13 +1,13 @@
-package rpg.rpg_base.CustomizedClasses.EntityHandler;
+package rpg.rpg_base.CustomizedClasses.Entities.MobClasses;
 
 import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.session.MoveType;
 import com.sk89q.worldguard.session.Session;
 import com.sk89q.worldguard.session.handler.FlagValueChangeHandler;
-import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.session.handler.Handler;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;

@@ -4,10 +4,8 @@ import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
-import rpg.rpg_base.CustomizedClasses.ItemHandler.CItem;
-import rpg.rpg_base.CustomizedClasses.ItemHandler.ItemClass;
-import rpg.rpg_base.Utils.Util;
 import rpg.rpg_base.RPG_Base;
+import rpg.rpg_base.Utils.Util;
 
 import java.util.HashMap;
 import java.util.List;

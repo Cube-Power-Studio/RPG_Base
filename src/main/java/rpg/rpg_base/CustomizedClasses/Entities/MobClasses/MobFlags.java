@@ -1,4 +1,4 @@
-package rpg.rpg_base.CustomizedClasses.EntityHandler;
+package rpg.rpg_base.CustomizedClasses.Entities.MobClasses;
 
 
 import com.sk89q.worldguard.protection.flags.StateFlag;

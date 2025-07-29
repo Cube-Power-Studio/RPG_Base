@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
-
+@Deprecated(forRemoval = true)
 public class SpawnEntitiesInRegion extends BukkitRunnable {
     private final RPG_Base plugin = RPG_Base.getInstance();
     private final Util util;
@@ -129,6 +129,7 @@ public class SpawnEntitiesInRegion extends BukkitRunnable {
 
         location.setX(location.getX());
         location.setZ(location.getZ());
+        location.getChunk().addPluginChunkTicket(plugin);
         EntitySpawner.scheduledSpawns.put(region, EntitySpawner.scheduledSpawns.getOrDefault(region, 1) - 1);
         MobManager.spawnMob(mobSpawnSelector.selectMob(), location, region);
     }

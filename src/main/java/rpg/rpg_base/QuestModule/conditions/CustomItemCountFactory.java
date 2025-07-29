@@ -11,7 +11,6 @@ import org.betonquest.betonquest.quest.PrimaryServerThreadData;
 import org.betonquest.betonquest.quest.condition.PrimaryServerThreadPlayerCondition;
 import org.betonquest.betonquest.quest.condition.PrimaryServerThreadPlayerlessCondition;
 import org.bukkit.inventory.ItemStack;
-import rpg.rpg_base.CustomizedClasses.ItemHandler.CItem;
 
 public class CustomItemCountFactory implements PlayerConditionFactory, PlayerlessConditionFactory {
     private final PrimaryServerThreadData data;

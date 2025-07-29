@@ -2,8 +2,7 @@ package rpg.rpg_base.CustomizedClasses.PlayerHandler;
 
 import rpg.rpg_base.CustomizedClasses.PlayerHandler.SkillSystem.Skill;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 public class PlayerSkills {
     public int strengthLvl = 0;
@@ -16,16 +15,16 @@ public class PlayerSkills {
     public int agilityLvl = 0;
     public int intelligenceLvl = 0;
 
-    public List<Skill> unlockedSkillList = new ArrayList<>();
+    public HashMap<String, Skill> unlockedSkillMap = new HashMap<>();
 
     public void activateSkills(CPlayer player){
-        for(Skill skill : unlockedSkillList){
+        for(Skill skill : unlockedSkillMap.values()){
             skill.activateEffect(player);
         }
     }
 
     public void reactivateSkills(CPlayer player){
-        for(Skill skill : unlockedSkillList){
+        for(Skill skill : unlockedSkillMap.values()){
             skill.reactivate(player);
         }
     }

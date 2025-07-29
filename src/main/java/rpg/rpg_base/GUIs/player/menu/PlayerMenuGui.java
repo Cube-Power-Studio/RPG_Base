@@ -1,4 +1,4 @@
-package rpg.rpg_base.PlayerMenu;
+package rpg.rpg_base.GUIs.player.menu;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -14,8 +14,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import rpg.rpg_base.Crafting.CraftingGui;
 import rpg.rpg_base.CustomizedClasses.PlayerHandler.CPlayer;
-import rpg.rpg_base.GUIs.RecipeGui;
-import rpg.rpg_base.GUIs.SkillGui;
+import rpg.rpg_base.GUIs.player.RecipeGui;
+import rpg.rpg_base.GUIs.player.SkillGui;
 import rpg.rpg_base.GuiHandlers.GUIManager;
 import rpg.rpg_base.GuiHandlers.InventoryButton;
 import rpg.rpg_base.GuiHandlers.InventoryGUI;

@@ -10,9 +10,9 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 import rpg.rpg_base.Crafting.CraftingHandler;
 import rpg.rpg_base.Crafting.Recipe;
-import rpg.rpg_base.CustomizedClasses.ItemHandler.CItem;
 import rpg.rpg_base.CustomizedClasses.PlayerHandler.CPlayer;
 import rpg.rpg_base.CustomizedClasses.PlayerHandler.SkillSystem.Skill;
 import rpg.rpg_base.CustomizedClasses.PlayerHandler.SkillSystem.SkillRegistry;
@@ -35,7 +35,7 @@ public class MiscCommands implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(CommandSender sender, @NotNull Command command, @NotNull String label, String @NotNull [] args) {
         Player player;
         if (sender.hasPermission("RPG_Base.admin")) {
             if (command.getName().equals("RPG")) {
@@ -92,7 +92,7 @@ public class MiscCommands implements CommandExecutor, TabCompleter {
                         return true;
                     }
 
-                } // @Deprecated
+                }
                 if (args[0].equalsIgnoreCase("levelAdd")){
                     if (args.length < 4) {
                         sender.sendMessage("Usage: /rpg levelAdd <type> <player> <lvl>");
@@ -111,7 +111,7 @@ public class MiscCommands implements CommandExecutor, TabCompleter {
                         target.updateStats();
                     }
                     sender.sendMessage("Added " + lvlAdded + " to " + target.getPlayer().getName() + "'s " + args[1]);
-                } // added
+                }
                 if (args[0].equalsIgnoreCase("levelRem")){
                     if (args.length < 4) {
                         sender.sendMessage("Usage: /rpg levelRem <type> <player> <lvl>");
@@ -130,7 +130,7 @@ public class MiscCommands implements CommandExecutor, TabCompleter {
                         target.updateStats();
                     }
                     sender.sendMessage("Removed " + lvlRemoved + " from " + target.getPlayer().getName() + "'s " + args[1]);
-                } // added
+                }
                 if (args[0].equalsIgnoreCase("recipe")){
                     if (args[1].equals("reload")){
                         List<Recipe> recipesToRemove = new ArrayList<>(CraftingHandler.craftingList);
@@ -154,7 +154,7 @@ public class MiscCommands implements CommandExecutor, TabCompleter {
                     } else {
                         sender.sendMessage("Usage: /rpg openShop <shop_name>");
                     }
-                } //added
+                }
                 if (args[0].equalsIgnoreCase("checkPathTo")){
                     if(sender instanceof Player player1){
                         List<Integer> locationCords = new ArrayList<>();
@@ -232,7 +232,7 @@ public class MiscCommands implements CommandExecutor, TabCompleter {
                         }
                     }
 
-                } // @Deprecated
+                }
                 if (args[0].equalsIgnoreCase("addSkill")){
                     if(args.length < 2){
                         return false;
@@ -244,7 +244,7 @@ public class MiscCommands implements CommandExecutor, TabCompleter {
                         if(SkillRegistry.getSkill(args[2]) != null){
                             Skill addedSkill = SkillRegistry.getSkill(args[2]);
                             addedSkill.clone().level += 1;
-                            cPlayer.playerSkills.unlockedSkillList.add(addedSkill);
+                            //cPlayer.playerSkills.unlockedSkillMap.add(addedSkill);
                         }
                     }
 

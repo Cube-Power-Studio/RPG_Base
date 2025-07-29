@@ -19,3 +19,5 @@ dependencies:
       load: BEFORE
       required: true
       join-classpath: true # Defaults to true
+
+mappings-namespace: spigot

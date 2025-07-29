@@ -1,4 +1,4 @@
-package rpg.rpg_base.GUIs;
+package rpg.rpg_base.GUIs.player;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -9,14 +9,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import rpg.rpg_base.Crafting.CraftingHandler;
 import rpg.rpg_base.Crafting.Recipe;
 import rpg.rpg_base.GuiHandlers.GUIManager;
 import rpg.rpg_base.GuiHandlers.HeadsHandlers;
 import rpg.rpg_base.GuiHandlers.InventoryButton;
 import rpg.rpg_base.GuiHandlers.MultiPageInventoryGUI;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,7 +22,7 @@ import static rpg.rpg_base.GuiHandlers.HeadsList.getLeftScrollButton;
 import static rpg.rpg_base.GuiHandlers.HeadsList.getRightScrollButton;
 
 public class RecipePageGui extends MultiPageInventoryGUI {
-    private GUIManager guiManager;
+    private final GUIManager guiManager;
     private final List<Recipe> recipeList;
     List<Integer> craftingSlots = Arrays.asList(10, 11, 12, 19, 20, 21, 28, 29, 30, 34);
 

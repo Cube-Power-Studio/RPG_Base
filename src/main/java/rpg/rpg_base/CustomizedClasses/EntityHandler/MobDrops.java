@@ -1,10 +1,7 @@
 package rpg.rpg_base.CustomizedClasses.EntityHandler;
 
-import org.bukkit.inventory.ItemStack;
-import rpg.rpg_base.CustomizedClasses.ItemHandler.CItem;
-
 import java.util.*;
-
+@Deprecated(forRemoval = true)
 public class MobDrops {
 
     private final Map<Object, Object[]> dropChances = new HashMap<>();

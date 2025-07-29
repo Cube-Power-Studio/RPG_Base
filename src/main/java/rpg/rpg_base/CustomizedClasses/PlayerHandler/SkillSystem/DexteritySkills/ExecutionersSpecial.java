@@ -43,7 +43,7 @@ public class ExecutionersSpecial extends Skill implements Listener {
         if(CEntity.getEntityByUUID(e.getEntity().getUniqueId())==null) return;
 
         CPlayer damagerPlayer = CPlayer.getPlayerByUUID(player.getUniqueId());
-        if (damagerPlayer.playerSkills.unlockedSkillList.stream().noneMatch(skill -> skill.regName.equalsIgnoreCase(this.regName))) return;
+        if (damagerPlayer.playerSkills.unlockedSkillMap.get(regName) == null) return;
         if (isOnCooldown) return;
 
         CEntity damagedEntity = CEntity.getEntityByUUID(e.getEntity().getUniqueId());

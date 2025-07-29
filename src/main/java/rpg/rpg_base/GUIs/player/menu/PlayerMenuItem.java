@@ -1,4 +1,4 @@
-package rpg.rpg_base.PlayerMenu;
+package rpg.rpg_base.GUIs.player.menu;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;

@@ -1,4 +1,4 @@
-package rpg.rpg_base.PlayerMenu;
+package rpg.rpg_base.GUIs.player.menu;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

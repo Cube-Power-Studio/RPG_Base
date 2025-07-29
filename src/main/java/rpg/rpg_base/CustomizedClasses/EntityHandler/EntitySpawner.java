@@ -7,15 +7,19 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.World;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.persistence.PersistentDataType;
+import rpg.rpg_base.CustomizedClasses.Entities.MobClasses.MobFlags;
 import rpg.rpg_base.RPG_Base;
 import rpg.rpg_base.Utils.Util;
 
 import java.io.File;
 import java.util.*;
 
+@Deprecated(forRemoval = true)
 public class EntitySpawner {
     private final RPG_Base plugin = RPG_Base.getInstance();
     private final Util util;
+
+    //TODO change the way of spawning from randomizing inside of a region to randomizing between set localizations that you configure manually (harder to setup, easier to control)
 
     public static final HashMap<ProtectedRegion, Integer> scheduledSpawns = new HashMap<>();
     private static final List<ProtectedRegion> scheduledRegions = new ArrayList<>();

@@ -12,7 +12,6 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.persistence.PersistentDataType;
-import rpg.rpg_base.CustomizedClasses.ItemHandler.CItem;
 import rpg.rpg_base.RPG_Base;
 
 public class CollectCustomItemsObjective extends CountingObjective implements Listener {
